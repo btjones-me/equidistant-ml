@@ -49,7 +49,7 @@ jobs:
 
     - name: Bump version
       run : |
-        poetry version ${{ github.event.inputs.poetry-version }} 
+        poetry version ${{ github.event.inputs.poetry-version }}
 
     - name: Create git tag
       run : |
@@ -59,7 +59,7 @@ jobs:
     - name: Publish to package repository
       env:
         DOTNET_ROOT: /snap/dotnet-sdk/current
-        POETRY_PYPI_TOKEN_: ${{ secrets.UPLOAD_PAT }} 
+        POETRY_PYPI_TOKEN_: ${{ secrets.UPLOAD_PAT }}
       run: |
         make release
 
@@ -72,13 +72,13 @@ jobs:
       uses: actions/create-release@v1
       continue-on-error: true
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ steps.previoustag.outputs.tag }} 
-        release_name: ${{ steps.previoustag.outputs.tag }} 
+        tag_name: ${{ steps.previoustag.outputs.tag }}
+        release_name: ${{ steps.previoustag.outputs.tag }}
         draft: false
         prerelease: false
-        body: ${{ github.event.inputs.description-body }} 
+        body: ${{ github.event.inputs.description-body }}
 
     - name: Commit and push pyproject.toml version bump
       uses: EndBug/add-and-commit@v7
