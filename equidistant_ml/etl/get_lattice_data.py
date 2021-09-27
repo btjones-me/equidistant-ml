@@ -1,6 +1,8 @@
 """Get lattice data takes random coordinates and gets the distance between them."""
 import datetime as datetime
+import pathlib
 
+import loguru
 import numpy as np
 import pandas as pd
 from pyprojroot import here
@@ -10,10 +12,9 @@ from loguru import logger
 import requests_cache
 from pyprojroot import here
 from tqdm import tqdm
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
-from equidistant_ml.utils import sget
-
+from equidistant_ml.utils import sget, DatetimeUtils
 
 session = requests_cache.CachedSession(
     str(here() / "gmaps_cache"), backend="sqlite", ignored_parameters=["key"]
@@ -23,11 +24,13 @@ load_dotenv()  # take environment variables from .env.
 
 GMAPS_API_KEY = os.getenv("GMAPS_API_KEY_MLIGENT")
 
+np.random.seed(42)
+
 
 class GetDirections:
-    def __init__(self):
+    def __init__(self, nrows=10):
         self.api_key = GMAPS_API_KEY
-        pass
+        self.df = self.main(n=nrows)
 
     @staticmethod
     def _convert_timestamp_to_seconds(dtime: datetime.datetime):
@@ -50,7 +53,7 @@ class GetDirections:
         lats = np.random.uniform(upper_left[0], lower_right[0], n)
         lngs = np.random.uniform(upper_left[1], lower_right[1], n)
         coords = list(zip(lats, lngs))
-        coords = np.round(coords, 5)
+        coords = np.round(coords, 8)
         df = pd.DataFrame(coords, columns=["Latitude", "Longitude"])
         return df
 
@@ -84,7 +87,7 @@ class GetDirections:
 
         return d
 
-    def make_dir_request(self):
+    def make_dir_request(self, epoch_time: str, origin_coords: Tuple[float, float], dest_coords: Tuple[float, float]):
         """Make request to directions api.
 
         https://maps.googleapis.com/maps/api/directions/json?
@@ -93,24 +96,52 @@ class GetDirections:
         url = f"https://maps.googleapis.com/maps/api/directions/json"
         # directions by road don't need a departure or arrival time, it will give the average
         # directions by transit do need a departure or arrival time, or it defaults to now
+        human_time = datetime.datetime.fromtimestamp(int(epoch_time)) \
+                     .strftime("%Y-%m-%dT%H:%M:%S")  # see time
+
+        origin = f"{str(origin_coords[0])},{str(origin_coords[1])}"
+        dest = f"{str(dest_coords[0])},{str(dest_coords[1])}"
+        loguru.logger.debug(f"Making request at: {human_time},\n{origin=}\n{dest=}")
+
         resp = session.get(
             url,
             params={
-                "origin": "51.530500,-0.177560",
-                "destination": "51.529465,-0.124663",
+                "origin": origin,
+                "destination": dest,
                 "mode": "transit",
                 "key": self.api_key,
                 "alternatives": False,
                 "units": "metric",
-                "departure_time": 1629417550,
+                "departure_time": epoch_time,
             },  # in seconds, omit for road
         )
 
-        s = pd.Series(self.process_req(resp.json))
+        s = pd.Series({**{'datetime': human_time, 'epoch_time': epoch_time},
+                       **self.process_req(resp.json()),
+                       **{'url': resp.url, 'json': resp.json(), 'origin': origin, "destination": dest}})
+        return s
 
-    def main(self):
-        # generate a random set of coordinates
+    def main(self, n=10):
         # generate a random set of coordinate pairs
+        pairs = self.get_random_coord_pairs(n=n)
         # for each coordinate pair, get the public transport time between both points
-        # append the results to a dataframe
-        pass
+        ls = []
+        for _, row in pairs.iterrows():
+            epoch_time = DatetimeUtils.get_random_epoch_time()
+            s = self.make_dir_request(epoch_time,
+                                      (row[0], row[1]),
+                                      (row[2], row[3]))
+            ls.append(s)
+        df = pd.concat(ls, axis=1).T
+
+        return df
+
+
+if __name__ == "__main__":
+
+    gd = GetDirections()
+    df = gd.df
+    timestring = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    out_file = pathlib.Path(here() / f'data/training/directions.{timestring}.parquet')
+    out_file.parent.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(out_file)
