@@ -139,7 +139,7 @@ class GetDirections:
 
 if __name__ == "__main__":
 
-    gd = GetDirections()
+    gd = GetDirections(nrows=10)
     df = gd.df
     timestring = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     out_file = pathlib.Path(here() / f'data/training/directions.{timestring}.parquet')
