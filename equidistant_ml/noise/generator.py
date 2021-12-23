@@ -27,11 +27,12 @@ class GenerateGaussian:
         if z is None:
             z = self.z
         # plot as contour plot
+        fig = plt.figure()
         plt.contourf(x, y, z, cmap='Blues')
         plt.colorbar()
-        plt.show()
+        return fig
 
-    def plot_3s(self, x=None, y=None, z=None):
+    def plot_3d(self, x=None, y=None, z=None):
         if x is None:
             x = self.x
         if y is None:
@@ -44,6 +45,7 @@ class GenerateGaussian:
         ax1 = fig.add_subplot(1, 1, 1, projection='3d')
         ax1.plot_surface(x, y, z, rstride=3, cstride=3, linewidth=1, antialiased=True,
                         cmap=cm.viridis)
+        return fig
 
 
 class CoordinateDummy(GenerateGaussian):
