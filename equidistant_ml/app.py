@@ -29,7 +29,7 @@ async def get_plot(plot):
     loguru.logger.info(f"Received request at /plot/{plot}")
 
     # get img
-    c = CoordinateDummy(size=1000)
+    c = CoordinateDummy()
     if plot.lower() == "contour":
         fig = c.plot_contour()
     elif plot.lower() == "3d":
@@ -62,33 +62,36 @@ async def debug(req: Request):
 @app.post("/predict")
 async def recs(req: Request):
     loguru.logger.info('\n****** New request received ******')
-    output = {}
     try:
         payload = await req.json()
-        with open(Path(here() / "tests" / "test_payloads" / "1.json"), mode='r') as f:  # dummy in place
-            payload = json.load(f)
 
-        for key in payload:
-            c = CoordinateDummy(size=100)
-            output[key] = c.df.to_json()
-        assert len(output) == len(payload)
+        # check expected keys exist
+        mandatory_keys = {'bbox', 'lat', 'lng', 'x_size', 'y_size'}
+        assert all([x in payload.keys() for x in mandatory_keys]), \
+            f"Expected key in payload: {mandatory_keys - set(payload.keys())}"
 
-        compress = False
-        if compress:
-            output = gzip.compress(json.dumps(output).encode('utf-8'))
-            response = Response(output, media_type='application/gzip')
+        c = CoordinateDummy(x0=payload["bbox"]["top_left"]["lng"],
+                            x1=payload["bbox"]["bottom_right"]["lng"],
+                            y0=payload["bbox"]["top_left"]["lat"],
+                            y1=payload["bbox"]["bottom_right"]["lat"],
+                            x_size=payload["x_size"],
+                            y_size=payload["y_size"])
 
-        response = output
+        response = {"lats": c.df.index.to_list(),
+                    "lngs": c.df.columns.to_list(),
+                    "Z": c.df.values.tolist()}
+
+        # compression
+        # response = gzip.compress(json.dumps(response).encode('utf-8'))
+        # response = Response(response, media_type='application/gzip')
 
     except (TypeError, ValueError, KeyError, ZeroDivisionError, IndexError, AttributeError, AssertionError) as e:
         # TODO: how to tell backend this happened?
         loguru.logger.exception(e)
         loguru.logger.error(f"ERROR: Failed with error: {e}")
-        response = [f"Internal Python exception. {e}"]
         raise HTTPException(status_code=500, detail=f"Something went wrong in service: {e}")
     except Exception as e:
         loguru.logger.exception(e)
-        response = [f"Internal Python exception. {e}"]
         raise HTTPException(status_code=500, detail=f"Something went wrong in service: {e}")
 
     return response
