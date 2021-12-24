@@ -6,21 +6,16 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 4
-      matrix:
-        python-version: [3.8.8]
-      fail-fast: false
-
+    
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python 
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: 3.8.8  # we should read this from pyproject.toml
 
-      - name: Install dependencies and disable IPv6
+      - name: Install dependencies
         run: |
           sudo snap install dotnet-sdk --classic
           sudo snap alias dotnet-sdk.dotnet dotnet
@@ -35,8 +30,8 @@ jobs:
           sudo apt-get install -y --no-install-recommends python3-h5py
           sudo apt-get install -y --no-install-recommends gdal-bin libgdal-dev python3-gdal
           python -m pip install --upgrade pip poetry
+          poetry install
 
       - name: Run tests
         run: |
-          poetry install
           poetry run pytest .
