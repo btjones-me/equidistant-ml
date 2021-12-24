@@ -1,9 +1,18 @@
-"""Tests for `equidistant_ml` package."""
+"""Tests for `equidistant_ml` app."""
+import json
+from pathlib import Path
 
+import numpy as np
 import pytest
 from assertpy import assert_that
 
-from equidistant_ml.equidistant_ml import main
+from fastapi.testclient import TestClient
+from pyprojroot import here
+
+import equidistant_ml.app as app
+
+
+client = TestClient(app.app)
 
 
 @pytest.fixture
@@ -14,6 +23,27 @@ def response():
     """
 
 
-def test_content(response):
-    """Sample pytest test function with the pytest fixture as an argument."""
-    assert_that(main()).is_equal_to("Hello, World!")
+@pytest.mark.skip()
+def test_root():
+    response = client.get("/")
+    assert response.status_code == 200
+
+
+def test_predict():
+
+    with open(Path(here() / "tests" / "test_payloads" / "1.json"), mode='r') as f:  # dummy in place
+        payload = json.load(f)
+
+    response = client.post(
+        "/predict",
+        json=payload,
+    )
+    assert response.status_code == 200
+
+    result = response.json()
+
+    assert len(result['lats']) == payload['y_size']
+    assert len(result['lngs']) == payload['x_size']
+    assert len(result['Z']) == payload['y_size']
+    assert len(result['Z'][0]) == payload['x_size']
+    assert np.mean(result['Z'][0]) != 0
