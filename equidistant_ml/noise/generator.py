@@ -71,5 +71,5 @@ class CoordinateDummy(GenerateGaussian):
 
 
 if __name__ == "__main__":
-    c = CoordinateDummy(size=1000)
+    c = CoordinateDummy()
     c.plot_contour()
