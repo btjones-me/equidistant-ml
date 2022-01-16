@@ -53,6 +53,7 @@ fastparquet = "^0.7.1"
 gmaps = "^0.9.0"
 fastapi = "^0.70.1"
 uvicorn = "^0.16.0"
+haversine = "^2.5.1"
 
 [tool.poetry.dev-dependencies]
 assertpy = "^1.0"

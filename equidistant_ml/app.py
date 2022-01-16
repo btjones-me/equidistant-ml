@@ -1,14 +1,10 @@
-import gzip
-import json
-from pathlib import Path
-
 import uvicorn
 from fastapi import FastAPI, Request, HTTPException
 import loguru
-from pyprojroot import here
-from starlette.responses import RedirectResponse, Response
+from starlette.responses import RedirectResponse
 
-from equidistant_ml.noise.generator import CoordinateDummy
+from equidistant_ml.inference.linear import LinearInference
+from equidistant_ml.inference.gaussian import CoordinateDummy
 
 app = FastAPI()
 
@@ -59,6 +55,13 @@ async def debug(req: Request):
     return output
 
 
+def prep_response(preds_df):
+    """Format the dataframe for returning."""
+    return {"lats": preds_df.index.to_list(),
+            "lngs": preds_df.columns.to_list(),
+            "Z": preds_df.values.tolist()}
+
+
 @app.post("/predict")
 async def recs(req: Request):
     loguru.logger.info('\n****** New request received ******')
@@ -70,16 +73,32 @@ async def recs(req: Request):
         assert all([x in payload.keys() for x in mandatory_keys]), \
             f"Expected key in payload: {mandatory_keys - set(payload.keys())}"
 
-        c = CoordinateDummy(x0=payload["bbox"]["top_left"]["lng"],
-                            x1=payload["bbox"]["bottom_right"]["lng"],
-                            y0=payload["bbox"]["top_left"]["lat"],
-                            y1=payload["bbox"]["bottom_right"]["lat"],
-                            x_size=payload["x_size"],
-                            y_size=payload["y_size"])
+        inference_args = {
+            "x0": payload["bbox"]["top_left"]["lng"],
+            "x1": payload["bbox"]["bottom_right"]["lng"],
+            "y0": payload["bbox"]["top_left"]["lat"],
+            "y1": payload["bbox"]["bottom_right"]["lat"],
+            "x_size": payload["x_size"],
+            "y_size": payload["y_size"]
+        }
+        user_location_args = {
+            "lat": payload["lat"],
+            "lng": payload["lng"]
+        }
 
-        response = {"lats": c.df.index.to_list(),
-                    "lngs": c.df.columns.to_list(),
-                    "Z": c.df.values.tolist()}
+        if payload['mode'].lower() == 'walking':
+            # use linear approximator
+            li = LinearInference(**inference_args, **user_location_args)
+            response = prep_response(li.df)
+
+        else:  # default to gaussian
+            cd = CoordinateDummy(x0=payload["bbox"]["top_left"]["lng"],
+                                 x1=payload["bbox"]["bottom_right"]["lng"],
+                                 y0=payload["bbox"]["top_left"]["lat"],
+                                 y1=payload["bbox"]["bottom_right"]["lat"],
+                                 x_size=payload["x_size"],
+                                 y_size=payload["y_size"])
+            response = prep_response(cd.df)
 
         # compression
         # response = gzip.compress(json.dumps(response).encode('utf-8'))

@@ -1117,6 +1117,19 @@ url = "https://pypi.org/simple"
 reference = "pypi_"
 
 [[package]]
+name = "haversine"
+version = "2.5.1"
+description = "Calculate the distance between 2 points on Earth."
+category = "main"
+optional = false
+python-versions = ">=3.5"
+
+[package.source]
+type = "legacy"
+url = "https://pypi.org/simple"
+reference = "pypi_"
+
+[[package]]
 name = "idna"
 version = "3.3"
 description = "Internationalized Domain Names in Applications (IDNA)"
@@ -3223,7 +3236,7 @@ reference = "pypi_"
 [metadata]
 lock-version = "1.1"
 python-versions = "3.8.8"
-content-hash = "06053d7cf4d4dfa70d176df252ba12347d312b2c8075bbaec0ee4c0678000854"
+content-hash = "3abf9aac35b857b771feff7404878a6fa4ab8c7ce1e7e83c04ec1c8840efb470"
 
 [metadata.files]
 aiohttp = [
@@ -3873,6 +3886,10 @@ grandalf = [
 h11 = [
     {file = "h11-0.12.0-py3-none-any.whl", hash = "sha256:36a3cb8c0a032f56e2da7084577878a035d3b61d104230d4bd49c0c6b555a9c6"},
     {file = "h11-0.12.0.tar.gz", hash = "sha256:47222cb6067e4a307d535814917cd98fd0a57b6788ce715755fa2b6c28b56042"},
+]
+haversine = [
+    {file = "haversine-2.5.1-py2.py3-none-any.whl", hash = "sha256:6e76933a1042e6e62464b66ef686331e2798147eeedcb32b503db696d7bf0582"},
+    {file = "haversine-2.5.1.tar.gz", hash = "sha256:357e41dfddc4a0f2b1c941d92a590cac840f7ce4b3da14b45b68d968b3ad7cc7"},
 ]
 idna = [
     {file = "idna-3.3-py3-none-any.whl", hash = "sha256:84d9dd047ffa80596e0f246e2eab0b391788b0503584e8945f2368256d2735ff"},
