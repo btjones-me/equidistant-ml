@@ -15,8 +15,8 @@ class LinearInference(BaseGrid):
     x1: float = None
     y0: float = None
     y1: float = None
-    x_size: int = 5
-    y_size: int = 5
+    x_size: int = 50
+    y_size: int = 50
 
     def __post_init__(self):
         x = np.linspace(self.x0, self.x1, self.x_size)
@@ -37,8 +37,6 @@ class LinearInference(BaseGrid):
         """
         Calculate the great circle distance between two points
         on the earth (specified in decimal degrees).
-
-        Class method uses
         """
         # Convert decimal degrees to Radians:
         lon1 = np.radians(self.xs)
