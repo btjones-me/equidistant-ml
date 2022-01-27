@@ -103,18 +103,20 @@ class GetDirections:
         dest = f"{str(dest_coords[0])},{str(dest_coords[1])}"
         loguru.logger.debug(f"Making request at: {human_time},\n{origin=}\n{dest=}")
 
-        resp = session.get(
-            url,
-            params={
-                "origin": origin,
-                "destination": dest,
-                "mode": "transit",
-                "key": self.api_key,
-                "alternatives": False,
-                "units": "metric",
-                "departure_time": epoch_time,
-            },  # in seconds, omit for road
-        )
+        with session.cache_disabled():
+
+            resp = session.get(
+                url,
+                params={
+                    "origin": origin,
+                    "destination": dest,
+                    "mode": "transit",
+                    "key": self.api_key,
+                    "alternatives": False,
+                    "units": "metric",
+                    "departure_time": epoch_time,
+                },  # in seconds, omit for road
+            )
 
         s = pd.Series({**{'datetime': human_time, 'epoch_time': epoch_time},
                        **self.process_req(resp.json()),
@@ -139,7 +141,7 @@ class GetDirections:
 
 if __name__ == "__main__":
 
-    gd = GetDirections(nrows=10)
+    gd = GetDirections(nrows=100)
     df = gd.df
     timestring = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     out_file = pathlib.Path(here() / f'data/training/directions.{timestring}.parquet')
