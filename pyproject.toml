@@ -64,10 +64,11 @@ flake8 = "^3.8.3"
 isort = "^5.1.0"
 liccheck = "^0.4.7"
 pytest-runner = "^5.2"
-pytest = "^5.4.3"
+pytest = "^6.2.4"
 tox-gh-actions = "^1.2.0"
 tox = "^3.15.2"
 toml = "^0.10.1"
+pytest-commander = "^2.7.0"
 # pytest-cov = "^2.10.0"
 
 #[tool.pytest.ini_options]
