@@ -1,7 +1,7 @@
 # equidistant-ml
 
 
-Contains ml for equidistant, an app to estimate journey times
+Contains ml for equidistant, an app to estimate journey times.
 
 ## Setup
 
