@@ -5,30 +5,27 @@ Contains ml for equidistant, an app to estimate journey times.
 
 ## Setup
 
-Required: `python dependencies`, `python 3.8.8`, `poetry`, `conda`
+Required: `python dependencies`, `python 3.8`, `uv`
 
-### It's recommended to set up with a python installer (Conda or PyEnv will work).
+### Install uv
 
 ```shell
-conda create --name py388 python=3.8.8
-
-conda activate py388
-
-conda install poetry
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
+
 ### Install python dependencies and editable package
 
 ```shell
-poetry install
+make install-dev
 ```
 
 ### Run tests
 
-This project uses `pytest` and `pytest_commander` to run tests.
+This project uses `pytest` to run tests.
 
 To run the test suite, run:
 ```
-poetry run pytest_commander
+make test
 ```
 
 This project uses GitHub actions to run the pytest suite on any push automatically.

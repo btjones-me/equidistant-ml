@@ -1,109 +1,50 @@
-.PHONY: clean clean-test clean-pyc clean-build docs help
-.DEFAULT_GOAL := help
+.PHONY: install install-dev lint format test clean setup run-server stop-server
 
-define BROWSER_PYSCRIPT
-import os, webbrowser, sys
+# Development commands
+install:
+	uv sync
 
-from urllib.request import pathname2url
+install-dev:
+	uv sync --extra dev
 
-webbrowser.open("file://" + pathname2url(os.path.abspath(sys.argv[1])))
-endef
-export BROWSER_PYSCRIPT
+lint:
+	uv run --extra dev flake8 equidistant_ml tests
+	uv run --extra dev isort --check-only --profile black equidistant_ml tests
+	uv run --extra dev black --check --diff equidistant_ml tests
+	uv run --extra dev mypy --ignore-missing-imports equidistant_ml tests
+	uv run --extra dev bandit -r equidistant_ml
 
-define PRINT_HELP_PYSCRIPT
-import re, sys
+format:
+	uv run --extra dev isort --profile black equidistant_ml tests
+	uv run --extra dev black equidistant_ml tests
 
-for line in sys.stdin:
-	match = re.match(r'^([a-zA-Z_-]+):.*?## (.*)$$', line)
-	if match:
-		target, help = match.groups()
-		print("%-20s %s" % (target, help))
-endef
-export PRINT_HELP_PYSCRIPT
+test:
+	uv run --extra dev pytest --verbose --capture=no
 
-BROWSER := python -c "$$BROWSER_PYSCRIPT"
+# Application commands
+run-server:
+	uv run uvicorn equidistant_ml.app:app --host 0.0.0.0 --port 8082 --reload
 
-help:
-	@poetry run python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
+stop-server:
+	@echo "Stopping API server..."
+	@pkill -f "uvicorn equidistant_ml.app:app" || echo "No server running"
 
-clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
+# Setup commands
+setup: install-dev
+	@echo "Setting up equidistant-ml..."
+	@if [ ! -f .env ]; then touch .env; echo "Created empty .env file"; fi
+	@echo "Setup complete. Add any required local configuration to .env."
 
-clean-build: ## remove build artifacts
-	rm -fr build/
-	rm -fr dist/
-	rm -fr .eggs/
-	find . -name '*.egg-info' -exec rm -fr {} +
-	find . -name '*.egg' -exec rm -f {} +
-
-clean-pyc: ## remove Python file artifacts
-	find . -name '*.pyc' -exec rm -f {} +
-	find . -name '*.pyo' -exec rm -f {} +
-	find . -name '*~' -exec rm -f {} +
-	find . -name '__pycache__' -exec rm -fr {} +
-
-clean-test: ## remove test and coverage artifacts
-	rm -fr .tox/
-	rm -f .coverage
-	rm -fr htmlcov/
-	rm -fr .pytest_cache
-
-lint: checktypes checkstyle sast checklicenses ## run all checks
-
-checktypes: .venv ## check types with mypy
-	poetry run mypy --ignore-missing-imports equidistant_ml tests
-
-checkstyle: .venv ## check style with flake8, isort and black
-	poetry run flake8 equidistant_ml tests
-	poetry run isort --check-only --profile black equidistant_ml tests
-	poetry run black --check --diff equidistant_ml tests
-
-fixstyle: .venv ## fix black and isort style violations
-	poetry run isort --profile black equidistant_ml tests
-	poetry run black equidistant_ml tests
-
-sast: .venv ## run static application security testing
-	poetry run bandit -r equidistant_ml
-
-checklicenses: .venv requirements.txt ## check dependencies meet license rules
-	poetry run liccheck -s liccheck.ini
-
-test: .venv ## run tests quickly with the default Python
-	poetry run pytest --verbose --capture=no
-
-test-all: .venv ## run tests on every Python version with tox
-	poetry run tox
-
-coverage: ## check code coverage quickly with the default Python
-	poetry run coverage run --source equidistant_ml -m pytest
-	poetry run coverage report -m
-	poetry run coverage html
-	poetry run $(BROWSER) htmlcov/index.html
-
-release: dist ## package and upload a release, manage version yourself
-	# poetry version prerelease/patch/minor/major
-	# https://python-poetry.org/docs/cli/#version
-	sed -i 's/simple/upload/g' pyproject.toml
-	poetry publish -r pypigetfeed
-	sed -i 's/upload/simple/g' pyproject.toml
-
-prerelease: dist ## package and upload a release, bump minor version
-	poetry version prerelease
-	sed -i 's/simple/upload/g' pyproject.toml
-	poetry publish -r pypigetfeed
-	sed -i 's/upload/simple/g' pyproject.toml
-
-dist: clean ## builds source and wheel package
-	poetry build
-
-requirements.txt: poetry.lock ## create/update the requirements.txt file using poetry
-	poetry export --format requirements.txt
-	@touch requirements.txt # when there are no dependencies
-
-.venv: poetry.lock
-	poetry config virtualenvs.in-project true
-	poetry install
-	@touch -c .venv
-
-poetry.lock:
-	poetry update -vvv
-	@touch -c poetry.lock
+# Cleanup
+clean:
+	find . -type d -name "__pycache__" -exec rm -rf {} +
+	find . -type f -name "*.pyc" -delete
+	find . -type f -name "*.pyo" -delete
+	find . -type f -name ".coverage" -delete
+	rm -rf .pytest_cache
+	rm -rf .mypy_cache
+	rm -rf .ruff_cache
+	rm -rf .coverage
+	rm -rf build
+	rm -rf dist
+	rm -rf *.egg-info
