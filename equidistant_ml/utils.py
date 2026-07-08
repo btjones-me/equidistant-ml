@@ -2,10 +2,9 @@
 
 import time
 from datetime import datetime, timedelta
+from typing import Optional
 
 import numpy as np
-import pandas as pd
-
 
 np.random.seed(42)
 
@@ -51,7 +50,11 @@ class DatetimeUtils:
         return cls.str_time_prop(start, end, '"%Y-%m-%dT%H:%M:%S', prop)
 
     @staticmethod
-    def random_date_distributed(year=2021) -> str:
+    def random_date_distributed(
+        year: Optional[int] = None,
+        min_days_ahead: int = 1,
+        max_days_ahead: int = 49,
+    ) -> str:
         """Get a random datetime but weighted towards waking hours.
 
         # visualise the distribution
@@ -62,21 +65,36 @@ class DatetimeUtils:
         #     )).plot.density()
         """
 
-        pad = lambda x: str(x).zfill(2)
+        if min_days_ahead < 0 or max_days_ahead < min_days_ahead:
+            raise ValueError("Expected 0 <= min_days_ahead <= max_days_ahead")
 
-        # generate a date up to 50 days in the future (when google stops giving directions)
-        days_from_now = np.random.randint(1, 50)
+        def pad(x):
+            return str(x).zfill(2)
+
+        # Generate a future date inside Google's transit directions horizon.
+        days_from_now = np.random.randint(min_days_ahead, max_days_ahead + 1)
         new_datetime = datetime.now() + timedelta(days=days_from_now)
 
+        selected_year = year if year is not None else new_datetime.year
         month = pad(new_datetime.month)
         day = pad(new_datetime.day)
-        hour = pad(int(np.random.choice(np.concatenate([
-            (np.random.normal(9, 2, 1) % 24),
-            (np.random.normal(13, 5, 1) % 24),
-            (np.random.normal(19, 4, 2) % 24)
-            ]), 1, replace=True)))
+        hour = pad(
+            int(
+                np.random.choice(
+                    np.concatenate(
+                        [
+                            (np.random.normal(9, 2, 1) % 24),
+                            (np.random.normal(13, 5, 1) % 24),
+                            (np.random.normal(19, 4, 2) % 24),
+                        ]
+                    ),
+                    1,
+                    replace=True,
+                )
+            )
+        )
 
-        date = f"{year}-{month}-{day}T{hour}:00:00"
+        date = f"{selected_year}-{month}-{day}T{hour}:00:00"
 
         return date
 
@@ -87,5 +105,18 @@ class DatetimeUtils:
         return epoch_time
 
     @classmethod
-    def get_random_epoch_time(cls) -> str:
-        return str(int(cls.datestr_to_epoch(cls.random_date_distributed())))
+    def get_random_epoch_time(
+        cls,
+        min_days_ahead: int = 1,
+        max_days_ahead: int = 49,
+    ) -> str:
+        return str(
+            int(
+                cls.datestr_to_epoch(
+                    cls.random_date_distributed(
+                        min_days_ahead=min_days_ahead,
+                        max_days_ahead=max_days_ahead,
+                    )
+                )
+            )
+        )

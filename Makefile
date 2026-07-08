@@ -1,4 +1,4 @@
-.PHONY: install install-dev lint format test clean setup run-server stop-server
+.PHONY: install install-dev lint format test clean setup run-server stop-server generate-data generate-data-dry-run
 
 # Development commands
 install:
@@ -21,6 +21,12 @@ format:
 test:
 	uv run --extra dev pytest --verbose --capture=no
 
+generate-data:
+	uv run python -m equidistant_ml.etl.get_lattice_data
+
+generate-data-dry-run:
+	uv run python -m equidistant_ml.etl.get_lattice_data --dry-run --nrows 5 --output-format csv
+
 # Application commands
 run-server:
 	uv run uvicorn equidistant_ml.app:app --host 0.0.0.0 --port 8082 --reload
@@ -32,7 +38,7 @@ stop-server:
 # Setup commands
 setup: install-dev
 	@echo "Setting up equidistant-ml..."
-	@if [ ! -f .env ]; then touch .env; echo "Created empty .env file"; fi
+	@if [ ! -f .env ]; then cp .env.example .env; echo "Created .env file from template"; fi
 	@echo "Setup complete. Add any required local configuration to .env."
 
 # Cleanup
@@ -48,3 +54,4 @@ clean:
 	rm -rf build
 	rm -rf dist
 	rm -rf *.egg-info
+	rm -rf gmaps_cache.sqlite*
