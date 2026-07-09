@@ -38,7 +38,9 @@ baseline:
 model:
   seed: 42
   n_estimators: 300
+  classifier_n_estimators: 200
   learning_rate: 0.05
   num_leaves: 31
   min_child_samples: 20
+  reachable_probability_threshold: 0.05
   n_jobs: -1

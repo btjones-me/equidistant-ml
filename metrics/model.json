@@ -1,0 +1,68 @@
+{
+  "baseline": {
+    "mae_minutes": 31.651128262098496,
+    "mae_seconds": 1899.0676957259097,
+    "median_absolute_error_minutes": 21.41332313209529,
+    "median_absolute_error_seconds": 1284.7993879257174,
+    "r2": 0.3821847323012586,
+    "rmse_minutes": 44.21217741760015,
+    "rmse_seconds": 2652.730645056009
+  },
+  "baseline_improvement_pct": 32.09526834957632,
+  "bucketed_mae_minutes": {
+    "station_access_bucket": {
+      "(-0.001, 300.0]": 10.28287718345514,
+      "(1000.0, 1600.0]": 18.20518148491449,
+      "(1600.0, inf]": 30.61289468191944,
+      "(300.0, 600.0]": 9.860272297748804,
+      "(600.0, 1000.0]": 22.795469232272524
+    },
+    "travel_time_bucket": {
+      "(-0.001, 900.0]": 13.091075408904224,
+      "(10800.0, inf]": 64.4775116980269,
+      "(1800.0, 2700.0]": 8.349882805954824,
+      "(2700.0, 3600.0]": 7.6704924184801975,
+      "(3600.0, 5400.0]": 8.388352185374615,
+      "(5400.0, 7200.0]": 11.675604790893221,
+      "(7200.0, 10800.0]": 17.10312032131421,
+      "(900.0, 1800.0]": 9.157558080411073
+    }
+  },
+  "model": {
+    "mae_minutes": 21.492613710709392,
+    "mae_seconds": 1289.5568226425635,
+    "median_absolute_error_minutes": 6.732710245723691,
+    "median_absolute_error_seconds": 403.96261474342145,
+    "r2": 0.42688508306026984,
+    "rmse_minutes": 42.58272423326427,
+    "rmse_seconds": 2554.9634539958565
+  },
+  "promising": true,
+  "reachable_classifier": {
+    "accuracy": 0.850456,
+    "f1": 0.9116174391610442,
+    "precision": 0.8602737770162946,
+    "recall": 0.969478775932984,
+    "threshold": 0.05
+  },
+  "reachable_model": {
+    "mae_minutes": 10.443257045278099,
+    "mae_seconds": 626.5954227166859,
+    "median_absolute_error_minutes": 6.269810707011603,
+    "median_absolute_error_seconds": 376.18864242069617,
+    "r2": 0.509917696239607,
+    "rmse_minutes": 20.355235025812362,
+    "rmse_seconds": 1221.3141015487417
+  },
+  "unreachable_model": {
+    "mae_minutes": 64.4775116980269,
+    "mae_seconds": 3868.650701881614,
+    "median_absolute_error_minutes": 79.46592462797888,
+    "median_absolute_error_seconds": 4767.955477678733,
+    "r2": 0.0,
+    "rmse_minutes": 85.17970458271881,
+    "rmse_seconds": 5110.782274963129
+  },
+  "validation_origins": 100,
+  "validation_rows": 250000
+}

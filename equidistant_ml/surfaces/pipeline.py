@@ -96,6 +96,7 @@ def cmd_fetch_traveltime(args: argparse.Namespace) -> None:
                 travel_params["unreachable_penalty_seconds"]
             ),
             properties=travel_params["properties"],
+            checkpoint_dir=args.checkpoint_dir,
         )
     write_parquet(labels, args.output)
 
@@ -176,6 +177,7 @@ def cmd_smoke(args: argparse.Namespace) -> None:
             mock=True,
             max_origins=args.max_origins,
             max_destinations=args.max_destinations,
+            checkpoint_dir=None,
         )
     )
     cmd_build_features(
@@ -218,6 +220,11 @@ def build_parser() -> argparse.ArgumentParser:
     fetch.add_argument("--mock", action="store_true")
     fetch.add_argument("--max-origins", type=int)
     fetch.add_argument("--max-destinations", type=int)
+    fetch.add_argument(
+        "--checkpoint-dir",
+        default="data/interim/traveltime_labels.parts",
+        help="Directory for per-origin fetch checkpoints. Existing shards are reused.",
+    )
     fetch.set_defaults(func=cmd_fetch_traveltime)
 
     features = subparsers.add_parser("build-features")

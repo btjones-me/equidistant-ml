@@ -5,10 +5,12 @@ from __future__ import annotations
 import os
 import time
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Dict, Iterable
 
 import pandas as pd
 import requests
+from tqdm import tqdm
 
 TRAVELTIME_FAST_URL = "https://api.traveltimeapp.com/v4/time-filter/fast"
 
@@ -146,7 +148,20 @@ def parse_fast_matrix_response(
                 "api_status": "OK" if is_reachable else "UNREACHABLE",
             }
         )
-    return pd.DataFrame(rows)
+    return normalize_label_frame(pd.DataFrame(rows))
+
+
+def normalize_label_frame(frame: pd.DataFrame) -> pd.DataFrame:
+    frame["travel_time_seconds"] = pd.to_numeric(
+        frame["travel_time_seconds"],
+        errors="coerce",
+    )
+    frame["target_travel_time_seconds"] = pd.to_numeric(
+        frame["target_travel_time_seconds"],
+        errors="coerce",
+    )
+    frame["reachable"] = frame["reachable"].astype(bool)
+    return frame
 
 
 def fetch_origin_surfaces(
@@ -160,10 +175,29 @@ def fetch_origin_surfaces(
     unreachable_penalty_seconds: int,
     properties: Iterable[str],
     max_origins: int | None = None,
+    checkpoint_dir: str | Path | None = None,
 ) -> pd.DataFrame:
     frames = []
     selected_origins = origins.head(max_origins) if max_origins else origins
-    for _, origin in selected_origins.iterrows():
+    checkpoint_path = Path(checkpoint_dir) if checkpoint_dir else None
+    if checkpoint_path:
+        checkpoint_path.mkdir(parents=True, exist_ok=True)
+
+    for _, origin in tqdm(
+        selected_origins.iterrows(),
+        total=len(selected_origins),
+        desc="traveltime origins",
+    ):
+        origin_id = str(origin["origin_id"])
+        origin_checkpoint = (
+            checkpoint_path / f"{origin_id.replace('/', '_')}.parquet"
+            if checkpoint_path
+            else None
+        )
+        if origin_checkpoint and origin_checkpoint.exists():
+            frames.append(normalize_label_frame(pd.read_parquet(origin_checkpoint)))
+            continue
+
         payload = client.build_one_to_many_payload(
             origin,
             destinations,
@@ -173,13 +207,14 @@ def fetch_origin_surfaces(
             properties=properties,
         )
         response_json = client.post_fast_matrix(payload)
-        frames.append(
-            parse_fast_matrix_response(
-                str(origin["origin_id"]),
-                destinations,
-                response_json,
-                travel_time_seconds,
-                unreachable_penalty_seconds,
-            )
+        labels = parse_fast_matrix_response(
+            origin_id,
+            destinations,
+            response_json,
+            travel_time_seconds,
+            unreachable_penalty_seconds,
         )
+        if origin_checkpoint:
+            labels.to_parquet(origin_checkpoint, index=False)
+        frames.append(labels)
     return pd.concat(frames, ignore_index=True)

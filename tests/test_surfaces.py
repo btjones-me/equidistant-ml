@@ -17,6 +17,7 @@ from equidistant_ml.surfaces.models import (
 )
 from equidistant_ml.surfaces.traveltime import (
     TravelTimeClient,
+    fetch_origin_surfaces,
     parse_fast_matrix_response,
 )
 
@@ -87,6 +88,66 @@ def test_traveltime_payload_and_response_parsing():
         ].item()
         == 4200
     )
+
+
+def test_traveltime_fetch_reuses_origin_checkpoints(tmp_path):
+    origin = pd.DataFrame([{"origin_id": "o_0001", "lat": 51.51, "lng": -0.13}])
+    destinations = pd.DataFrame(
+        [
+            {"destination_id": "d_1", "lat": 51.52, "lng": -0.14},
+            {"destination_id": "d_2", "lat": 51.53, "lng": -0.15},
+        ]
+    )
+
+    class FakeClient:
+        calls = 0
+
+        def build_one_to_many_payload(self, *args, **kwargs):
+            return TravelTimeClient.build_one_to_many_payload(*args, **kwargs)
+
+        def post_fast_matrix(self, payload):
+            self.calls += 1
+            return {
+                "results": [
+                    {
+                        "search_id": "o_0001",
+                        "locations": [
+                            {"id": "d_1", "properties": {"travel_time": 1000}},
+                            {"id": "d_2", "properties": {"travel_time": 1100}},
+                        ],
+                        "unreachable": [],
+                    }
+                ]
+            }
+
+    client = FakeClient()
+    checkpoint_dir = tmp_path / "parts"
+    first = fetch_origin_surfaces(
+        origin,
+        destinations,
+        client,
+        transportation_type="public_transport",
+        arrival_time_period="weekday_morning",
+        travel_time_seconds=3600,
+        unreachable_penalty_seconds=600,
+        properties=["travel_time"],
+        checkpoint_dir=checkpoint_dir,
+    )
+    second = fetch_origin_surfaces(
+        origin,
+        destinations,
+        client,
+        transportation_type="public_transport",
+        arrival_time_period="weekday_morning",
+        travel_time_seconds=3600,
+        unreachable_penalty_seconds=600,
+        properties=["travel_time"],
+        checkpoint_dir=checkpoint_dir,
+    )
+
+    assert client.calls == 1
+    assert len(first) == 2
+    assert second["target_travel_time_seconds"].tolist() == [1000.0, 1100.0]
 
 
 def _small_feature_frame():

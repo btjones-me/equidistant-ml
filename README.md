@@ -84,7 +84,9 @@ make evaluate
 
 The production-sized defaults live in `params.yaml`: 500 sampled origins against
 a 50x50 destination grid. Generated data, model artifacts, and local DVC cache
-are intentionally not committed.
+are intentionally not committed. The TravelTime fetch stage checkpoints each
+origin under `data/interim/traveltime_labels.parts/`, so interrupted runs can be
+resumed without refetching completed origins.
 
 ### Frontend visualisation
 

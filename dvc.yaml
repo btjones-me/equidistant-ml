@@ -24,7 +24,7 @@ stages:
       - data/interim/origin_anchors.parquet
 
   fetch_traveltime:
-    cmd: uv run python -m equidistant_ml.surfaces.pipeline fetch-traveltime
+    cmd: uv run python -m equidistant_ml.surfaces.pipeline fetch-traveltime --checkpoint-dir data/interim/traveltime_labels.parts
     deps:
       - equidistant_ml/surfaces
       - data/interim/origin_anchors.parquet
