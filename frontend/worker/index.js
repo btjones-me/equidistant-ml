@@ -1,20 +1,28 @@
 const ACCESS_COOKIE = "equidistant_access";
 const ACCESS_MESSAGE = "equidistant-sites-access-v1";
 const ASSET_NAMESPACE = "__EQUIDISTANT_ASSET_NAMESPACE__";
+const RATE_LIMIT_MAX_FAILURES = 5;
+const RATE_LIMIT_WINDOW_SECONDS = 10 * 60;
+const RATE_LIMIT_RETENTION_SECONDS = 24 * 60 * 60;
+let rateLimitSchemaPromise;
 
 function bytesToHex(bytes) {
   return [...new Uint8Array(bytes)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
-async function accessToken(password) {
+async function hmacToken(secret, message) {
   const key = await crypto.subtle.importKey(
     "raw",
-    new TextEncoder().encode(password),
+    new TextEncoder().encode(secret),
     { name: "HMAC", hash: "SHA-256" },
     false,
     ["sign"]
   );
-  return bytesToHex(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(ACCESS_MESSAGE)));
+  return bytesToHex(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(message)));
+}
+
+async function accessToken(password) {
+  return hmacToken(password, ACCESS_MESSAGE);
 }
 
 function secureHeaders(headers = new Headers()) {
@@ -57,6 +65,98 @@ function protectedAssetRequest(request, pathname) {
   const headers = new Headers(request.headers);
   headers.delete("Cookie");
   return new Request(assetUrl, { method: request.method, headers });
+}
+
+async function ensureRateLimitSchema(db) {
+  if (!rateLimitSchemaPromise) {
+    rateLimitSchemaPromise = db.prepare(`
+      CREATE TABLE IF NOT EXISTS unlock_rate_limits (
+        client_key TEXT PRIMARY KEY NOT NULL,
+        window_started_at INTEGER NOT NULL,
+        failures INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL
+      )
+    `).run().catch((error) => {
+      rateLimitSchemaPromise = undefined;
+      throw error;
+    });
+  }
+  await rateLimitSchemaPromise;
+}
+
+async function unlockRateLimit(env, request) {
+  const clientIp = request.headers.get("CF-Connecting-IP")?.trim();
+  if (!env.DB || !clientIp) {
+    return { limited: false, clientKey: null, now: 0, retryAfter: 0 };
+  }
+
+  try {
+    await ensureRateLimitSchema(env.DB);
+    const now = Math.floor(Date.now() / 1000);
+    const clientKey = await hmacToken(
+      env.RATE_LIMIT_SECRET || env.SITE_PASSWORD,
+      `unlock:${clientIp}`
+    );
+    const row = await env.DB.prepare(
+      "SELECT window_started_at, failures FROM unlock_rate_limits WHERE client_key = ?1"
+    ).bind(clientKey).first();
+    if (row && now - Number(row.window_started_at) < RATE_LIMIT_WINDOW_SECONDS) {
+      const retryAfter = Math.max(
+        1,
+        Number(row.window_started_at) + RATE_LIMIT_WINDOW_SECONDS - now
+      );
+      return {
+        limited: Number(row.failures) >= RATE_LIMIT_MAX_FAILURES,
+        clientKey,
+        now,
+        retryAfter
+      };
+    }
+    return { limited: false, clientKey, now, retryAfter: 0 };
+  } catch (error) {
+    console.warn("Unlock rate limiter unavailable", error instanceof Error ? error.message : "unknown error");
+    return { limited: false, clientKey: null, now: 0, retryAfter: 0 };
+  }
+}
+
+async function recordUnlockFailure(env, rateLimit) {
+  if (!env.DB || !rateLimit.clientKey) {
+    return;
+  }
+  try {
+    await env.DB.prepare(`
+      INSERT INTO unlock_rate_limits (client_key, window_started_at, failures, updated_at)
+      VALUES (?1, ?2, 1, ?2)
+      ON CONFLICT(client_key) DO UPDATE SET
+        failures = CASE
+          WHEN ?2 - window_started_at >= ?3 THEN 1
+          ELSE failures + 1
+        END,
+        window_started_at = CASE
+          WHEN ?2 - window_started_at >= ?3 THEN ?2
+          ELSE window_started_at
+        END,
+        updated_at = ?2
+    `).bind(rateLimit.clientKey, rateLimit.now, RATE_LIMIT_WINDOW_SECONDS).run();
+    await env.DB.prepare(
+      "DELETE FROM unlock_rate_limits WHERE updated_at < ?1"
+    ).bind(rateLimit.now - RATE_LIMIT_RETENTION_SECONDS).run();
+  } catch (error) {
+    console.warn("Unable to record unlock failure", error instanceof Error ? error.message : "unknown error");
+  }
+}
+
+async function clearUnlockFailures(env, clientKey) {
+  if (!env.DB || !clientKey) {
+    return;
+  }
+  try {
+    await env.DB.prepare(
+      "DELETE FROM unlock_rate_limits WHERE client_key = ?1"
+    ).bind(clientKey).run();
+  } catch (error) {
+    console.warn("Unable to clear unlock failures", error instanceof Error ? error.message : "unknown error");
+  }
 }
 
 async function geocode(request) {
@@ -106,11 +206,21 @@ export default {
     const expectedToken = await accessToken(password);
 
     if (url.pathname === "/unlock" && request.method === "POST") {
+      const rateLimit = await unlockRateLimit(env, request);
+      if (rateLimit.limited) {
+        return htmlResponse(
+          loginPage({ error: "Too many incorrect attempts. Try again in a few minutes." }),
+          429,
+          { "Retry-After": String(rateLimit.retryAfter) }
+        );
+      }
       const form = await request.formData();
       const suppliedPassword = String(form.get("password") || "");
       if (suppliedPassword !== password) {
+        await recordUnlockFailure(env, rateLimit);
         return htmlResponse(loginPage({ error: "That password is not correct." }), 401);
       }
+      await clearUnlockFailures(env, rateLimit.clientKey);
       return new Response(null, {
         status: 303,
         headers: secureHeaders(new Headers({
