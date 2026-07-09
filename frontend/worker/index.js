@@ -1,5 +1,6 @@
 const ACCESS_COOKIE = "equidistant_access";
 const ACCESS_MESSAGE = "equidistant-sites-access-v1";
+const ASSET_NAMESPACE = "__EQUIDISTANT_ASSET_NAMESPACE__";
 
 function bytesToHex(bytes) {
   return [...new Uint8Array(bytes)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
@@ -48,6 +49,14 @@ function readCookie(request, name) {
     }
   }
   return null;
+}
+
+function protectedAssetRequest(request, pathname) {
+  const assetUrl = new URL(request.url);
+  assetUrl.pathname = `${ASSET_NAMESPACE}${pathname}`;
+  const headers = new Headers(request.headers);
+  headers.delete("Cookie");
+  return new Request(assetUrl, { method: request.method, headers });
 }
 
 async function geocode(request) {
@@ -134,7 +143,16 @@ export default {
       return Response.json({ detail: "This hosted preview uses the browser atlas." }, { status: 404, headers: secureHeaders() });
     }
 
-    const assetResponse = await env.ASSETS.fetch(request);
+    if (request.method !== "GET" && request.method !== "HEAD") {
+      return Response.json({ detail: "Method not allowed" }, { status: 405, headers: secureHeaders() });
+    }
+
+    const wantsHtml = request.headers.get("Accept")?.includes("text/html") ?? false;
+    const pathname = url.pathname === "/" ? "/index.html" : url.pathname;
+    let assetResponse = await env.ASSETS.fetch(protectedAssetRequest(request, pathname));
+    if (assetResponse.status === 404 && wantsHtml) {
+      assetResponse = await env.ASSETS.fetch(protectedAssetRequest(request, "/index.html"));
+    }
     const headers = secureHeaders(new Headers(assetResponse.headers));
     if (assetResponse.headers.get("Content-Type")?.includes("text/html")) {
       headers.set("Cache-Control", "no-store");

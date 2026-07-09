@@ -54,6 +54,7 @@ pip-wheel-metadata
 /gmaps_cache*
 /frontend/node_modules/
 /frontend/dist/
+/frontend/.wrangler/
 
 # Generated experiment reports
 /docs/model_surface_audit.md

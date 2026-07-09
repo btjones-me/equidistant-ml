@@ -136,5 +136,14 @@ a specific journey.
 
 Sites deployment is built from `frontend/`. `SITE_PASSWORD` is supplied as a
 hosted environment value; it is never stored in source or bundled assets. The
-static offline atlas lets the production experience serve a small group of
-concurrent users without a Python service or per-request API cost.
+deployable build should also receive a fresh private asset namespace:
+
+```bash
+cd frontend
+SITE_ASSET_NAMESPACE="_eq_$(openssl rand -hex 32)" npm run build
+```
+
+That namespace ensures every public app and model URL reaches the password
+worker before it is mapped to a stored asset. The static offline atlas then lets
+the production experience serve a small group of concurrent users without a
+Python service or per-request API cost.

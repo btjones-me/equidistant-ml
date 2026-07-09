@@ -1,22 +1,13 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
 import test from "node:test";
 import worker from "../worker/index.js";
 
 const env = {
-  SITE_PASSWORD: "equidistantftw",
+  SITE_PASSWORD: "test-password-do-not-use",
   ASSETS: {
     fetch: async () => new Response("protected app", { headers: { "Content-Type": "text/plain" } })
   }
 };
-
-test("hosted assets always pass through the password worker", async () => {
-  const config = JSON.parse(
-    await readFile(new URL("../sites.wrangler.json", import.meta.url), "utf8")
-  );
-  assert.equal(config.assets.binding, "ASSETS");
-  assert.equal(config.assets.run_worker_first, true);
-});
 
 test("password gate hides every asset until unlocked", async () => {
   const locked = await worker.fetch(new Request("https://example.test/"), env);
@@ -54,6 +45,35 @@ test("a successful unlock grants access with a secure cookie", async () => {
   );
   assert.equal(appResponse.status, 200);
   assert.equal(await appResponse.text(), "protected app");
+});
+
+test("authenticated public paths map to the private asset namespace", async () => {
+  let requestedPath = "";
+  const mappedEnv = {
+    ...env,
+    ASSETS: {
+      fetch: async (request) => {
+        requestedPath = new URL(request.url).pathname;
+        return new Response("model bytes");
+      }
+    }
+  };
+  const body = new URLSearchParams({ password: env.SITE_PASSWORD });
+  const unlocked = await worker.fetch(
+    new Request("https://example.test/unlock", { method: "POST", body }),
+    mappedEnv
+  );
+  const cookie = unlocked.headers.get("set-cookie").split(";", 1)[0];
+
+  await worker.fetch(
+    new Request("https://example.test/model/model.u8", { headers: { Cookie: cookie } }),
+    mappedEnv
+  );
+
+  assert.equal(
+    requestedPath,
+    "/__EQUIDISTANT_ASSET_NAMESPACE__/model/model.u8"
+  );
 });
 
 test("hosted HTML receives an absolute social preview URL", async () => {
