@@ -7,6 +7,8 @@
 /*.egg-info
 /dist/*
 build
+!/frontend/build/
+!/frontend/build/prepare-sites.mjs
 _build
 .cache
 *.so
