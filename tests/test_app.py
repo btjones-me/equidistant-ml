@@ -22,10 +22,10 @@ def payload():
     return payload
 
 
-@pytest.mark.skip()
 def test_root():
     response = client.get("/")
     assert response.status_code == 200
+    assert response.json()["service"] == "equidistant-api"
 
 
 def test_predict(payload):
@@ -42,6 +42,38 @@ def test_predict(payload):
     assert len(result["Z"]) == payload["y_size"]
     assert len(result["Z"][0]) == payload["x_size"]
     assert np.mean(result["Z"][0]) != 0
+
+
+def test_health_endpoint():
+    response = client.get("/api/health")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "status": "ok",
+        "service": "equidistant-api",
+        "model": "offline-public-transport",
+    }
+
+
+def test_geocode_endpoint_returns_safe_shape(monkeypatch):
+    monkeypatch.setattr(
+        app,
+        "_geocode_london",
+        lambda query: (
+            {
+                "name": "King's Cross",
+                "lat": 51.5308,
+                "lng": -0.1238,
+                "detail": f"{query}, London",
+            },
+        ),
+    )
+
+    response = client.get("/api/geocode", params={"q": "Kings Cross"})
+
+    assert response.status_code == 200
+    assert response.json()["results"][0]["name"] == "King's Cross"
+    assert response.json()["results"][0]["detail"] == "Kings Cross, London"
 
 
 def test_predict_gaussian(payload, caplog):
@@ -61,7 +93,6 @@ def test_predict_gaussian(payload, caplog):
     assert len(result["Z"]) == payload["y_size"]
     assert len(result["Z"][0]) == payload["x_size"]
     assert np.mean(result["Z"][0]) != 0
-    print(caplog.text)
     assert "engine: 'gaussian'" in caplog.text
 
 

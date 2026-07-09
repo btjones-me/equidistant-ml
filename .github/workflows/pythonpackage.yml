@@ -25,8 +25,9 @@ jobs:
       - name: Run tests
         run: uv run --extra dev pytest .
 
-      - name: Build frontend
+      - name: Test and build frontend
         run: |
           cd frontend
           npm ci
+          npm test
           npm run build

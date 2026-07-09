@@ -43,8 +43,17 @@ pip-wheel-metadata
 /data/training/
 /data/interim/
 /data/features/
+/data/experiments/
 /data/smoke/
+/data/smoke_graph/
+/data/reference/
+/data/holdout/
 /models/
 /gmaps_cache*
 /frontend/node_modules/
 /frontend/dist/
+
+# Generated experiment reports
+/docs/model_surface_audit.md
+/docs/graph_hillclimb_results.md
+/metrics/*_20260709.json

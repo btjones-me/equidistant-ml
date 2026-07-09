@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import h3
 import numpy as np
 import pandas as pd
 
@@ -34,6 +35,84 @@ def build_destination_grid(bbox: BBox, x_size: int, y_size: int) -> pd.DataFrame
                 }
             )
     return pd.DataFrame(rows)
+
+
+def _point_in_bbox(lat: float, lng: float, bbox: BBox) -> bool:
+    return bbox.south <= lat <= bbox.north and bbox.west <= lng <= bbox.east
+
+
+def build_h3_destination_grid(band_params: list[dict]) -> pd.DataFrame:
+    """Build a mixed-resolution H3 grid from priority-ordered bbox bands."""
+    rows: list[dict] = []
+    occupied: list[BBox] = []
+    seen_cells: set[str] = set()
+    occupied_parent_cells: set[tuple[int, str]] = set()
+    for priority, band in enumerate(band_params):
+        bbox = BBox(
+            north=float(band["north"]),
+            south=float(band["south"]),
+            west=float(band["west"]),
+            east=float(band["east"]),
+        )
+        resolution = int(band["resolution"])
+        band_id = str(band["id"])
+        label = str(band.get("label", band_id))
+        buffer_degrees = float(band.get("buffer_degrees", 0.0))
+        fill_bbox = BBox(
+            north=bbox.north + buffer_degrees,
+            south=bbox.south - buffer_degrees,
+            west=bbox.west - buffer_degrees,
+            east=bbox.east + buffer_degrees,
+        )
+        polygon = h3.LatLngPoly(
+            [
+                (fill_bbox.south, fill_bbox.west),
+                (fill_bbox.south, fill_bbox.east),
+                (fill_bbox.north, fill_bbox.east),
+                (fill_bbox.north, fill_bbox.west),
+            ]
+        )
+        for cell in sorted(h3.h3shape_to_cells(polygon, resolution)):
+            if cell in seen_cells:
+                continue
+            if (resolution, cell) in occupied_parent_cells:
+                continue
+            lat, lng = h3.cell_to_latlng(cell)
+            if any(_point_in_bbox(lat, lng, previous) for previous in occupied):
+                continue
+            boundary = [
+                [round(float(point_lat), 7), round(float(point_lng), 7)]
+                for point_lat, point_lng in h3.cell_to_boundary(cell)
+            ]
+            rows.append(
+                {
+                    "destination_id": cell,
+                    "lat": round(float(lat), 7),
+                    "lng": round(float(lng), 7),
+                    "x_index": len(rows),
+                    "y_index": 0,
+                    "h3_cell": cell,
+                    "h3_resolution": resolution,
+                    "boundary": boundary,
+                    "grid_band": label,
+                    "grid_priority": priority,
+                    "cell_area_km2": round(float(h3.cell_area(cell, unit="km^2")), 6),
+                }
+            )
+            seen_cells.add(cell)
+            for parent_resolution in range(resolution):
+                occupied_parent_cells.add(
+                    (parent_resolution, h3.cell_to_parent(cell, parent_resolution))
+                )
+        occupied.append(bbox)
+    result = pd.DataFrame(rows)
+    if result.empty:
+        return result
+    result = result.sort_values(
+        ["grid_priority", "h3_resolution", "destination_id"]
+    ).reset_index(drop=True)
+    result["cell_index"] = result.index
+    return result
 
 
 def sample_origin_anchors(
