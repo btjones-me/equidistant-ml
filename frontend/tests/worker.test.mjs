@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import worker from "../worker/index.js";
 
@@ -8,6 +9,14 @@ const env = {
     fetch: async () => new Response("protected app", { headers: { "Content-Type": "text/plain" } })
   }
 };
+
+test("hosted assets always pass through the password worker", async () => {
+  const config = JSON.parse(
+    await readFile(new URL("../sites.wrangler.json", import.meta.url), "utf8")
+  );
+  assert.equal(config.assets.binding, "ASSETS");
+  assert.equal(config.assets.run_worker_first, true);
+});
 
 test("password gate hides every asset until unlocked", async () => {
   const locked = await worker.fetch(new Request("https://example.test/"), env);

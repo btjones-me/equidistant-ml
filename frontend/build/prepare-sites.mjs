@@ -15,3 +15,4 @@ for (const entry of await readdir(output, { withFileTypes: true })) {
 
 await mkdir(resolve(root, "dist/server"), { recursive: true });
 await copyFile(resolve(root, "worker/index.js"), resolve(root, "dist/server/index.js"));
+await copyFile(resolve(root, "sites.wrangler.json"), resolve(root, "dist/wrangler.json"));
