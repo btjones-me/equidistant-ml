@@ -78,20 +78,17 @@ class DatetimeUtils:
         selected_year = year if year is not None else new_datetime.year
         month = pad(new_datetime.month)
         day = pad(new_datetime.day)
-        hour = pad(
-            int(
-                np.random.choice(
-                    np.concatenate(
-                        [
-                            (np.random.normal(9, 2, 1) % 24),
-                            (np.random.normal(13, 5, 1) % 24),
-                            (np.random.normal(19, 4, 2) % 24),
-                        ]
-                    ),
-                    1,
-                    replace=True,
-                )
+        hour_choice = np.random.choice(
+            np.concatenate(
+                [
+                    (np.random.normal(9, 2, 1) % 24),
+                    (np.random.normal(13, 5, 1) % 24),
+                    (np.random.normal(19, 4, 2) % 24),
+                ]
             )
+        )
+        hour = pad(
+            int(hour_choice.item() if hasattr(hour_choice, "item") else hour_choice)
         )
 
         date = f"{selected_year}-{month}-{day}T{hour}:00:00"

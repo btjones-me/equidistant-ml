@@ -1,0 +1,88 @@
+stages:
+  build_grid:
+    cmd: uv run python -m equidistant_ml.surfaces.pipeline build-grid
+    deps:
+      - equidistant_ml/surfaces
+      - params.yaml
+    params:
+      - bbox
+      - grid
+    outs:
+      - data/interim/destination_grid.parquet
+
+  sample_origins:
+    cmd: uv run python -m equidistant_ml.surfaces.pipeline sample-origins
+    deps:
+      - equidistant_ml/surfaces
+      - data/london_tubes.csv
+      - params.yaml
+    params:
+      - bbox
+      - sampling
+      - features.stations_path
+    outs:
+      - data/interim/origin_anchors.parquet
+
+  fetch_traveltime:
+    cmd: uv run python -m equidistant_ml.surfaces.pipeline fetch-traveltime
+    deps:
+      - equidistant_ml/surfaces
+      - data/interim/origin_anchors.parquet
+      - data/interim/destination_grid.parquet
+      - params.yaml
+    params:
+      - traveltime
+    outs:
+      - data/interim/traveltime_labels.parquet
+
+  build_features:
+    cmd: uv run python -m equidistant_ml.surfaces.pipeline build-features
+    deps:
+      - equidistant_ml/surfaces
+      - data/london_tubes.csv
+      - data/interim/origin_anchors.parquet
+      - data/interim/destination_grid.parquet
+      - data/interim/traveltime_labels.parquet
+      - params.yaml
+    params:
+      - features
+    outs:
+      - data/features/traveltime_features.parquet
+
+  train_baseline:
+    cmd: uv run python -m equidistant_ml.surfaces.pipeline train-baseline
+    deps:
+      - equidistant_ml/surfaces
+      - data/features/traveltime_features.parquet
+      - params.yaml
+    params:
+      - baseline
+      - validation
+    outs:
+      - models/baseline_model.joblib
+
+  train_model:
+    cmd: uv run python -m equidistant_ml.surfaces.pipeline train-model
+    deps:
+      - equidistant_ml/surfaces
+      - data/features/traveltime_features.parquet
+      - params.yaml
+    params:
+      - model
+      - validation
+    outs:
+      - models/travel_time_model.joblib
+
+  evaluate:
+    cmd: uv run python -m equidistant_ml.surfaces.pipeline evaluate
+    deps:
+      - equidistant_ml/surfaces
+      - data/features/traveltime_features.parquet
+      - models/baseline_model.joblib
+      - models/travel_time_model.joblib
+      - params.yaml
+    params:
+      - validation
+    metrics:
+      - metrics/model.json:
+          cache: false

@@ -1,0 +1,44 @@
+bbox:
+  north: 51.70
+  south: 51.28
+  west: -0.52
+  east: 0.33
+
+grid:
+  x_size: 50
+  y_size: 50
+
+sampling:
+  origin_count: 500
+  seed: 42
+  station_bias_fraction: 0.35
+
+traveltime:
+  transportation_type: public_transport
+  arrival_time_period: weekday_morning
+  travel_time_seconds: 10800
+  unreachable_penalty_seconds: 1800
+  properties:
+    - travel_time
+  timeout_seconds: 90
+  sleep_seconds: 1.0
+
+features:
+  stations_path: data/london_tubes.csv
+  nearest_station_count: 3
+  density_radius_m: 1200
+
+validation:
+  validation_fraction: 0.2
+  seed: 42
+
+baseline:
+  alpha: 1.0
+
+model:
+  seed: 42
+  n_estimators: 300
+  learning_rate: 0.05
+  num_leaves: 31
+  min_child_samples: 20
+  n_jobs: -1
