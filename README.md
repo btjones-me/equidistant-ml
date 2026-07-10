@@ -146,6 +146,9 @@ SITE_ASSET_NAMESPACE="_eq_$(openssl rand -hex 32)" npm run build
 That namespace ensures every public app and model URL reaches the password
 worker before it is mapped to a stored asset. Failed password attempts are
 limited to five per client IP in ten minutes using D1; only an HMAC-derived
-client key and short-lived counters are stored. The static offline atlas then
-lets the production experience serve a small group of concurrent users without
-a Python service or per-request API cost.
+client key and short-lived counters are stored. Successful unlocks also update
+one privacy-preserving browser visitor row with Cloudflare's country, region,
+and city metadata; no raw IP or event stream is retained. Aggregates are visible
+from the Usage panel in Developer mode. The static offline atlas then lets the
+production experience serve a small group of concurrent users without a Python
+service or per-request API cost.

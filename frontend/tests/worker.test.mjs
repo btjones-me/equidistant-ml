@@ -11,7 +11,11 @@ const env = {
 
 function createRateLimitDb() {
   const rows = new Map();
+  const visitors = new Map();
   const db = {
+    async batch(statements) {
+      return Promise.all(statements.map((statement) => statement.run()));
+    },
     prepare(sql) {
       let parameters = [];
       const statement = {
@@ -23,7 +27,40 @@ function createRateLimitDb() {
           if (sql.includes("SELECT window_started_at")) {
             return rows.get(parameters[0]) ?? null;
           }
+          if (sql.includes("COUNT(*) AS all_time")) {
+            const visitorRows = [...visitors.values()];
+            return {
+              all_time: visitorRows.length,
+              last_24h: visitorRows.filter((row) => row.last_seen_at >= parameters[0]).length,
+              last_7d: visitorRows.filter((row) => row.last_seen_at >= parameters[1]).length,
+              last_30d: visitorRows.filter((row) => row.last_seen_at >= parameters[2]).length,
+              total_unlocks: visitorRows.reduce((total, row) => total + row.unlocks, 0),
+              last_seen_at: visitorRows.length
+                ? Math.max(...visitorRows.map((row) => row.last_seen_at))
+                : null
+            };
+          }
           throw new Error(`Unexpected query: ${sql}`);
+        },
+        async all() {
+          if (!sql.includes("FROM analytics_visitors")) {
+            throw new Error(`Unexpected query: ${sql}`);
+          }
+          const locations = new Map();
+          for (const row of visitors.values()) {
+            const locationKey = `${row.country}|${row.region}|${row.city}`;
+            const current = locations.get(locationKey) ?? {
+              country: row.country ?? "Unknown",
+              region: row.region ?? "Unknown",
+              city: row.city ?? "Unknown",
+              unique_visitors: 0,
+              unlocks: 0
+            };
+            current.unique_visitors += 1;
+            current.unlocks += row.unlocks;
+            locations.set(locationKey, current);
+          }
+          return { results: [...locations.values()] };
         },
         async run() {
           if (sql.includes("CREATE TABLE")) {
@@ -44,6 +81,28 @@ function createRateLimitDb() {
             }
             return { success: true };
           }
+          if (sql.includes("INSERT INTO analytics_visitors")) {
+            const [visitorKey, now, country, region, city] = parameters;
+            const current = visitors.get(visitorKey);
+            visitors.set(visitorKey, current
+              ? {
+                  ...current,
+                  last_seen_at: now,
+                  unlocks: current.unlocks + 1,
+                  country: country ?? current.country,
+                  region: region ?? current.region,
+                  city: city ?? current.city
+                }
+              : {
+                  first_seen_at: now,
+                  last_seen_at: now,
+                  unlocks: 1,
+                  country,
+                  region,
+                  city
+                });
+            return { success: true };
+          }
           if (sql.includes("updated_at <")) {
             for (const [key, row] of rows) {
               if (row.updated_at < parameters[0]) {
@@ -62,7 +121,7 @@ function createRateLimitDb() {
       return statement;
     }
   };
-  return { db, rows };
+  return { db, rows, visitors };
 }
 
 test("password gate hides every asset until unlocked", async () => {
@@ -130,6 +189,57 @@ test("successful unlock clears prior failures", async () => {
   );
   assert.equal(unlocked.status, 303);
   assert.equal(rows.size, 0);
+});
+
+test("usage analytics count browser visitors without storing raw IPs", async () => {
+  const { db, visitors } = createRateLimitDb();
+  const analyticsEnv = {
+    ...env,
+    DB: db,
+    ANALYTICS_SECRET: "test-analytics-secret-do-not-use"
+  };
+  const makeUnlockRequest = (cookie = "") => {
+    const request = new Request("https://example.test/unlock", {
+      method: "POST",
+      headers: {
+        "CF-Connecting-IP": "203.0.113.40",
+        ...(cookie ? { Cookie: cookie } : {})
+      },
+      body: new URLSearchParams({ password: env.SITE_PASSWORD })
+    });
+    Object.defineProperty(request, "cf", {
+      value: { country: "GB", region: "England", city: "London" }
+    });
+    return request;
+  };
+
+  const firstUnlock = await worker.fetch(makeUnlockRequest(), analyticsEnv);
+  const setCookie = firstUnlock.headers.get("set-cookie");
+  const accessCookie = /equidistant_access=[^;,]+/.exec(setCookie)?.[0];
+  const visitorCookie = /__Host-equidistant_visitor=[^;,]+/.exec(setCookie)?.[0];
+  assert.ok(accessCookie);
+  assert.ok(visitorCookie);
+
+  const cookie = `${accessCookie}; ${visitorCookie}`;
+  await worker.fetch(makeUnlockRequest(cookie), analyticsEnv);
+  const usageResponse = await worker.fetch(
+    new Request("https://example.test/api/usage", { headers: { Cookie: cookie } }),
+    analyticsEnv
+  );
+  const usage = await usageResponse.json();
+
+  assert.equal(usageResponse.status, 200);
+  assert.equal(usage.unique_visitors.all_time, 1);
+  assert.equal(usage.unique_visitors.last_24h, 1);
+  assert.equal(usage.total_unlocks, 2);
+  assert.deepEqual(usage.locations[0], {
+    country: "GB",
+    region: "England",
+    city: "London",
+    unique_visitors: 1,
+    unlocks: 2
+  });
+  assert.doesNotMatch(JSON.stringify([...visitors]), /203\.0\.113\.40/);
 });
 
 test("a successful unlock grants access with a secure cookie", async () => {

@@ -150,6 +150,7 @@ button:disabled {
 .comparison-panel,
 .scale-panel,
 .custom-map-panel,
+.usage-panel,
 .summary-panel {
   display: grid;
   gap: 10px;
@@ -276,6 +277,7 @@ button:disabled {
 .comparison-panel,
 .scale-panel,
 .custom-map-panel,
+.usage-panel,
 .summary-panel {
   border: 1px solid #d8dee8;
   border-radius: 8px;
@@ -444,6 +446,43 @@ button:disabled {
 .metric-card strong {
   color: #172033;
   font-size: 14px;
+}
+
+.usage-last-seen {
+  display: block;
+  margin-top: 3px;
+  color: #64748b;
+  font-size: 11px;
+}
+
+.usage-metrics {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.usage-location-list {
+  display: grid;
+  gap: 6px;
+}
+
+.usage-location-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 6px;
+  color: #475569;
+  font-size: 12px;
+}
+
+.usage-location-row span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.usage-location-row strong {
+  flex: 0 0 auto;
+  color: #172033;
 }
 
 .muted-copy,

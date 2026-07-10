@@ -36,6 +36,26 @@ type SurfaceRequestPayload = {
   detail: DetailMode;
 };
 
+type UsageLocation = {
+  country: string;
+  region: string;
+  city: string;
+  unique_visitors: number;
+  unlocks: number;
+};
+
+type UsageSummary = {
+  unique_visitors: {
+    all_time: number;
+    last_24h: number;
+    last_7d: number;
+    last_30d: number;
+  };
+  total_unlocks: number;
+  last_seen_at: number | null;
+  locations: UsageLocation[];
+};
+
 function emptyResponse(): SurfaceResponse {
   return { lats: [], lngs: [], Z: [], cells: [] };
 }
@@ -312,6 +332,9 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
   const [selectedCell, setSelectedCell] = useState<SurfaceCell | null>(null);
   const [loading, setLoading] = useState(false);
   const [referenceLoading, setReferenceLoading] = useState(false);
+  const [usage, setUsage] = useState<UsageSummary | null>(null);
+  const [usageLoading, setUsageLoading] = useState(false);
+  const [usageError, setUsageError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const surfaceRequestId = useRef(0);
   const comparisonRequestId = useRef(0);
@@ -502,6 +525,22 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
     }
   }, [friends, includedFriendIndexes.length, requestKey]);
 
+  const loadUsage = useCallback(async () => {
+    setUsageLoading(true);
+    setUsageError(null);
+    try {
+      const response = await fetch("/api/usage", { cache: "no-store" });
+      if (!response.ok) {
+        throw new Error("Usage data is unavailable in this environment.");
+      }
+      setUsage((await response.json()) as UsageSummary);
+    } catch (reason) {
+      setUsageError(reason instanceof Error ? reason.message : "Usage data is unavailable.");
+    } finally {
+      setUsageLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     requestSurface();
   }, [requestSurface]);
@@ -640,6 +679,73 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
             <output>{activeResponse?.metadata?.cell_count?.toLocaleString() ?? activeResponse?.cells.length.toLocaleString() ?? "0"}</output>
           </label>
         </div>
+
+        <section className="usage-panel" aria-label="Usage analytics">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">Usage</p>
+              {usage?.last_seen_at ? (
+                <span className="usage-last-seen">
+                  Last unlock {new Date(usage.last_seen_at * 1000).toLocaleString()}
+                </span>
+              ) : null}
+            </div>
+            <button
+              className="reset-button"
+              type="button"
+              onClick={loadUsage}
+              disabled={usageLoading}
+              title="Refresh usage"
+            >
+              <RefreshCw size={14} aria-hidden="true" />
+            </button>
+          </div>
+          {usage ? (
+            <>
+              <div className="metric-grid usage-metrics">
+                <div className="metric-card">
+                  <span>24 hours</span>
+                  <strong>{usage.unique_visitors.last_24h.toLocaleString()}</strong>
+                </div>
+                <div className="metric-card">
+                  <span>7 days</span>
+                  <strong>{usage.unique_visitors.last_7d.toLocaleString()}</strong>
+                </div>
+                <div className="metric-card">
+                  <span>30 days</span>
+                  <strong>{usage.unique_visitors.last_30d.toLocaleString()}</strong>
+                </div>
+                <div className="metric-card">
+                  <span>All time</span>
+                  <strong>{usage.unique_visitors.all_time.toLocaleString()}</strong>
+                </div>
+                <div className="metric-card">
+                  <span>Unlocks</span>
+                  <strong>{usage.total_unlocks.toLocaleString()}</strong>
+                </div>
+              </div>
+              {usage.locations.length ? (
+                <div className="usage-location-list">
+                  {usage.locations.map((location) => (
+                    <div
+                      className="usage-location-row"
+                      key={`${location.country}-${location.region}-${location.city}`}
+                    >
+                      <span>{[location.city, location.region, location.country].join(", ")}</span>
+                      <strong>
+                        {location.unique_visitors.toLocaleString()} / {location.unlocks.toLocaleString()}
+                      </strong>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </>
+          ) : (
+            <p className="muted-copy">
+              {usageError ?? (usageLoading ? "Loading usage..." : "No usage summary loaded.")}
+            </p>
+          )}
+        </section>
 
         <div className="control-group">
           <p className="eyebrow">Coverage</p>
