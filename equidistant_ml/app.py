@@ -41,7 +41,7 @@ class SurfaceRequest(BaseModel):
 
 
 class GroupSurfaceRequest(BaseModel):
-    friends: list[FriendLocation] = Field(min_length=2, max_length=6)
+    friends: list[FriendLocation] = Field(min_length=1, max_length=6)
     combine: Literal["max", "mean", "fairness", "balanced"] = "balanced"
     included_friend_indexes: list[int] | None = None
     x_size: int | None = Field(default=None, ge=5, le=100)

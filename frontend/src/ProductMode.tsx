@@ -18,6 +18,7 @@ import {
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MapView from "./MapView";
 import { getAtlasSurface, preloadAtlas } from "./lib/atlas";
+import { selectSeparatedSuggestions } from "./lib/suggestions";
 import { useAppState } from "./state/AppStateContext";
 import type { CombineMode, Friend, SurfaceCell, SurfaceResponse } from "./types";
 
@@ -67,17 +68,6 @@ function locationSummary(friend: Friend): string {
   return `${friend.lat.toFixed(4)}, ${friend.lng.toFixed(4)}`;
 }
 
-function bestCell(cells: SurfaceCell[]): SurfaceCell | null {
-  return cells.reduce<SurfaceCell | null>((best, cell) => {
-    const score = numericCellValue(cell, "model_score_minutes");
-    const bestScore = numericCellValue(best, "model_score_minutes");
-    if (score === null) {
-      return best;
-    }
-    return bestScore === null || score < bestScore ? cell : best;
-  }, null);
-}
-
 function uniqueLocalPlaces(cells: SurfaceCell[], query: string): LocalPlace[] {
   const normalised = query.trim().toLowerCase();
   if (normalised.length < 2) {
@@ -107,14 +97,13 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
     friends,
     included,
     combine,
-    focus,
     palette,
     customColorStops,
     colorScale,
+    suggestionMinDistanceKm,
     setFriends,
     setIncluded,
     setCombine,
-    setFocus,
     setPalette,
     changeFriendCount,
     updateFriend,
@@ -123,6 +112,8 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
   } = useAppState();
   const [surface, setSurface] = useState<SurfaceResponse>(emptyResponse);
   const [selectedCell, setSelectedCell] = useState<SurfaceCell | null>(null);
+  const [resultMode, setResultMode] = useState<"suggestions" | "selected">("suggestions");
+  const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(0);
   const [activeFriendIndex, setActiveFriendIndex] = useState(0);
   const [placingFriendIndex, setPlacingFriendIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -143,9 +134,12 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
     [customColorStops]
   );
   const localPlaces = useMemo(() => uniqueLocalPlaces(surface.cells, searchQuery), [searchQuery, surface.cells]);
-  const suggestedCell = useMemo(() => bestCell(surface.cells), [surface.cells]);
-  const inspectedCell = selectedCell ?? suggestedCell;
-  const isSuggested = inspectedCell?.destination_id === suggestedCell?.destination_id;
+  const suggestedCells = useMemo(
+    () => selectSeparatedSuggestions(surface.cells, suggestionMinDistanceKm, 3),
+    [suggestionMinDistanceKm, surface.cells]
+  );
+  const suggestedCell = suggestedCells[Math.min(activeSuggestionIndex, Math.max(0, suggestedCells.length - 1))] ?? null;
+  const inspectedCell = resultMode === "selected" ? selectedCell : suggestedCell;
   const activeStrategy = strategyOptions.find((option) => option.value === combine);
 
   useEffect(() => {
@@ -163,7 +157,7 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
     setLoading(true);
     setError(null);
     const timer = window.setTimeout(() => {
-      void getAtlasSurface({ friends, includedFriendIndexes, combine, focus })
+      void getAtlasSurface({ friends, includedFriendIndexes, combine, focus: "inner" })
         .then((response) => {
           if (requestId.current !== nextRequestId) {
             return;
@@ -188,7 +182,11 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
         });
     }, 80);
     return () => window.clearTimeout(timer);
-  }, [combine, focus, friends, includedFriendIndexes]);
+  }, [combine, friends, includedFriendIndexes]);
+
+  useEffect(() => {
+    setActiveSuggestionIndex((current) => Math.min(current, Math.max(0, suggestedCells.length - 1)));
+  }, [suggestedCells.length]);
 
   const moveFriend = useCallback(
     (index: number, lat: number, lng: number) => {
@@ -218,7 +216,7 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
   }
 
   function removeFriend(index: number) {
-    if (friends.length <= 2) {
+    if (friends.length <= 1) {
       return;
     }
     const nextFriends = friends.filter((_, friendIndex) => friendIndex !== index);
@@ -272,12 +270,21 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
   const areaName =
     (typeof inspectedCell?.nearest_station_name === "string" && inspectedCell.nearest_station_name) || "Central London";
   const score = numericCellValue(inspectedCell, "model_score_minutes");
+  const averageMinutes = numericCellValue(inspectedCell, "mean_minutes");
+  const heatmapLabel =
+    combine === "mean"
+      ? "Average travel time"
+      : combine === "max"
+        ? "Longest journey"
+        : combine === "fairness"
+          ? "Journey-time spread"
+          : "Balanced travel score";
 
   return (
     <main className="product-shell">
       <header className="product-topbar">
         <div className="product-brand" aria-label="Equidistant">
-          <span className="brand-glyph" aria-hidden="true"><LocateFixed size={20} /></span>
+          <img className="brand-mark" src="/brand/equidistant-mark-192.png" alt="" />
           <span>
             <strong>Equidistant</strong>
             <small>London beta</small>
@@ -361,7 +368,7 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
                   <input type="checkbox" checked={included[index]} onChange={() => toggleFriend(index)} />
                   <span><Check size={13} aria-hidden="true" /></span>
                 </label>
-                <button className="remove-person" type="button" onClick={() => removeFriend(index)} disabled={friends.length <= 2} title="Remove friend">
+                <button className="remove-person" type="button" onClick={() => removeFriend(index)} disabled={friends.length <= 1} title="Remove friend">
                   <Trash2 size={15} aria-hidden="true" />
                 </button>
               </article>
@@ -400,16 +407,53 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
         </section>
 
         <section className="result-card" aria-live="polite">
-          <div className="result-card-heading">
-            <span>{isSuggested ? "Suggested meeting area" : "Selected area"}</span>
-            <button type="button" onClick={() => setSelectedCell(null)} disabled={isSuggested} title="Return to suggestion"><Sparkles size={15} /></button>
+          <div className="result-tabs" role="tablist" aria-label="Meeting areas">
+            <button
+              className={resultMode === "suggestions" ? "active" : ""}
+              type="button"
+              role="tab"
+              aria-selected={resultMode === "suggestions"}
+              onClick={() => setResultMode("suggestions")}
+            >
+              Suggestions
+            </button>
+            <button
+              className={resultMode === "selected" ? "active" : ""}
+              type="button"
+              role="tab"
+              aria-selected={resultMode === "selected"}
+              onClick={() => setResultMode("selected")}
+            >
+              Selected
+            </button>
           </div>
-          {error ? <p className="product-error">{error}</p> : inspectedCell ? (
+          {error ? <p className="product-error">{error}</p> : resultMode === "selected" && !selectedCell ? (
+            <p className="selected-area-empty">Click any hexagon to inspect it without losing the suggested areas.</p>
+          ) : inspectedCell ? (
             <>
+              {resultMode === "suggestions" ? (
+                <div className="suggestion-list">
+                  {suggestedCells.map((cell, index) => (
+                    <button
+                      className={cell.destination_id === inspectedCell.destination_id ? "active" : ""}
+                      type="button"
+                      key={cell.destination_id}
+                      onClick={() => setActiveSuggestionIndex(index)}
+                    >
+                      <span>{index + 1}</span>
+                      <span>
+                        <strong>{typeof cell.nearest_station_name === "string" ? cell.nearest_station_name : "Meeting area"}</strong>
+                        <small>{cell.nearest_station_lines || "London public transport"}</small>
+                      </span>
+                      <b>{minutes(numericCellValue(cell, "mean_minutes"))}</b>
+                    </button>
+                  ))}
+                </div>
+              ) : null}
               <div className="result-place">
                 <div><MapPin size={20} aria-hidden="true" /></div>
                 <span><strong>{areaName}</strong><small>{inspectedCell.nearest_station_lines || "London public transport"}</small></span>
-                <b>{minutes(score)}</b>
+                <b title={`${heatmapLabel}: ${minutes(score)}`}>{minutes(averageMinutes)}</b>
               </div>
               <div className="journey-times">
                 {friends.map((friend, index) => (
@@ -440,12 +484,6 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
               ))}
             </div>
             <div className="compact-setting-row">
-              <span>Coverage</span>
-              <div className="mini-segmented">
-                {(["central", "inner"] as const).map((value) => <button className={focus === value ? "active" : ""} type="button" key={value} onClick={() => setFocus(value)}>{value === "central" ? "Zone 1" : "Zones 1-3"}</button>)}
-              </div>
-            </div>
-            <div className="compact-setting-row">
               <span>Colours</span>
               <div className="palette-swatches">
                 {(["central", "green-red", "viridis", "inferno", "custom"] as const).map((value) => <button className={palette === value ? "active" : ""} aria-label={`${value} colour map`} title={value} type="button" key={value} onClick={() => setPalette(value)} data-palette={value} />)}
@@ -463,13 +501,18 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
           cells={surface.cells}
           selectedCell={inspectedCell}
           valueKey="model_score_minutes"
-          valueLabel="Group travel time"
+          valueLabel={heatmapLabel}
           palette={palette}
           customColorMap={serialisedStops}
           colorScale={colorScale}
           isLoading={loading}
           loadingLabel="Finding your middle"
-          onSelectCell={setSelectedCell}
+          onSelectCell={(cell) => {
+            setSelectedCell(cell);
+            if (cell) {
+              setResultMode("selected");
+            }
+          }}
           variant="product"
           activeFriendIndex={activeFriendIndex}
           placingFriendIndex={placingFriendIndex}

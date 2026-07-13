@@ -54,6 +54,7 @@ type PersistedAppState = {
   palette: Exclude<PaletteMode, "error">;
   customColorStops: EditableColorMapStop[];
   colorScale: ColorScale;
+  suggestionMinDistanceKm: number;
 };
 
 type AppStateContextValue = PersistedAppState & {
@@ -65,6 +66,7 @@ type AppStateContextValue = PersistedAppState & {
   setPalette: Dispatch<SetStateAction<Exclude<PaletteMode, "error">>>;
   setCustomColorStops: Dispatch<SetStateAction<EditableColorMapStop[]>>;
   setColorScale: Dispatch<SetStateAction<ColorScale>>;
+  setSuggestionMinDistanceKm: Dispatch<SetStateAction<number>>;
   changeFriendCount: (count: number) => void;
   updateFriend: (index: number, patch: Partial<Friend>) => void;
   toggleFriend: (index: number) => void;
@@ -85,7 +87,8 @@ function defaultState(): PersistedAppState {
       { id: "stop-orange", position: 70, color: "#f97316" },
       { id: "stop-red", position: 100, color: "#7f1d1d" }
     ],
-    colorScale: recommendedColorScale(3)
+    colorScale: recommendedColorScale(3),
+    suggestionMinDistanceKm: 3
   };
 }
 
@@ -102,7 +105,7 @@ function loadState(): PersistedAppState {
     }
     const parsed = JSON.parse(raw) as Partial<PersistedAppState>;
     const friends = Array.isArray(parsed.friends) ? parsed.friends.filter(isFiniteFriend).slice(0, 6) : [];
-    if (friends.length < 2) {
+    if (friends.length < 1) {
       return fallback;
     }
     const included = friends.map((_, index) => parsed.included?.[index] !== false);
@@ -123,9 +126,7 @@ function loadState(): PersistedAppState {
       combine: ["balanced", "max", "mean", "fairness"].includes(parsed.combine ?? "")
         ? (parsed.combine as CombineMode)
         : fallback.combine,
-      focus: ["central", "inner", "wide"].includes(parsed.focus ?? "")
-        ? (parsed.focus as FocusMode)
-        : fallback.focus,
+      focus: "inner",
       detail: ["fine", "fast"].includes(parsed.detail ?? "")
         ? (parsed.detail as DetailMode)
         : fallback.detail,
@@ -139,7 +140,13 @@ function loadState(): PersistedAppState {
         Number.isFinite(parsed.colorScale.upperPercentile) &&
         Number.isFinite(parsed.colorScale.contrast)
           ? parsed.colorScale
-          : fallback.colorScale
+          : fallback.colorScale,
+      suggestionMinDistanceKm:
+        Number.isFinite(parsed.suggestionMinDistanceKm) &&
+        Number(parsed.suggestionMinDistanceKm) >= 0.5 &&
+        Number(parsed.suggestionMinDistanceKm) <= 20
+          ? Number(parsed.suggestionMinDistanceKm)
+          : fallback.suggestionMinDistanceKm
     };
   } catch {
     return fallback;
@@ -158,6 +165,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [palette, setPalette] = useState(initial.palette);
   const [customColorStops, setCustomColorStops] = useState(initial.customColorStops);
   const [colorScale, setColorScale] = useState(initial.colorScale);
+  const [suggestionMinDistanceKm, setSuggestionMinDistanceKm] = useState(initial.suggestionMinDistanceKm);
 
   useEffect(() => {
     const state: PersistedAppState = {
@@ -168,13 +176,14 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       detail,
       palette,
       customColorStops,
-      colorScale
+      colorScale,
+      suggestionMinDistanceKm
     };
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }, [colorScale, combine, customColorStops, detail, focus, friends, included, palette]);
+  }, [colorScale, combine, customColorStops, detail, focus, friends, included, palette, suggestionMinDistanceKm]);
 
   function changeFriendCount(count: number) {
-    const nextCount = Math.max(2, Math.min(6, Math.round(count)));
+    const nextCount = Math.max(1, Math.min(6, Math.round(count)));
     setFriends((current) => {
       if (nextCount <= current.length) {
         return current.slice(0, nextCount);
@@ -215,6 +224,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     setPalette(next.palette);
     setCustomColorStops(next.customColorStops);
     setColorScale(next.colorScale);
+    setSuggestionMinDistanceKm(next.suggestionMinDistanceKm);
   }
 
   const value: AppStateContextValue = {
@@ -226,6 +236,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     palette,
     customColorStops,
     colorScale,
+    suggestionMinDistanceKm,
     setFriends,
     setIncluded,
     setCombine,
@@ -234,6 +245,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     setPalette,
     setCustomColorStops,
     setColorScale,
+    setSuggestionMinDistanceKm,
     changeFriendCount,
     updateFriend,
     toggleFriend,

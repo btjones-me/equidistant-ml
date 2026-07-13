@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import L, { type LatLngBoundsExpression } from "leaflet";
 import type { ColorMapStop, ColorScale, Friend, PaletteMode, SurfaceCell } from "./types";
 
@@ -36,6 +36,13 @@ type ColorStats = {
 
 type PaletteConfig = {
   stops: { at: number; rgb: RGB }[];
+};
+
+type TubeLine = {
+  id: string;
+  name: string;
+  color: string;
+  segments: [[number, number], [number, number]][];
 };
 
 const palettes: Record<RenderPaletteMode, PaletteConfig> = {
@@ -107,6 +114,8 @@ const palettes: Record<RenderPaletteMode, PaletteConfig> = {
 const markerColours = ["#0ea5e9", "#f97316", "#22c55e", "#a855f7", "#e11d48", "#64748b"];
 const zeroCenteredValueKeys = new Set(["model_residual_minutes", "signed_error_minutes"]);
 const surfacePaneName = "surface-cells";
+const tubePaneName = "tube-lines";
+const placeLabelsPaneName = "place-labels";
 const selectionPaneName = "surface-selection";
 const friendMarkerPaneName = "friend-markers";
 
@@ -275,6 +284,53 @@ function boundsFromCells(cells: SurfaceCell[], sortedLats: number[], sortedLngs:
   return bounds;
 }
 
+function edgeFadeOpacity(cell: SurfaceCell, bounds: L.LatLngBounds): number {
+  const latitudeKm = Math.min(cell.lat - bounds.getSouth(), bounds.getNorth() - cell.lat) * 111.2;
+  const longitudeScale = 111.2 * Math.cos((cell.lat * Math.PI) / 180);
+  const longitudeKm = Math.min(cell.lng - bounds.getWest(), bounds.getEast() - cell.lng) * longitudeScale;
+  const distanceKm = Math.max(0, Math.min(latitudeKm, longitudeKm));
+  const progress = clamp(distanceKm / 4.5);
+  const smooth = progress * progress * (3 - 2 * progress);
+  return 0.08 + smooth * 0.92;
+}
+
+function tooltipForCell(
+  cell: SurfaceCell,
+  friends: Friend[],
+  includedFriendIndexes: number[]
+): HTMLElement {
+  const container = document.createElement("div");
+  container.className = "travel-tooltip";
+  const place = document.createElement("strong");
+  place.textContent =
+    typeof cell.nearest_station_name === "string" && cell.nearest_station_name
+      ? cell.nearest_station_name
+      : "London destination";
+  container.appendChild(place);
+
+  const average = document.createElement("div");
+  average.className = "travel-tooltip-average";
+  const averageValue = numericCellField(cell, "mean_minutes", valueForCell(cell, "model_score_minutes"));
+  average.textContent = `Average travel time ${averageValue.toFixed(1)} min`;
+  container.appendChild(average);
+
+  const journeys = document.createElement("div");
+  journeys.className = "travel-tooltip-journeys";
+  includedFriendIndexes.forEach((friendIndex) => {
+    const row = document.createElement("span");
+    const marker = document.createElement("i");
+    marker.style.background = markerColours[friendIndex % markerColours.length];
+    const name = document.createElement("b");
+    name.textContent = friends[friendIndex]?.name || `Friend ${friendIndex + 1}`;
+    const duration = document.createElement("em");
+    duration.textContent = `${numericCellField(cell, `friend_${friendIndex}_model_minutes`).toFixed(1)} min`;
+    row.append(marker, name, duration);
+    journeys.appendChild(row);
+  });
+  container.appendChild(journeys);
+  return container;
+}
+
 function gridSignatureForCells(cells: SurfaceCell[]): string {
   if (!cells.length) {
     return "empty";
@@ -317,8 +373,11 @@ export default function MapView({
   const mapNodeRef = useRef<HTMLDivElement | null>(null);
   const layerRef = useRef<L.LayerGroup | null>(null);
   const markerLayerRef = useRef<L.LayerGroup | null>(null);
+  const tubeLayerRef = useRef<L.LayerGroup | null>(null);
   const selectionRef = useRef<L.Layer | null>(null);
   const lastFittedGridSignatureRef = useRef<string | null>(null);
+  const [tubeLines, setTubeLines] = useState<TubeLine[]>([]);
+  const [showTubeLines, setShowTubeLines] = useState(true);
 
   const gridSignature = useMemo(() => gridSignatureForCells(cells), [cells]);
   const isZeroCentered = zeroCenteredValueKeys.has(valueKey);
@@ -377,6 +436,16 @@ export default function MapView({
 
     const surfacePane = map.createPane(surfacePaneName);
     surfacePane.style.zIndex = "410";
+    const tubePane = map.createPane(tubePaneName);
+    tubePane.style.zIndex = "480";
+    tubePane.style.pointerEvents = "none";
+    const placeLabelsPane = map.createPane(placeLabelsPaneName);
+    placeLabelsPane.style.zIndex = "580";
+    placeLabelsPane.style.pointerEvents = "none";
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png", {
+      pane: placeLabelsPaneName,
+      attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a>'
+    }).addTo(map);
     const selectionPane = map.createPane(selectionPaneName);
     selectionPane.style.zIndex = "620";
     selectionPane.style.pointerEvents = "none";
@@ -397,6 +466,7 @@ export default function MapView({
     updateMapNodeView();
 
     layerRef.current = L.layerGroup().addTo(map);
+    tubeLayerRef.current = L.layerGroup().addTo(map);
     markerLayerRef.current = L.layerGroup().addTo(map);
     mapRef.current = map;
 
@@ -406,6 +476,55 @@ export default function MapView({
       mapRef.current = null;
     };
   }, [variant]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetch("/map/tube-lines.json", { cache: "force-cache" })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Tube overlay unavailable");
+        }
+        return response.json() as Promise<{ lines?: TubeLine[] }>;
+      })
+      .then((payload) => {
+        if (!cancelled) {
+          setTubeLines(payload.lines ?? []);
+        }
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    const layer = tubeLayerRef.current;
+    if (!layer) {
+      return;
+    }
+    layer.clearLayers();
+    if (!showTubeLines) {
+      return;
+    }
+    tubeLines.forEach((line) => {
+      line.segments.forEach((segment) => {
+        L.polyline(segment, {
+          pane: tubePaneName,
+          color: "#ffffff",
+          opacity: 0.8,
+          weight: 5,
+          interactive: false
+        }).addTo(layer);
+        L.polyline(segment, {
+          pane: tubePaneName,
+          color: line.color,
+          opacity: 0.94,
+          weight: 2.8,
+          interactive: false
+        }).addTo(layer);
+      });
+    });
+  }, [showTubeLines, tubeLines]);
 
   useEffect(() => {
     const layer = layerRef.current;
@@ -425,6 +544,7 @@ export default function MapView({
     const retainedZoom = shouldFitBounds ? null : map.getZoom();
     const sortedLats = Array.from(new Set(cells.map((cell) => cell.lat))).sort((a, b) => a - b);
     const sortedLngs = Array.from(new Set(cells.map((cell) => cell.lng))).sort((a, b) => a - b);
+    const surfaceBounds = boundsFromCells(cells, sortedLats, sortedLngs);
     const renderCells = cells
       .slice()
       .sort((left, right) => numericCellField(right, "grid_priority") - numericCellField(left, "grid_priority"));
@@ -433,25 +553,31 @@ export default function MapView({
       const value = valueForCell(cell, valueKey);
       const polygon = cellLatLngs(cell);
       const color = scaleColor(value, domain, paletteConfig, colorScale.contrast);
+      const edgeOpacity = surfaceBounds.isValid() ? edgeFadeOpacity(cell, surfaceBounds) : 1;
       const cellLayer = polygon
         ? L.polygon(polygon, {
             pane: surfacePaneName,
             color,
             fillColor: color,
-            fillOpacity: 0.68,
-            opacity: 0.22,
+            fillOpacity: 0.68 * edgeOpacity,
+            opacity: 0.22 * edgeOpacity,
             weight: 0.8
           })
         : L.rectangle(cellBounds(cell, sortedLats, sortedLngs), {
             pane: surfacePaneName,
             color,
             fillColor: color,
-            fillOpacity: 0.66,
-            opacity: 0.24,
+            fillOpacity: 0.66 * edgeOpacity,
+            opacity: 0.24 * edgeOpacity,
             weight: 1
           });
       cellLayer.on("click", () => onSelectCell(cell));
-      cellLayer.bindTooltip(`${valueLabel}: ${value.toFixed(1)} min${cell.grid_band ? ` - ${cell.grid_band}` : ""}`, { sticky: true });
+      cellLayer.bindTooltip(tooltipForCell(cell, friends, includedFriendIndexes), {
+        className: "travel-cell-tooltip",
+        direction: "top",
+        offset: [0, -6],
+        sticky: true
+      });
       cellLayer.addTo(layer);
     });
 
@@ -468,7 +594,9 @@ export default function MapView({
     cells,
     colorScale.contrast,
     domain,
+    friends,
     gridSignature,
+    includedFriendIndexes,
     onSelectCell,
     paletteConfig,
     valueKey,
@@ -582,6 +710,22 @@ export default function MapView({
           </div>
         </div>
       </div>
+      {tubeLines.length ? (
+        <div className="tube-overlay-control">
+          <label>
+            <input type="checkbox" checked={showTubeLines} onChange={(event) => setShowTubeLines(event.target.checked)} />
+            <span aria-hidden="true" />
+            Tube lines
+          </label>
+          {showTubeLines ? (
+            <div className="tube-line-key" aria-label="Tube line colours">
+              {tubeLines.map((line) => (
+                <span key={line.id}><i style={{ background: line.color }} />{line.name}</span>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
       {isLoading ? (
         <div className="map-loading-overlay" aria-live="polite">
           <div className="loading-spinner" aria-hidden="true" />

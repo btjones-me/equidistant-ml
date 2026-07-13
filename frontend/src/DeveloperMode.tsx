@@ -19,7 +19,6 @@ import type {
 } from "./types";
 
 const combineModes: CombineMode[] = ["balanced", "max", "mean", "fairness"];
-const focusModes: FocusMode[] = ["central", "inner", "wide"];
 const detailModes: DetailMode[] = ["fine", "fast"];
 const paletteModes: Exclude<PaletteMode, "error">[] = ["central", "green-red", "viridis", "inferno", "custom"];
 const viewModes: ViewMode[] = ["model", "graph", "residual", "reference", "error"];
@@ -313,12 +312,13 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
     palette,
     customColorStops,
     colorScale,
+    suggestionMinDistanceKm,
     setCombine,
-    setFocus,
     setDetail,
     setPalette,
     setCustomColorStops,
     setColorScale,
+    setSuggestionMinDistanceKm,
     changeFriendCount: setSharedFriendCount,
     updateFriend: patchFriend,
     toggleFriend: toggleSharedFriend
@@ -668,10 +668,21 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
             Friends
             <input
               type="number"
-              min={2}
+              min={1}
               max={6}
               value={friendCount}
               onChange={(event) => changeFriendCount(Number(event.target.value))}
+            />
+          </label>
+          <label>
+            Suggestion spacing (km)
+            <input
+              type="number"
+              min={0.5}
+              max={20}
+              step={0.5}
+              value={suggestionMinDistanceKm}
+              onChange={(event) => setSuggestionMinDistanceKm(Math.min(20, Math.max(0.5, Number(event.target.value))))}
             />
           </label>
           <label>
@@ -746,17 +757,6 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
             </p>
           )}
         </section>
-
-        <div className="control-group">
-          <p className="eyebrow">Coverage</p>
-          <div className="segmented three" aria-label="Focus area">
-            {focusModes.map((mode) => (
-              <button key={mode} className={focus === mode ? "active" : ""} type="button" onClick={() => setFocus(mode)}>
-                {mode}
-              </button>
-            ))}
-          </div>
-        </div>
 
         <div className="control-grid">
           <div>
