@@ -31,7 +31,7 @@ class GetDirections:
     def __init__(
         self,
         nrows: int = 10,
-        api_key: str = None,
+        api_key: str | None = None,
         mode: str = "transit",
         upper_left: Tuple[float, float] = DEFAULT_UPPER_LEFT,
         lower_right: Tuple[float, float] = DEFAULT_LOWER_RIGHT,
@@ -73,8 +73,8 @@ class GetDirections:
         lats = np.linspace(upper_left[0], lower_right[0], size)
         lngs = np.linspace(upper_left[1], lower_right[1], size)
         coords = [[i, j] for i in lats for j in lngs]
-        coords = np.round(coords, 5)
-        return pd.DataFrame(coords, columns=["Latitude", "Longitude"])
+        rounded_coords = np.round(coords, 5)
+        return pd.DataFrame(rounded_coords, columns=["Latitude", "Longitude"])
 
     @staticmethod
     def get_random_coords(
@@ -161,7 +161,9 @@ class GetDirections:
         if api_status != "OK":
             loguru.logger.warning(f"Google Directions status was {api_status}")
 
-        sanitized_url = resp.url.replace(self.api_key, "REDACTED")
+        sanitized_url = (
+            resp.url.replace(self.api_key, "REDACTED") if self.api_key else resp.url
+        )
         return pd.Series(
             {
                 "datetime": human_time,

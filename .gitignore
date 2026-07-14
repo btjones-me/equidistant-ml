@@ -7,6 +7,8 @@
 /*.egg-info
 /dist/*
 build
+!/frontend/build/
+!/frontend/build/prepare-sites.mjs
 _build
 .cache
 *.so
@@ -21,7 +23,6 @@ pip-log.txt
 
 .DS_Store
 .idea/*
-.python-version
 .vscode/*
 
 /test.py
@@ -42,4 +43,20 @@ pip-wheel-metadata
 
 # Generated data and API caches
 /data/training/
+/data/interim/
+/data/features/
+/data/experiments/
+/data/smoke/
+/data/smoke_graph/
+/data/reference/
+/data/holdout/
+/models/
 /gmaps_cache*
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.wrangler/
+
+# Generated experiment reports
+/docs/model_surface_audit.md
+/docs/graph_hillclimb_results.md
+/metrics/*_20260709.json

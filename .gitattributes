@@ -1,0 +1,4 @@
+*.joblib binary
+*.parquet binary
+*.png binary
+*.u8 binary

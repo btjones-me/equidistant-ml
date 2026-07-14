@@ -1,0 +1,235 @@
+schema: '2.0'
+stages:
+  sample_origins:
+    cmd: uv run python -m equidistant_ml.surfaces.pipeline sample-origins
+    deps:
+    - path: data/london_tubes.csv
+      hash: md5
+      md5: bdc6bfa73e07c7287bca04b72e4499ae
+      size: 42495
+    - path: equidistant_ml/surfaces
+      hash: md5
+      md5: c9e3645e72f7cf32acacd2dd8983a3ce.dir
+      size: 112795
+      nfiles: 18
+    - path: params.yaml
+      hash: md5
+      md5: 976c0a4f1753004aa23f38e007154e92
+      size: 763
+    params:
+      params.yaml:
+        bbox:
+          north: 51.7
+          south: 51.28
+          west: -0.52
+          east: 0.33
+        features.stations_path: data/london_tubes.csv
+        sampling:
+          origin_count: 500
+          seed: 42
+          station_bias_fraction: 0.35
+    outs:
+    - path: data/interim/origin_anchors.parquet
+      hash: md5
+      md5: 9567136b9c0df6b757e334efedb57a61
+      size: 14655
+  build_grid:
+    cmd: uv run python -m equidistant_ml.surfaces.pipeline build-grid
+    deps:
+    - path: equidistant_ml/surfaces
+      hash: md5
+      md5: c9e3645e72f7cf32acacd2dd8983a3ce.dir
+      size: 112795
+      nfiles: 18
+    - path: params.yaml
+      hash: md5
+      md5: 976c0a4f1753004aa23f38e007154e92
+      size: 763
+    params:
+      params.yaml:
+        bbox:
+          north: 51.7
+          south: 51.28
+          west: -0.52
+          east: 0.33
+        grid:
+          x_size: 50
+          y_size: 50
+    outs:
+    - path: data/interim/destination_grid.parquet
+      hash: md5
+      md5: 50f9d2e26792f6f24e8f2c0640ad5f43
+      size: 18335
+  fetch_traveltime:
+    cmd: uv run python -m equidistant_ml.surfaces.pipeline fetch-traveltime
+      --checkpoint-dir data/interim/traveltime_labels.parts
+    deps:
+    - path: data/interim/destination_grid.parquet
+      hash: md5
+      md5: 50f9d2e26792f6f24e8f2c0640ad5f43
+      size: 18335
+    - path: data/interim/origin_anchors.parquet
+      hash: md5
+      md5: 9567136b9c0df6b757e334efedb57a61
+      size: 14655
+    - path: equidistant_ml/surfaces
+      hash: md5
+      md5: c9e3645e72f7cf32acacd2dd8983a3ce.dir
+      size: 112795
+      nfiles: 18
+    - path: params.yaml
+      hash: md5
+      md5: 976c0a4f1753004aa23f38e007154e92
+      size: 763
+    params:
+      params.yaml:
+        traveltime:
+          transportation_type: public_transport
+          arrival_time_period: weekday_morning
+          travel_time_seconds: 10800
+          unreachable_penalty_seconds: 1800
+          properties:
+          - travel_time
+          timeout_seconds: 90
+          sleep_seconds: 1.0
+    outs:
+    - path: data/interim/traveltime_labels.parquet
+      hash: md5
+      md5: d2310c8c76e9c79029aca9d7782f7d31
+      size: 4532715
+  build_features:
+    cmd: uv run python -m equidistant_ml.surfaces.pipeline build-features
+    deps:
+    - path: data/interim/destination_grid.parquet
+      hash: md5
+      md5: 50f9d2e26792f6f24e8f2c0640ad5f43
+      size: 18335
+    - path: data/interim/origin_anchors.parquet
+      hash: md5
+      md5: 9567136b9c0df6b757e334efedb57a61
+      size: 14655
+    - path: data/interim/traveltime_labels.parquet
+      hash: md5
+      md5: d2310c8c76e9c79029aca9d7782f7d31
+      size: 4532715
+    - path: data/london_tubes.csv
+      hash: md5
+      md5: bdc6bfa73e07c7287bca04b72e4499ae
+      size: 42495
+    - path: equidistant_ml/surfaces
+      hash: md5
+      md5: c9e3645e72f7cf32acacd2dd8983a3ce.dir
+      size: 112795
+      nfiles: 18
+    - path: params.yaml
+      hash: md5
+      md5: 976c0a4f1753004aa23f38e007154e92
+      size: 763
+    params:
+      params.yaml:
+        features:
+          stations_path: data/london_tubes.csv
+          nearest_station_count: 3
+          density_radius_m: 1200
+    outs:
+    - path: data/features/traveltime_features.parquet
+      hash: md5
+      md5: 85bb8e3591e1b3a99a43eee50d4d71ba
+      size: 39649591
+  train_baseline:
+    cmd: uv run python -m equidistant_ml.surfaces.pipeline train-baseline
+    deps:
+    - path: data/features/traveltime_features.parquet
+      hash: md5
+      md5: 85bb8e3591e1b3a99a43eee50d4d71ba
+      size: 39649591
+    - path: equidistant_ml/surfaces
+      hash: md5
+      md5: c9e3645e72f7cf32acacd2dd8983a3ce.dir
+      size: 112795
+      nfiles: 18
+    - path: params.yaml
+      hash: md5
+      md5: 976c0a4f1753004aa23f38e007154e92
+      size: 763
+    params:
+      params.yaml:
+        baseline:
+          alpha: 1.0
+        validation:
+          validation_fraction: 0.2
+          seed: 42
+    outs:
+    - path: models/baseline_model.joblib
+      hash: md5
+      md5: cfb79a65ef5365d0f42caafc5cd4698a
+      size: 1869
+  train_model:
+    cmd: uv run python -m equidistant_ml.surfaces.pipeline train-model
+    deps:
+    - path: data/features/traveltime_features.parquet
+      hash: md5
+      md5: 85bb8e3591e1b3a99a43eee50d4d71ba
+      size: 39649591
+    - path: equidistant_ml/surfaces
+      hash: md5
+      md5: c9e3645e72f7cf32acacd2dd8983a3ce.dir
+      size: 112795
+      nfiles: 18
+    - path: params.yaml
+      hash: md5
+      md5: 976c0a4f1753004aa23f38e007154e92
+      size: 763
+    params:
+      params.yaml:
+        model:
+          seed: 42
+          n_estimators: 300
+          classifier_n_estimators: 200
+          learning_rate: 0.05
+          num_leaves: 31
+          min_child_samples: 20
+          reachable_probability_threshold: 0.05
+          n_jobs: -1
+        validation:
+          validation_fraction: 0.2
+          seed: 42
+    outs:
+    - path: models/travel_time_model.joblib
+      hash: md5
+      md5: 05a1b985aacb09bdb2947627a18188b2
+      size: 1666700
+  evaluate:
+    cmd: uv run python -m equidistant_ml.surfaces.pipeline evaluate
+    deps:
+    - path: data/features/traveltime_features.parquet
+      hash: md5
+      md5: 85bb8e3591e1b3a99a43eee50d4d71ba
+      size: 39649591
+    - path: equidistant_ml/surfaces
+      hash: md5
+      md5: c9e3645e72f7cf32acacd2dd8983a3ce.dir
+      size: 112795
+      nfiles: 18
+    - path: models/baseline_model.joblib
+      hash: md5
+      md5: cfb79a65ef5365d0f42caafc5cd4698a
+      size: 1869
+    - path: models/travel_time_model.joblib
+      hash: md5
+      md5: 05a1b985aacb09bdb2947627a18188b2
+      size: 1666700
+    - path: params.yaml
+      hash: md5
+      md5: 976c0a4f1753004aa23f38e007154e92
+      size: 763
+    params:
+      params.yaml:
+        validation:
+          validation_fraction: 0.2
+          seed: 42
+    outs:
+    - path: metrics/model.json
+      hash: md5
+      md5: a8bad6b8b01287512f0a4a013be883d8
+      size: 2264

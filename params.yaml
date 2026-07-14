@@ -1,0 +1,90 @@
+bbox:
+  north: 51.70
+  south: 51.28
+  west: -0.52
+  east: 0.33
+
+grid:
+  x_size: 50
+  y_size: 50
+
+sampling:
+  origin_count: 500
+  seed: 42
+  station_bias_fraction: 0.35
+
+traveltime:
+  transportation_type: public_transport
+  arrival_time_period: weekday_morning
+  travel_time_seconds: 10800
+  unreachable_penalty_seconds: 1800
+  properties:
+    - travel_time
+  timeout_seconds: 90
+  sleep_seconds: 1.0
+
+features:
+  stations_path: data/london_tubes.csv
+  nearest_station_count: 3
+  density_radius_m: 1200
+
+transport_sources:
+  tfl_enabled: true
+  tfl_modes:
+    - tube
+    - overground
+    - elizabeth-line
+    - dlr
+    - tram
+    - bus
+  bus_route_limit: 25
+  timeout_seconds: 30
+  naptan_csv_path: null
+
+transport_graph:
+  raw_nodes_path: data/reference/transport_nodes.parquet
+  raw_edges_path: data/reference/transport_edges.parquet
+  nodes_path: data/reference/transport_graph_nodes.parquet
+  edges_path: data/reference/transport_graph_edges.parquet
+  transfer_radius_m: 180
+  transfer_penalty_seconds: 120
+  walking_speed_mps: 1.35
+
+graph_features:
+  access_node_limit: 4
+  max_access_distance_m: 1600
+  bus_density_radius_m: 500
+
+corridor_holdout:
+  origin_count: 80
+  destination_count: 800
+  rail_corridor_fraction: 0.55
+  zone_1_2_fraction: 0.70
+
+validation:
+  validation_fraction: 0.2
+  seed: 42
+
+baseline:
+  alpha: 1.0
+
+graph_baseline:
+  alpha: 1.0
+
+model:
+  seed: 42
+  n_estimators: 300
+  classifier_n_estimators: 200
+  learning_rate: 0.05
+  num_leaves: 31
+  min_child_samples: 20
+  reachable_probability_threshold: 0.05
+  n_jobs: -1
+
+graph_model:
+  seed: 42
+  n_estimators: 350
+  learning_rate: 0.04
+  num_leaves: 39
+  min_child_samples: 20
+  n_jobs: -1

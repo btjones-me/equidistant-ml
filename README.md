@@ -1,85 +1,154 @@
-# equidistant-ml
+# Equidistant
 
+Equidistant finds fair meeting areas for groups of friends using public-transport
+travel time rather than straight-line distance. The current product covers
+central London and Zones 1-3, supports groups of 2-6, and runs its primary
+surface model offline.
 
-Contains ml for equidistant, an app to estimate journey times.
+## Product
 
-## Setup
+The frontend has two experiences backed by one persisted workspace:
 
-Required: `python dependencies`, `python 3.8`, `uv`
+- **Equidistant** is the production map. Add or drag starting points, choose a
+  group objective, and inspect suggested meeting areas and per-person journeys.
+- **Developer mode** exposes coverage, resolution, colour controls, individual
+  model/graph layers, TravelTime references, signed error, and cell diagnostics.
 
-### Install uv
+Participant selections, coordinates, scoring strategy, coverage, palette,
+custom colour stops, and colour range are shared between both modes and saved
+locally in the browser.
 
-```shell
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
+## Architecture
 
-### Install python dependencies and editable package
+- `equidistant_ml/` contains the FastAPI development API, feature engineering,
+  transport graph, model training, evaluation, and TravelTime integration.
+- `frontend/` is a Vite React TypeScript application using Leaflet and H3 cells.
+- `frontend/public/model/` is a quantised browser atlas generated from the best
+  local model. It keeps the hosted app dynamic without shipping Python, model
+  credentials, or a live TravelTime dependency.
+- `dvc.yaml` and `params.yaml` define the reproducible data and training stages.
+- `.openai/hosting.json` and `frontend/worker/` package the app for Sites. The
+  worker enforces the shared-password gate before serving any app asset.
+
+The browser atlas interpolates from 560 origin anchors over 3,032 mixed-priority
+H3 destinations. Its measured interpolation MAE against direct local-model
+inference is stored in `frontend/public/model/atlas.json`.
+
+## Local setup
+
+Required: Python 3.13, [uv](https://docs.astral.sh/uv/), Node.js, and npm.
 
 ```shell
 make install-dev
+make frontend-install
 ```
 
-### Run tests
-
-This project uses `pytest` to run tests.
-
-To run the test suite, run:
-```
-make test
-```
-
-This project uses GitHub actions to run the pytest suite on any push automatically.
-
-### Generate Google Directions training data
-
-Create `.env` from the template and add a Google Directions API key:
+Create local credentials when generating or validating TravelTime labels:
 
 ```shell
 make setup
 ```
 
 ```dotenv
-GMAPS_API_KEY_MLIGENT=your-api-key
+GMAPS_API_KEY_MLIGENT=your-google-api-key
+TRAVELTIME_APP_ID=your-traveltime-app-id
+TRAVELTIME_API_KEY=your-traveltime-api-key
 ```
 
-Preview the generated rows without calling Google:
+Start the development API and frontend in separate terminals:
 
 ```shell
-make generate-data-dry-run
+make run-server
+make frontend-dev
 ```
 
-Generate a sample parquet dataset:
+Open `http://localhost:5173/`. The production view uses the browser atlas; the
+local API automatically powers richer Developer mode responses and live/cached
+TravelTime comparisons.
+
+## Quality checks
 
 ```shell
-make generate-data
+make check
 ```
 
-By default this writes `data/training/directions.<timestamp>.parquet`. Generated
-training data and the local request cache are ignored by git. The generator uses
-future transit departure times, redacts API keys from saved request URLs, and
-caches repeated Google Directions requests locally.
+This runs Python linting and tests, frontend unit and password-gate tests, and a
+production/Sites build. Individual commands remain available:
 
+```shell
+make test
+make lint
+make frontend-test
+make frontend-build
+```
 
-## Deployment & CI / CD
+## Model pipeline
 
-This project is deployed on _Heroku_.
+Run the credential-free model and graph smoke paths:
 
-Pull requests opened to `main` will trigger a Review App at: https://dashboard.heroku.com/apps/equidistant-ml
+```shell
+make dvc-repro-smoke
+make dvc-repro-graph-smoke
+```
 
-Merged PRs to `main` will auto-deploy to `staging`.
+Generate real TravelTime labels and train/evaluate the local models after adding
+credentials to `.env`:
 
+```shell
+make generate-traveltime-data
+make fetch-transport-data
+make build-transport-graph
+make train
+make evaluate
+make evaluate-corridors
+```
 
+The TravelTime fetch checkpoints each origin under
+`data/interim/traveltime_labels.parts/`, allowing interrupted runs to resume
+without repeating completed API calls. Generated data, local models, caches, and
+experiment reports are intentionally excluded from git.
 
-[//]: # (## Features)
+The graph layer uses TfL topology plus deterministic rail-corridor fallbacks for
+Tube, Overground, Elizabeth line, Thameslink, and National Rail. TravelTime
+remains the label source; the graph is a topology prior and diagnostic baseline.
 
-## TODO
-* Create a linear approximator as a baseline model [DONE]
-* Some inspiration can be taken from:
-https://towardsdatascience.com/simple-example-of-2d-density-plots-in-python-83b83b934f67
-* Add tests in GitHub actions CI
-## Credits
+## Browser atlas
 
-This package was created with Cookiecutter and the `btjones-me/cookiecutter-pypackage` project template.
+Regenerate the production inference atlas after promoting a new model:
 
-* Cookiecutter: https://github.com/cookiecutter/cookiecutter
-* btjones-me/cookiecutter-pypackage: https://github.com/btjones-me/cookiecutter-pypackage
+```shell
+make export-browser-atlas
+```
+
+The exporter writes compact `uint8` model and graph surfaces plus H3 metadata,
+then validates interpolation against direct model inference. Commit all three
+files in `frontend/public/model/` together.
+
+## Current evidence
+
+The promoted graph-augmented model records approximately 2.70 minutes MAE and
+5.87 minutes p90 absolute error on the central holdout. The production atlas
+adds approximately 1.39 minutes MAE relative to direct model inference. These
+figures describe weekday-morning public-transport estimates, not guarantees for
+a specific journey.
+
+## Deployment
+
+Sites deployment is built from `frontend/`. `SITE_PASSWORD` is supplied as a
+hosted environment value; it is never stored in source or bundled assets. The
+deployable build should also receive a fresh private asset namespace:
+
+```bash
+cd frontend
+SITE_ASSET_NAMESPACE="_eq_$(openssl rand -hex 32)" npm run build
+```
+
+That namespace ensures every public app and model URL reaches the password
+worker before it is mapped to a stored asset. Failed password attempts are
+limited to five per client IP in ten minutes using D1; only an HMAC-derived
+client key and short-lived counters are stored. Successful unlocks also update
+one privacy-preserving browser visitor row with Cloudflare's country, region,
+and city metadata; no raw IP or event stream is retained. Aggregates are visible
+from the Usage panel in Developer mode. The static offline atlas then lets the
+production experience serve a small group of concurrent users without a Python
+service or per-request API cost.

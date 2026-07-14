@@ -1,4 +1,4 @@
-.PHONY: install install-dev lint format test clean setup run-server stop-server generate-data generate-data-dry-run
+.PHONY: install install-dev lint format test check clean setup run-server stop-server generate-data generate-data-dry-run dvc-repro-smoke dvc-repro-graph-smoke generate-traveltime-data fetch-transport-data build-transport-graph graph-hillclimb train train-graph-model evaluate evaluate-corridors export-browser-atlas frontend-install frontend-dev frontend-test frontend-build
 
 # Development commands
 install:
@@ -21,11 +21,49 @@ format:
 test:
 	uv run --extra dev pytest --verbose --capture=no
 
+check: lint test frontend-test frontend-build
+
 generate-data:
 	uv run python -m equidistant_ml.etl.get_lattice_data
 
 generate-data-dry-run:
 	uv run python -m equidistant_ml.etl.get_lattice_data --dry-run --nrows 5 --output-format csv
+
+dvc-repro-smoke:
+	uv run python -m equidistant_ml.surfaces.pipeline smoke --output-dir data/smoke --max-origins 6 --max-destinations 36
+	uv run python -m equidistant_ml.surfaces.pipeline train-baseline --features data/smoke/features.parquet --output data/smoke/baseline_model.joblib
+	uv run python -m equidistant_ml.surfaces.pipeline train-model --features data/smoke/features.parquet --output data/smoke/travel_time_model.joblib
+	uv run python -m equidistant_ml.surfaces.pipeline evaluate --features data/smoke/features.parquet --baseline-model data/smoke/baseline_model.joblib --model data/smoke/travel_time_model.joblib --output data/smoke/model.json
+
+dvc-repro-graph-smoke:
+	uv run python -m equidistant_ml.surfaces.pipeline graph-smoke --output-dir data/smoke_graph --max-origins 6 --max-destinations 36
+
+generate-traveltime-data:
+	uv run dvc repro fetch_traveltime
+
+fetch-transport-data:
+	uv run dvc repro fetch_transport_reference
+
+build-transport-graph:
+	uv run dvc repro build_transport_graph build_graph_features
+
+graph-hillclimb:
+	uv run python -m equidistant_ml.surfaces.hillclimb
+
+train:
+	uv run dvc repro train_baseline train_model train_graph_baseline train_graph_model
+
+train-graph-model:
+	uv run dvc repro train_graph_baseline train_graph_model
+
+evaluate:
+	uv run dvc repro evaluate
+
+evaluate-corridors:
+	uv run dvc repro evaluate_corridors
+
+export-browser-atlas:
+	uv run python -m equidistant_ml.surfaces.export_atlas
 
 # Application commands
 run-server:
@@ -34,6 +72,18 @@ run-server:
 stop-server:
 	@echo "Stopping API server..."
 	@pkill -f "uvicorn equidistant_ml.app:app" || echo "No server running"
+
+frontend-install:
+	cd frontend && npm install
+
+frontend-dev:
+	cd frontend && npm run dev
+
+frontend-test:
+	cd frontend && npm test
+
+frontend-build:
+	cd frontend && npm run build
 
 # Setup commands
 setup: install-dev
@@ -51,7 +101,11 @@ clean:
 	rm -rf .mypy_cache
 	rm -rf .ruff_cache
 	rm -rf .coverage
+	rm -rf data/smoke
+	rm -rf data/experiments
+	rm -rf data/smoke_graph
 	rm -rf build
 	rm -rf dist
+	rm -rf frontend/dist
 	rm -rf *.egg-info
 	rm -rf gmaps_cache.sqlite*
