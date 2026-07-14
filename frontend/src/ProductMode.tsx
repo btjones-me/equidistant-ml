@@ -339,7 +339,10 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
 
       <section className="product-sidebar" aria-label="Meeting setup">
         <div className="product-intro">
-          <h1>Meet in the middle.<br />By time, not miles.</h1>
+          <h1>
+            <span className="product-intro-title">Meet in the middle.</span>
+            <span className="product-intro-tagline">By time, not miles.</span>
+          </h1>
           <p>Add each starting point. The map shows where the group can arrive in a similar amount of time.</p>
         </div>
 

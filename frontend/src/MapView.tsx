@@ -484,7 +484,7 @@ export default function MapView({
 
   useEffect(() => {
     let cancelled = false;
-    void fetch("/map/tube-lines.json?v=3", { cache: "force-cache" })
+    void fetch("/map/tube-lines.json?v=4", { cache: "force-cache" })
       .then((response) => {
         if (!response.ok) {
           throw new Error("Tube overlay unavailable");
@@ -517,15 +517,15 @@ export default function MapView({
         L.polyline(path, {
           pane: tubePaneName,
           color: "#ffffff",
-          opacity: 0.82,
-          weight: 4.4,
+          opacity: 0.25,
+          weight: 3.8,
           interactive: false
         }).addTo(layer);
         L.polyline(path, {
           pane: tubePaneName,
           color: line.color,
-          opacity: 1,
-          weight: 2.5,
+          opacity: 0.52,
+          weight: 2.25,
           interactive: false
         }).addTo(layer);
       });

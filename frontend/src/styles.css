@@ -940,17 +940,31 @@ button:disabled {
 
 .product-intro h1 {
   margin: 0;
-  max-width: 330px;
+  max-width: none;
   color: #172019;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 34px;
+  font-size: 32px;
   font-weight: 600;
-  line-height: 1.03;
+  line-height: 1.05;
   letter-spacing: 0;
 }
 
+.product-intro-title,
+.product-intro-tagline {
+  display: block;
+}
+
+.product-intro-tagline {
+  margin-top: 7px;
+  color: var(--teal);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
 .product-intro > p:last-child {
-  margin: 12px 0 0;
+  margin: 14px 0 0;
   max-width: 346px;
   color: var(--muted);
   font-size: 13px;
@@ -1977,10 +1991,6 @@ input:focus-visible {
     padding: 20px 15px 34px;
   }
 
-  .product-intro h1 {
-    font-size: 30px;
-  }
-
   .participant-card {
     grid-template-columns: 36px minmax(0, 1fr) 30px 27px;
   }
@@ -2009,5 +2019,15 @@ input:focus-visible {
     top: 12px;
     max-width: calc(100% - 24px);
     white-space: nowrap;
+  }
+}
+
+@media (max-width: 380px) {
+  .product-intro h1 {
+    font-size: 28px;
+  }
+
+  .product-intro-tagline {
+    font-size: 17px;
   }
 }
