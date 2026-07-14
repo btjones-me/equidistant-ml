@@ -42,7 +42,8 @@ type TubeLine = {
   id: string;
   name: string;
   color: string;
-  paths: [number, number][][];
+  paths?: [number, number][][];
+  segments?: [[number, number], [number, number]][];
 };
 
 const palettes: Record<RenderPaletteMode, PaletteConfig> = {
@@ -483,7 +484,7 @@ export default function MapView({
 
   useEffect(() => {
     let cancelled = false;
-    void fetch("/map/tube-lines.json", { cache: "force-cache" })
+    void fetch("/map/tube-lines.json?v=2", { cache: "force-cache" })
       .then((response) => {
         if (!response.ok) {
           throw new Error("Tube overlay unavailable");
@@ -511,7 +512,8 @@ export default function MapView({
       return;
     }
     tubeLines.forEach((line) => {
-      line.paths.forEach((path) => {
+      const paths = line.paths ?? line.segments ?? [];
+      paths.forEach((path) => {
         L.polyline(path, {
           pane: tubePaneName,
           color: "#ffffff",
