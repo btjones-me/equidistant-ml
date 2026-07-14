@@ -42,7 +42,7 @@ type TubeLine = {
   id: string;
   name: string;
   color: string;
-  segments: [[number, number], [number, number]][];
+  paths: [number, number][][];
 };
 
 const palettes: Record<RenderPaletteMode, PaletteConfig> = {
@@ -118,6 +118,7 @@ const tubePaneName = "tube-lines";
 const placeLabelsPaneName = "place-labels";
 const selectionPaneName = "surface-selection";
 const friendMarkerPaneName = "friend-markers";
+const edgeFadeDistanceKm = 2.8;
 
 function valueForCell(cell: SurfaceCell, valueKey: string): number {
   const value = cell[valueKey];
@@ -289,7 +290,7 @@ function edgeFadeOpacity(cell: SurfaceCell, bounds: L.LatLngBounds): number {
   const longitudeScale = 111.2 * Math.cos((cell.lat * Math.PI) / 180);
   const longitudeKm = Math.min(cell.lng - bounds.getWest(), bounds.getEast() - cell.lng) * longitudeScale;
   const distanceKm = Math.max(0, Math.min(latitudeKm, longitudeKm));
-  const progress = clamp(distanceKm / 4.5);
+  const progress = clamp(distanceKm / edgeFadeDistanceKm);
   const smooth = progress * progress * (3 - 2 * progress);
   return 0.08 + smooth * 0.92;
 }
@@ -430,8 +431,9 @@ export default function MapView({
     }).setView([51.5074, -0.1278], 11);
 
     L.control.zoom({ position: "bottomright" }).addTo(map);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
     }).addTo(map);
 
     const surfacePane = map.createPane(surfacePaneName);
@@ -443,9 +445,11 @@ export default function MapView({
     placeLabelsPane.style.zIndex = "580";
     placeLabelsPane.style.pointerEvents = "none";
     L.tileLayer("https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png", {
-      pane: placeLabelsPaneName,
-      attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a>'
+      pane: placeLabelsPaneName
     }).addTo(map);
+    map.attributionControl.addAttribution(
+      '<a href="https://tfl.gov.uk/info-for/open-data-users/">TfL open data</a>'
+    );
     const selectionPane = map.createPane(selectionPaneName);
     selectionPane.style.zIndex = "620";
     selectionPane.style.pointerEvents = "none";
@@ -507,19 +511,19 @@ export default function MapView({
       return;
     }
     tubeLines.forEach((line) => {
-      line.segments.forEach((segment) => {
-        L.polyline(segment, {
+      line.paths.forEach((path) => {
+        L.polyline(path, {
           pane: tubePaneName,
           color: "#ffffff",
-          opacity: 0.8,
-          weight: 5,
+          opacity: 0.68,
+          weight: 4.4,
           interactive: false
         }).addTo(layer);
-        L.polyline(segment, {
+        L.polyline(path, {
           pane: tubePaneName,
           color: line.color,
-          opacity: 0.94,
-          weight: 2.8,
+          opacity: 0.86,
+          weight: 2.5,
           interactive: false
         }).addTo(layer);
       });

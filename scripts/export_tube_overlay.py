@@ -1,93 +1,94 @@
-"""Export a lightweight, station-derived Tube line overlay for the browser map."""
+"""Export TfL's geographic Tube line paths for the browser map."""
 
 from __future__ import annotations
 
-import csv
 import json
-import math
 from pathlib import Path
+from typing import Any
+from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / "data" / "london_tubes.csv"
 OUTPUT = ROOT / "frontend" / "public" / "map" / "tube-lines.json"
+TFL_ROUTE_URL = "https://api.tfl.gov.uk/Line/{line_id}/Route/Sequence/outbound"
 
 LINE_COLOURS = {
-    "Bakerloo": "#B36305",
-    "Central": "#E32017",
-    "Circle": "#FFD300",
-    "District": "#00782A",
-    "Hammersmith & City": "#F3A9BB",
-    "Jubilee": "#7B868C",
-    "Metropolitan": "#9B0056",
-    "Northern": "#111111",
-    "Piccadilly": "#003688",
-    "Victoria": "#0098D4",
-    "Waterloo & City": "#76D0BD",
+    "bakerloo": ("Bakerloo", "#B36305"),
+    "central": ("Central", "#E32017"),
+    "circle": ("Circle", "#FFD300"),
+    "district": ("District", "#00782A"),
+    "hammersmith-city": ("Hammersmith & City", "#F3A9BB"),
+    "jubilee": ("Jubilee", "#7B868C"),
+    "metropolitan": ("Metropolitan", "#9B0056"),
+    "northern": ("Northern", "#111111"),
+    "piccadilly": ("Piccadilly", "#003688"),
+    "victoria": ("Victoria", "#0098D4"),
+    "waterloo-city": ("Waterloo & City", "#76D0BD"),
 }
 
 
-def distance_squared(left: tuple[float, float], right: tuple[float, float]) -> float:
-    mean_latitude = math.radians((left[0] + right[0]) / 2)
-    delta_latitude = left[0] - right[0]
-    delta_longitude = (left[1] - right[1]) * math.cos(mean_latitude)
-    return delta_latitude**2 + delta_longitude**2
+def _is_coordinate(value: Any) -> bool:
+    return (
+        isinstance(value, list)
+        and len(value) >= 2
+        and all(isinstance(part, (int, float)) for part in value[:2])
+    )
 
 
-def minimum_spanning_segments(
-    points: list[tuple[float, float]],
-) -> list[list[list[float]]]:
-    if len(points) < 2:
-        return []
-    connected = {0}
-    remaining = set(range(1, len(points)))
-    segments: list[list[list[float]]] = []
-    while remaining:
-        left_index, right_index = min(
-            ((left, right) for left in connected for right in remaining),
-            key=lambda pair: distance_squared(points[pair[0]], points[pair[1]]),
-        )
-        left = points[left_index]
-        right = points[right_index]
-        segments.append(
-            [
-                [round(left[0], 6), round(left[1], 6)],
-                [round(right[0], 6), round(right[1], 6)],
-            ]
-        )
-        connected.add(right_index)
-        remaining.remove(right_index)
-    return segments
+def decode_line_paths(encoded_line: str) -> list[list[list[float]]]:
+    """Convert TfL's stringified GeoJSON-style lng/lat paths to Leaflet lat/lng."""
+    decoded = json.loads(encoded_line)
+    paths: list[list[list[float]]] = []
+
+    def collect(value: Any) -> None:
+        if not isinstance(value, list) or not value:
+            return
+        if all(_is_coordinate(point) for point in value):
+            paths.append(
+                [
+                    [round(float(point[1]), 6), round(float(point[0]), 6)]
+                    for point in value
+                ]
+            )
+            return
+        for child in value:
+            collect(child)
+
+    collect(decoded)
+    return [path for path in paths if len(path) >= 2]
+
+
+def fetch_line_paths(line_id: str) -> list[list[list[float]]]:
+    request = Request(
+        TFL_ROUTE_URL.format(line_id=line_id),
+        headers={"User-Agent": "equidistant-london/1.0"},
+    )
+    with urlopen(request, timeout=30) as response:  # noqa: S310
+        payload = json.load(response)
+    return [
+        path
+        for encoded_line in payload.get("lineStrings", [])
+        for path in decode_line_paths(encoded_line)
+    ]
 
 
 def main() -> None:
-    stations_by_line: dict[str, dict[str, tuple[float, float]]] = {
-        line: {} for line in LINE_COLOURS
-    }
-    with SOURCE.open(newline="", encoding="utf-8-sig") as source:
-        for row in csv.DictReader(source):
-            try:
-                point = (float(row["y"]), float(row["x"]))
-            except (KeyError, TypeError, ValueError):
-                continue
-            for line in (part.strip() for part in row.get("LINES", "").split(",")):
-                if line in stations_by_line:
-                    stations_by_line[line].setdefault(row["NAME"], point)
-
     payload = {
-        "version": 1,
-        "source": "Station-derived schematic from the local London transport catalogue",
+        "version": 2,
+        "source": "TfL Unified API geographic line strings",
+        "source_url": "https://tfl.gov.uk/info-for/open-data-users/unified-api",
         "lines": [
             {
-                "id": name.lower().replace(" & ", "-").replace(" ", "-"),
+                "id": line_id,
                 "name": name,
                 "color": colour,
-                "segments": minimum_spanning_segments(
-                    list(stations_by_line[name].values())
-                ),
+                "paths": fetch_line_paths(line_id),
             }
-            for name, colour in LINE_COLOURS.items()
+            for line_id, (name, colour) in LINE_COLOURS.items()
         ],
     }
+    missing = [line["name"] for line in payload["lines"] if not line["paths"]]
+    if missing:
+        raise RuntimeError(f"TfL returned no route geometry for: {', '.join(missing)}")
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(json.dumps(payload, separators=(",", ":")), encoding="utf-8")
 
