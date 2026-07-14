@@ -17,6 +17,7 @@ import {
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MapView from "./MapView";
 import { getAtlasSurface, preloadAtlas } from "./lib/atlas";
+import { locationLabelForFriend } from "./lib/locations";
 import { selectSeparatedSuggestions } from "./lib/suggestions";
 import { useAppState } from "./state/AppStateContext";
 import type { CombineMode, Friend, SurfaceCell, SurfaceResponse } from "./types";
@@ -58,13 +59,6 @@ function numericCellValue(cell: SurfaceCell | null, key: string): number | null 
 
 function minutes(value: number | null | undefined): string {
   return value === null || value === undefined || !Number.isFinite(value) ? "-" : `${Math.round(value)} min`;
-}
-
-function locationSummary(friend: Friend): string {
-  if (friend.locationLabel?.trim()) {
-    return friend.locationLabel;
-  }
-  return `${friend.lat.toFixed(4)}, ${friend.lng.toFixed(4)}`;
 }
 
 function uniqueLocalPlaces(cells: SurfaceCell[], query: string): LocalPlace[] {
@@ -114,6 +108,7 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
   const [resultMode, setResultMode] = useState<"suggestions" | "selected">("suggestions");
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(0);
   const [activeFriendIndex, setActiveFriendIndex] = useState(0);
+  const [editingLocationIndex, setEditingLocationIndex] = useState<number | null>(null);
   const [placingFriendIndex, setPlacingFriendIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -140,6 +135,10 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
   const suggestedCell = suggestedCells[Math.min(activeSuggestionIndex, Math.max(0, suggestedCells.length - 1))] ?? null;
   const inspectedCell = resultMode === "selected" ? selectedCell : suggestedCell;
   const activeStrategy = strategyOptions.find((option) => option.value === combine);
+  const friendLocationLabels = useMemo(
+    () => friends.map((friend) => locationLabelForFriend(friend, surface.cells)),
+    [friends, surface.cells]
+  );
   const isLiveModel = surface.metadata?.source === "api";
   const modelStatusLabel = isLiveModel ? "Live model" : "Local model";
 
@@ -200,6 +199,7 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
   const placeFriend = useCallback(
     (index: number, lat: number, lng: number) => {
       moveFriend(index, lat, lng);
+      setEditingLocationIndex(null);
       setPlacingFriendIndex(null);
     },
     [moveFriend]
@@ -212,7 +212,8 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
     const nextIndex = friends.length;
     changeFriendCount(nextIndex + 1);
     setActiveFriendIndex(nextIndex);
-    setPlacingFriendIndex(nextIndex);
+    setEditingLocationIndex(nextIndex);
+    setPlacingFriendIndex(null);
     setSearchQuery("");
   }
 
@@ -228,6 +229,12 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
     setFriends(nextFriends);
     setIncluded(nextIncluded);
     setActiveFriendIndex(Math.min(activeFriendIndex, nextFriends.length - 1));
+    setEditingLocationIndex((current) => {
+      if (current === null || current === index) {
+        return null;
+      }
+      return current > index ? current - 1 : current;
+    });
     setPlacingFriendIndex(null);
   }
 
@@ -239,6 +246,7 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
     });
     setSearchQuery("");
     setRemotePlaces([]);
+    setEditingLocationIndex(null);
     setPlacingFriendIndex(null);
   }
 
@@ -349,7 +357,7 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
           <div className="participant-list">
             {friends.map((friend, index) => (
               <article
-                className={`participant-card${activeFriendIndex === index ? " active" : ""}${included[index] ? "" : " excluded"}`}
+                className={`participant-card${activeFriendIndex === index ? " active" : ""}${included[index] ? "" : " excluded"}${editingLocationIndex === index ? " editing" : ""}`}
                 key={friend.id}
               >
                 <button
@@ -368,8 +376,20 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
                     onFocus={() => setActiveFriendIndex(index)}
                     onChange={(event) => updateFriend(index, { name: event.target.value })}
                   />
-                  <button className="participant-location" type="button" onClick={() => { setActiveFriendIndex(index); setPlacingFriendIndex(index); }}>
-                    <MapPin size={13} aria-hidden="true" /> {locationSummary(friend)}
+                  <button
+                    className="participant-location"
+                    type="button"
+                    aria-expanded={editingLocationIndex === index}
+                    aria-label={`Change location for ${friend.name || `friend ${index + 1}`}: ${friendLocationLabels[index]}`}
+                    onClick={() => {
+                      setActiveFriendIndex(index);
+                      setEditingLocationIndex((current) => (current === index ? null : index));
+                      setPlacingFriendIndex(null);
+                      setSearchQuery("");
+                      setRemotePlaces([]);
+                    }}
+                  >
+                    <MapPin size={13} aria-hidden="true" /> {friendLocationLabels[index]}
                   </button>
                 </div>
                 <label className="include-control" title={included[index] ? "Included in the group" : "Excluded from the group"}>
@@ -379,39 +399,43 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
                 <button className="remove-person" type="button" onClick={() => removeFriend(index)} disabled={friends.length <= 1} title="Remove friend">
                   <Trash2 size={15} aria-hidden="true" />
                 </button>
+                {editingLocationIndex === index ? (
+                  <div className="participant-location-editor">
+                    <form className="location-search" onSubmit={searchLocation}>
+                      <Search size={16} aria-hidden="true" />
+                      <input
+                        aria-label={`Search location for ${friend.name || `friend ${index + 1}`}`}
+                        placeholder={`Search a place for ${friend.name || `friend ${index + 1}`}`}
+                        value={searchQuery}
+                        onChange={(event) => { setSearchQuery(event.target.value); setRemotePlaces([]); }}
+                        autoFocus
+                      />
+                      {searchQuery ? <button type="button" onClick={() => { setSearchQuery(""); setRemotePlaces([]); }} aria-label="Clear location search"><X size={15} /></button> : null}
+                      <button className="search-submit" type="submit" disabled={searching}>{searching ? "Searching" : "Find"}</button>
+                      {localPlaces.length || remotePlaces.length ? (
+                        <div className="place-results" role="listbox" aria-label="Location results">
+                          {[...localPlaces, ...remotePlaces].slice(0, 5).map((place) => (
+                            <button key={`${place.name}-${place.lat}-${place.lng}`} type="button" role="option" onClick={() => choosePlace(place)}>
+                              <MapPin size={15} aria-hidden="true" />
+                              <span><strong>{place.name}</strong>{place.detail ? <small>{place.detail}</small> : null}</span>
+                            </button>
+                          ))}
+                        </div>
+                      ) : null}
+                    </form>
+                    <button
+                      className={placingFriendIndex === index ? "place-on-map active" : "place-on-map"}
+                      type="button"
+                      onClick={() => setPlacingFriendIndex((current) => current === index ? null : index)}
+                    >
+                      <LocateFixed size={15} aria-hidden="true" />
+                      {placingFriendIndex === index ? "Click the map to place them" : "Place on map"}
+                    </button>
+                  </div>
+                ) : null}
               </article>
             ))}
           </div>
-
-          <form className="location-search" onSubmit={searchLocation}>
-            <Search size={16} aria-hidden="true" />
-            <input
-              aria-label={`Search location for ${friends[activeFriendIndex]?.name || "friend"}`}
-              placeholder={`Search a place for ${friends[activeFriendIndex]?.name || "friend"}`}
-              value={searchQuery}
-              onChange={(event) => { setSearchQuery(event.target.value); setRemotePlaces([]); }}
-            />
-            {searchQuery ? <button type="button" onClick={() => { setSearchQuery(""); setRemotePlaces([]); }} aria-label="Clear location search"><X size={15} /></button> : null}
-            <button className="search-submit" type="submit" disabled={searching}>{searching ? "Searching" : "Find"}</button>
-            {localPlaces.length || remotePlaces.length ? (
-              <div className="place-results" role="listbox" aria-label="Location results">
-                {[...localPlaces, ...remotePlaces].slice(0, 5).map((place) => (
-                  <button key={`${place.name}-${place.lat}-${place.lng}`} type="button" role="option" onClick={() => choosePlace(place)}>
-                    <MapPin size={15} aria-hidden="true" />
-                    <span><strong>{place.name}</strong>{place.detail ? <small>{place.detail}</small> : null}</span>
-                  </button>
-                ))}
-              </div>
-            ) : null}
-          </form>
-          <button
-            className={placingFriendIndex === activeFriendIndex ? "place-on-map active" : "place-on-map"}
-            type="button"
-            onClick={() => setPlacingFriendIndex((current) => current === activeFriendIndex ? null : activeFriendIndex)}
-          >
-            <LocateFixed size={15} aria-hidden="true" />
-            {placingFriendIndex === activeFriendIndex ? "Click the map to place them" : "Place on map"}
-          </button>
         </section>
 
         <section className="result-card" aria-live="polite">

@@ -1021,6 +1021,10 @@ button:disabled {
   opacity: 0.58;
 }
 
+.participant-card.editing {
+  padding-bottom: 9px;
+}
+
 .participant-select {
   display: grid;
   place-items: center;
@@ -1086,6 +1090,20 @@ button:disabled {
   color: var(--teal);
 }
 
+.participant-location:hover,
+.participant-location:focus-visible {
+  color: var(--teal-dark);
+}
+
+.participant-location-editor {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: 2px;
+  border-top: 1px solid #e7ece8;
+  margin: 7px 1px 0 36px;
+  padding-top: 7px;
+}
+
 .include-control {
   position: relative;
   display: grid;
@@ -1128,7 +1146,7 @@ button:disabled {
   align-items: center;
   gap: 4px;
   min-height: 42px;
-  margin-top: 9px;
+  margin-top: 0;
   border: 1px solid #ccd7d0;
   border-radius: 8px;
   padding: 4px 4px 4px 10px;
