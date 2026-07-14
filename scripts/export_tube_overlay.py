@@ -16,6 +16,7 @@ LINE_COLOURS = {
     "central": ("Central", "#E32017"),
     "circle": ("Circle", "#FFD300"),
     "district": ("District", "#00782A"),
+    "elizabeth": ("Elizabeth", "#6950A1"),
     "hammersmith-city": ("Hammersmith & City", "#F3A9BB"),
     "jubilee": ("Jubilee", "#7B868C"),
     "metropolitan": ("Metropolitan", "#9B0056"),
@@ -57,6 +58,31 @@ def decode_line_paths(encoded_line: str) -> list[list[list[float]]]:
     return [path for path in paths if len(path) >= 2]
 
 
+def smooth_path(path: list[list[float]], iterations: int = 2) -> list[list[float]]:
+    """Round sparse route corners without moving branch endpoints."""
+    smoothed = path
+    for _ in range(iterations):
+        if len(smoothed) < 3:
+            break
+        next_path = [smoothed[0]]
+        for start, end in zip(smoothed, smoothed[1:]):
+            next_path.extend(
+                [
+                    [
+                        round(start[0] * 0.75 + end[0] * 0.25, 6),
+                        round(start[1] * 0.75 + end[1] * 0.25, 6),
+                    ],
+                    [
+                        round(start[0] * 0.25 + end[0] * 0.75, 6),
+                        round(start[1] * 0.25 + end[1] * 0.75, 6),
+                    ],
+                ]
+            )
+        next_path.append(smoothed[-1])
+        smoothed = next_path
+    return smoothed
+
+
 def fetch_line_paths(line_id: str) -> list[list[list[float]]]:
     request = Request(
         TFL_ROUTE_URL.format(line_id=line_id),
@@ -65,7 +91,7 @@ def fetch_line_paths(line_id: str) -> list[list[list[float]]]:
     with urlopen(request, timeout=30) as response:  # noqa: S310
         payload = json.load(response)
     return [
-        path
+        smooth_path(path)
         for encoded_line in payload.get("lineStrings", [])
         for path in decode_line_paths(encoded_line)
     ]
@@ -73,7 +99,7 @@ def fetch_line_paths(line_id: str) -> list[list[list[float]]]:
 
 def main() -> None:
     payload = {
-        "version": 2,
+        "version": 3,
         "source": "TfL Unified API geographic line strings",
         "source_url": "https://tfl.gov.uk/info-for/open-data-users/unified-api",
         "lines": [

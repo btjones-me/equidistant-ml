@@ -10,7 +10,6 @@ import {
   RotateCcw,
   Search,
   Settings2,
-  Sparkles,
   Trash2,
   Users,
   X
@@ -141,6 +140,8 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
   const suggestedCell = suggestedCells[Math.min(activeSuggestionIndex, Math.max(0, suggestedCells.length - 1))] ?? null;
   const inspectedCell = resultMode === "selected" ? selectedCell : suggestedCell;
   const activeStrategy = strategyOptions.find((option) => option.value === combine);
+  const isLiveModel = surface.metadata?.source === "api";
+  const modelStatusLabel = isLiveModel ? "Live model" : "Local model";
 
   useEffect(() => {
     void preloadAtlas().catch(() => undefined);
@@ -291,7 +292,15 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
           </span>
         </div>
         <div className="topbar-actions">
-          <span className="offline-badge"><span aria-hidden="true" /> Offline model</span>
+          <span
+            className={`model-status ${isLiveModel ? "live" : "local"}`}
+            role="status"
+            aria-label={modelStatusLabel}
+            data-label={modelStatusLabel}
+            tabIndex={0}
+          >
+            <span aria-hidden="true" />
+          </span>
           <button
             className="topbar-icon-button"
             type="button"
@@ -322,7 +331,6 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
 
       <section className="product-sidebar" aria-label="Meeting setup">
         <div className="product-intro">
-          <p className="product-kicker"><Sparkles size={14} aria-hidden="true" /> Find a fair place to meet</p>
           <h1>Meet in the middle.<br />By time, not miles.</h1>
           <p>Add each starting point. The map shows where the group can arrive in a similar amount of time.</p>
         </div>
@@ -519,10 +527,6 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
           onMoveFriend={moveFriend}
           onPlaceFriend={placeFriend}
         />
-        <div className="map-model-note">
-          <span aria-hidden="true" />
-          Offline estimate · weekday morning · public transport
-        </div>
       </section>
     </main>
   );
