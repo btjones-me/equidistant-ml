@@ -203,7 +203,7 @@ async function accessCookie() {
   return response.headers.get("set-cookie").split(";", 1)[0];
 }
 
-function providerFetchMock(requests) {
+function providerFetchMock(requests, { recommendationIds = [1, 2, 3] } = {}) {
   return async (url, init = {}) => {
     const href = String(url);
     requests.push({ href, init });
@@ -241,7 +241,7 @@ function providerFetchMock(requests) {
             content: [{
               type: "output_text",
               text: JSON.stringify({
-                recommendations: [1, 2, 3].map((index) => ({
+                recommendations: recommendationIds.map((index) => ({
                   place_id: `google-place-${index}`,
                   why: `Venue ${index} is a strong group match.`,
                   verified_details: ["Open this evening", "Accepts groups"],
@@ -511,6 +511,40 @@ test("venue recommendations combine Google facts with researched OpenAI selectio
   assert.equal(openAIBody.reasoning.effort, "medium");
   assert.equal(openAIBody.tools[0].type, "web_search");
   assert.equal(openAIBody.text.format.type, "json_schema");
+  assert.deepEqual(
+    openAIBody.text.format.schema.properties.recommendations.items.properties.place_id.enum,
+    ["google-place-1", "google-place-2", "google-place-3", "google-place-4"]
+  );
+});
+
+test("duplicate research selections are completed from verified Google candidates", async (context) => {
+  const { db } = createVenueDb();
+  const requests = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = providerFetchMock(requests, { recommendationIds: [1, 1, 2] });
+  context.after(() => { globalThis.fetch = originalFetch; });
+  const cookie = await accessCookie();
+
+  const response = await worker.fetch(new Request("https://example.test/api/venue-recommendations", {
+    method: "POST",
+    headers: { Cookie: cookie, "Content-Type": "application/json", "CF-Connecting-IP": "203.0.113.73" },
+    body: JSON.stringify({ query: "A wine bar", area_name: "Soho", lat: 51.513, lng: -0.132 })
+  }), {
+    ...env,
+    DB: db,
+    GOOGLE_PLACES_API_KEY: "test-google-key",
+    OPENAI_API_KEY: "test-openai-key"
+  });
+  const result = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(result.places.map((place) => place.place_id), [
+    "google-place-1",
+    "google-place-2",
+    "google-place-3"
+  ]);
+  assert.match(result.places[2].verified_details[0], /Google rating/);
+  assert.equal(result.places[2].source_urls[0], "https://venue-3.example/");
 });
 
 test("identical venue searches use the D1 cache without another paid request", async (context) => {
