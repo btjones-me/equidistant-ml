@@ -858,10 +858,16 @@ async function placePhoto(request, env, ctx) {
     return Response.json({ detail: "Invalid place photo." }, { status: 422, headers: secureHeaders() });
   }
   const cacheRequest = new Request(request.url, { method: "GET" });
-  const edgeCache = typeof caches !== "undefined" ? caches.default : null;
-  const cached = edgeCache ? await edgeCache.match(cacheRequest) : null;
-  if (cached) {
-    return cached;
+  let edgeCache = null;
+  try {
+    edgeCache = typeof caches !== "undefined" ? caches.default : null;
+    const cached = edgeCache ? await edgeCache.match(cacheRequest) : null;
+    if (cached) {
+      return cached;
+    }
+  } catch (error) {
+    edgeCache = null;
+    console.warn("Place photo edge cache unavailable", error instanceof Error ? error.message : "unknown error");
   }
   try {
     const metadataUrl = new URL(`https://places.googleapis.com/v1/${photoName}/media`);
@@ -889,7 +895,9 @@ async function placePhoto(request, env, ctx) {
     }));
     const result = new Response(photoResponse.body, { status: 200, headers });
     if (edgeCache) {
-      const write = edgeCache.put(cacheRequest, result.clone());
+      const write = edgeCache.put(cacheRequest, result.clone()).catch((error) => {
+        console.warn("Unable to cache Place photo", error instanceof Error ? error.message : "unknown error");
+      });
       if (ctx?.waitUntil) {
         ctx.waitUntil(write);
       } else {

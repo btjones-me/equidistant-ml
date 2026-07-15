@@ -541,6 +541,55 @@ test("identical venue searches use the D1 cache without another paid request", a
   assert.equal(requests.length, 2);
 });
 
+test("place photos still load when the deployment edge cache is unavailable", async (context) => {
+  const originalFetch = globalThis.fetch;
+  const originalCaches = Object.getOwnPropertyDescriptor(globalThis, "caches");
+  const originalWarn = console.warn;
+  const warnings = [];
+  console.warn = (...values) => warnings.push(values.join(" "));
+  globalThis.fetch = async (url) => {
+    const href = String(url);
+    if (href.startsWith("https://places.googleapis.com/v1/places/place-1/photos/photo-1/media")) {
+      return Response.json({ photoUri: "https://images.example.com/photo.jpg" });
+    }
+    if (href === "https://images.example.com/photo.jpg") {
+      return new Response(new Uint8Array([255, 216, 255, 217]), {
+        headers: { "Content-Type": "image/jpeg" }
+      });
+    }
+    throw new Error(`Unexpected photo request: ${href}`);
+  };
+  Object.defineProperty(globalThis, "caches", {
+    configurable: true,
+    value: {
+      default: {
+        match: async () => { throw new Error("edge cache unavailable"); },
+        put: async () => {}
+      }
+    }
+  });
+  context.after(() => {
+    globalThis.fetch = originalFetch;
+    console.warn = originalWarn;
+    if (originalCaches) {
+      Object.defineProperty(globalThis, "caches", originalCaches);
+    } else {
+      delete globalThis.caches;
+    }
+  });
+  const cookie = await accessCookie();
+
+  const response = await worker.fetch(new Request(
+    "https://example.test/api/place-photo?name=places%2Fplace-1%2Fphotos%2Fphoto-1",
+    { headers: { Cookie: cookie } }
+  ), { ...env, GOOGLE_PLACES_API_KEY: "test-google-key" });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("content-type"), "image/jpeg");
+  assert.equal((await response.arrayBuffer()).byteLength, 4);
+  assert.ok(warnings.some((message) => message.includes("Place photo edge cache unavailable")));
+});
+
 test("uncached venue research is limited to five searches per visitor per hour", async (context) => {
   const { db } = createVenueDb();
   const requests = [];
