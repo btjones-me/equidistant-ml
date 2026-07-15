@@ -365,6 +365,14 @@ function compactText(value, maxLength) {
     : "";
 }
 
+function boundedText(value, maxLength) {
+  if (typeof value !== "string") {
+    return "";
+  }
+  const text = value.trim();
+  return text.length <= maxLength ? text : "";
+}
+
 function safeHttpsUrl(value) {
   if (typeof value !== "string" || value.length > 2048) {
     return null;
@@ -538,7 +546,7 @@ function googleCandidate(place) {
     website_url: safeHttpsUrl(place.websiteUri),
     google_maps_url: googleMapsUrl,
     editorial_summary: compactText(place.editorialSummary?.text, 320) || null,
-    photo_name: compactText(photo?.name, 420) || null,
+    photo_name: boundedText(photo?.name, 2048) || null,
     photo_attribution: attribution?.displayName ? {
       name: compactText(attribution.displayName, 120),
       uri: safeHttpsUrl(attribution.uri)
@@ -854,7 +862,7 @@ async function placePhoto(request, env, ctx) {
     return Response.json({ detail: "Place photos are unavailable." }, { status: 503, headers: secureHeaders() });
   }
   const photoName = new URL(request.url).searchParams.get("name") || "";
-  if (!/^places\/[A-Za-z0-9._-]+\/photos\/[A-Za-z0-9._-]+$/.test(photoName) || photoName.length > 420) {
+  if (!/^places\/[A-Za-z0-9._-]+\/photos\/[A-Za-z0-9._-]+$/.test(photoName) || photoName.length > 2048) {
     return Response.json({ detail: "Invalid place photo." }, { status: 422, headers: secureHeaders() });
   }
   const cacheRequest = new Request(request.url, { method: "GET" });

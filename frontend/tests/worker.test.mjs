@@ -223,7 +223,7 @@ function providerFetchMock(requests) {
           websiteUri: `https://venue-${index}.example/`,
           googleMapsUri: `https://maps.google.com/?cid=${index}`,
           photos: [{
-            name: `places/google-place-${index}/photos/photo-${index}`,
+            name: `places/google-place-${index}/photos/${index === 1 ? "p".repeat(600) : `photo-${index}`}`,
             authorAttributions: [{ displayName: "Test photographer", uri: "https://example.com/photographer" }]
           }]
         }))
@@ -502,6 +502,7 @@ test("venue recommendations combine Google facts with researched OpenAI selectio
   assert.equal(result.places[0].name, "Venue 1");
   assert.equal(result.places[0].why, "Venue 1 is a strong group match.");
   assert.match(result.places[0].photo_url, /^\/api\/place-photo\?name=/);
+  assert.ok(new URL(`https://example.test${result.places[0].photo_url}`).searchParams.get("name").length > 420);
   assert.doesNotMatch(JSON.stringify(result), /test-(google|openai)-key/);
 
   const openAIRequest = requests.find((request) => request.href === "https://api.openai.com/v1/responses");
@@ -546,10 +547,11 @@ test("place photos still load when the deployment edge cache is unavailable", as
   const originalCaches = Object.getOwnPropertyDescriptor(globalThis, "caches");
   const originalWarn = console.warn;
   const warnings = [];
+  const photoName = `places/place-1/photos/${"p".repeat(600)}`;
   console.warn = (...values) => warnings.push(values.join(" "));
   globalThis.fetch = async (url) => {
     const href = String(url);
-    if (href.startsWith("https://places.googleapis.com/v1/places/place-1/photos/photo-1/media")) {
+    if (href.startsWith(`https://places.googleapis.com/v1/${photoName}/media`)) {
       return Response.json({ photoUri: "https://images.example.com/photo.jpg" });
     }
     if (href === "https://images.example.com/photo.jpg") {
@@ -580,7 +582,7 @@ test("place photos still load when the deployment edge cache is unavailable", as
   const cookie = await accessCookie();
 
   const response = await worker.fetch(new Request(
-    "https://example.test/api/place-photo?name=places%2Fplace-1%2Fphotos%2Fphoto-1",
+    `https://example.test/api/place-photo?name=${encodeURIComponent(photoName)}`,
     { headers: { Cookie: cookie } }
   ), { ...env, GOOGLE_PLACES_API_KEY: "test-google-key" });
 
