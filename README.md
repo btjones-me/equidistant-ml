@@ -152,3 +152,23 @@ and city metadata; no raw IP or event stream is retained. Aggregates are visible
 from the Usage panel in Developer mode. The static offline atlas then lets the
 production experience serve a small group of concurrent users without a Python
 service or per-request API cost.
+
+### Meeting-area recommendations
+
+The review app can research three pubs, restaurants, attractions, or other
+destinations around a selected meeting area. Google Places supplies canonical
+place details, ratings, map links, and photos; the OpenAI Responses API uses web
+search to verify current details and rank the candidates against the group's
+request. Both provider keys remain worker-only secrets. Google photos are
+proxied through the worker, so neither key is included in browser code or URLs.
+
+Uncached research is limited to five searches per browser per hour, 30 globally
+per day, and 300 globally per month. Identical searches within roughly the same
+area are cached in D1 for 24 hours and do not consume another provider call.
+The paid path fails closed if D1 is unavailable, ensuring the application-level
+cost controls cannot be bypassed by a storage outage.
+
+Required hosted values are `OPENAI_API_KEY`, `GOOGLE_PLACES_API_KEY`,
+`SITE_PASSWORD`, `RATE_LIMIT_SECRET`, and `ANALYTICS_SECRET`. The Google key
+should be API-restricted to Places API (New); it is intentionally not shared
+with the existing Directions data-generation key.

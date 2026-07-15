@@ -27,6 +27,42 @@ export type Friend = {
   locationLabel?: string;
 };
 
+export type VenueRecommendation = {
+  place_id: string;
+  name: string;
+  address: string;
+  lat: number;
+  lng: number;
+  primary_type: string | null;
+  rating: number | null;
+  user_rating_count: number | null;
+  price_level: string | null;
+  open_now: boolean | null;
+  opening_summary: string | null;
+  website_url: string | null;
+  google_maps_url: string;
+  photo_url: string | null;
+  photo_attribution: {
+    name: string;
+    uri: string | null;
+  } | null;
+  why: string;
+  verified_details: string[];
+  source_urls: string[];
+};
+
+export type VenueRecommendationsResponse = {
+  area: {
+    name: string;
+    lat: number;
+    lng: number;
+  };
+  query: string;
+  places: VenueRecommendation[];
+  generated_at: string;
+  cached: boolean;
+};
+
 export type ExperienceMode = "explore" | "developer";
 
 export type ComparisonMetrics = {

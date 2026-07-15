@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import L, { type LatLngBoundsExpression } from "leaflet";
-import type { ColorMapStop, ColorScale, Friend, PaletteMode, SurfaceCell } from "./types";
+import type { ColorMapStop, ColorScale, Friend, PaletteMode, SurfaceCell, VenueRecommendation } from "./types";
 
 type MapViewProps = {
   friends: Friend[];
@@ -20,6 +20,9 @@ type MapViewProps = {
   placingFriendIndex?: number | null;
   onMoveFriend?: (index: number, lat: number, lng: number) => void;
   onPlaceFriend?: (index: number, lat: number, lng: number) => void;
+  venues?: VenueRecommendation[];
+  activeVenueId?: string | null;
+  onSelectVenue?: (placeId: string) => void;
 };
 
 type RGB = [number, number, number];
@@ -118,6 +121,7 @@ const surfacePaneName = "surface-cells";
 const tubePaneName = "tube-lines";
 const placeLabelsPaneName = "place-labels";
 const selectionPaneName = "surface-selection";
+const venueMarkerPaneName = "venue-markers";
 const friendMarkerPaneName = "friend-markers";
 const edgeFadeDistanceKm = 2.8;
 
@@ -369,13 +373,17 @@ export default function MapView({
   activeFriendIndex = null,
   placingFriendIndex = null,
   onMoveFriend,
-  onPlaceFriend
+  onPlaceFriend,
+  venues = [],
+  activeVenueId = null,
+  onSelectVenue
 }: MapViewProps) {
   const mapRef = useRef<L.Map | null>(null);
   const mapNodeRef = useRef<HTMLDivElement | null>(null);
   const layerRef = useRef<L.LayerGroup | null>(null);
   const markerLayerRef = useRef<L.LayerGroup | null>(null);
   const tubeLayerRef = useRef<L.LayerGroup | null>(null);
+  const venueLayerRef = useRef<L.LayerGroup | null>(null);
   const selectionRef = useRef<L.Layer | null>(null);
   const lastFittedGridSignatureRef = useRef<string | null>(null);
   const [tubeLines, setTubeLines] = useState<TubeLine[]>([]);
@@ -454,6 +462,9 @@ export default function MapView({
     const selectionPane = map.createPane(selectionPaneName);
     selectionPane.style.zIndex = "620";
     selectionPane.style.pointerEvents = "none";
+    const venueMarkerPane = map.createPane(venueMarkerPaneName);
+    venueMarkerPane.style.zIndex = "640";
+    venueMarkerPane.style.pointerEvents = "auto";
     const friendMarkerPane = map.createPane(friendMarkerPaneName);
     friendMarkerPane.style.zIndex = "650";
     friendMarkerPane.style.pointerEvents = variant === "product" ? "auto" : "none";
@@ -472,6 +483,7 @@ export default function MapView({
 
     layerRef.current = L.layerGroup().addTo(map);
     tubeLayerRef.current = L.layerGroup().addTo(map);
+    venueLayerRef.current = L.layerGroup().addTo(map);
     markerLayerRef.current = L.layerGroup().addTo(map);
     mapRef.current = map;
 
@@ -654,6 +666,43 @@ export default function MapView({
         .addTo(markerLayer);
     });
   }, [activeFriendIndex, friends, includedFriendIndexes, onMoveFriend, variant]);
+
+  useEffect(() => {
+    const layer = venueLayerRef.current;
+    const map = mapRef.current;
+    if (!layer || !map) {
+      return;
+    }
+    layer.clearLayers();
+    venues.forEach((venue, index) => {
+      const active = venue.place_id === activeVenueId;
+      const marker = L.marker([venue.lat, venue.lng], {
+        pane: venueMarkerPaneName,
+        keyboard: true,
+        title: venue.name,
+        icon: L.divIcon({
+          className: "venue-marker-wrap",
+          html: `<span class="venue-map-marker${active ? " active" : ""}"><b>${index + 1}</b></span>`,
+          iconSize: [32, 38],
+          iconAnchor: [16, 36],
+          tooltipAnchor: [0, -31]
+        })
+      });
+      const tooltip = document.createElement("span");
+      tooltip.textContent = venue.name;
+      marker.bindTooltip(tooltip);
+      marker.on("click", () => onSelectVenue?.(venue.place_id));
+      marker.addTo(layer);
+    });
+
+    const activeVenue = venues.find((venue) => venue.place_id === activeVenueId);
+    if (activeVenue) {
+      const point = L.latLng(activeVenue.lat, activeVenue.lng);
+      if (!map.getBounds().pad(-0.12).contains(point)) {
+        map.panTo(point, { animate: true, duration: 0.25 });
+      }
+    }
+  }, [activeVenueId, onSelectVenue, venues]);
 
   useEffect(() => {
     const map = mapRef.current;
