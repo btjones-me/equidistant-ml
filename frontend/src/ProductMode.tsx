@@ -110,7 +110,6 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
   } = useAppState();
   const [surface, setSurface] = useState<SurfaceResponse>(emptyResponse);
   const [selectedCell, setSelectedCell] = useState<SurfaceCell | null>(null);
-  const [resultMode, setResultMode] = useState<"suggestions" | "selected">("suggestions");
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(0);
   const [activeFriendIndex, setActiveFriendIndex] = useState(0);
   const [editingLocationIndex, setEditingLocationIndex] = useState<number | null>(null);
@@ -141,7 +140,7 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
     [suggestionMinDistanceKm, surface.cells]
   );
   const suggestedCell = suggestedCells[Math.min(activeSuggestionIndex, Math.max(0, suggestedCells.length - 1))] ?? null;
-  const inspectedCell = resultMode === "selected" ? selectedCell : suggestedCell;
+  const inspectedCell = selectedCell ?? suggestedCell;
   const activeStrategy = strategyOptions.find((option) => option.value === combine);
   const friendLocationLabels = useMemo(
     () => friends.map((friend) => locationLabelForFriend(friend, surface.cells)),
@@ -455,52 +454,53 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
         </section>
 
         <section className="result-card" aria-live="polite">
-          <div className="result-tabs" role="tablist" aria-label="Meeting areas">
-            <button
-              className={resultMode === "suggestions" ? "active" : ""}
-              type="button"
-              role="tab"
-              aria-selected={resultMode === "suggestions"}
-              onClick={() => setResultMode("suggestions")}
-            >
-              Suggestions
-            </button>
-            <button
-              className={resultMode === "selected" ? "active" : ""}
-              type="button"
-              role="tab"
-              aria-selected={resultMode === "selected"}
-              onClick={() => setResultMode("selected")}
-            >
-              Selected
-            </button>
-          </div>
-          {error ? <p className="product-error">{error}</p> : resultMode === "selected" && !selectedCell ? (
-            <p className="selected-area-empty">Click any hexagon to inspect it without losing the suggested areas.</p>
-          ) : inspectedCell ? (
-            <>
-              {resultMode === "suggestions" ? (
-                <div className="suggestion-list">
-                  {suggestedCells.map((cell, index) => (
-                    <button
-                      className={cell.destination_id === inspectedCell.destination_id ? "active" : ""}
-                      type="button"
-                      key={cell.destination_id}
-                      onClick={() => setActiveSuggestionIndex(index)}
-                    >
-                      <span>{index + 1}</span>
-                      <span>
-                        <strong>{typeof cell.nearest_station_name === "string" ? cell.nearest_station_name : "Meeting area"}</strong>
-                        <small>{cell.nearest_station_lines || "London public transport"}</small>
-                      </span>
-                      <b>{minutes(numericCellValue(cell, "mean_minutes"))}</b>
-                    </button>
-                  ))}
-                </div>
+          <div className="result-card-heading">Suggested areas</div>
+          {error ? <p className="product-error">{error}</p> : suggestedCells.length ? (
+            <div className="suggestion-list">
+              {suggestedCells.map((cell, index) => (
+                <button
+                  className={!selectedCell && cell.destination_id === suggestedCell?.destination_id ? "active" : ""}
+                  type="button"
+                  key={cell.destination_id}
+                  onClick={() => {
+                    setActiveSuggestionIndex(index);
+                    setSelectedCell(null);
+                  }}
+                >
+                  <span>{index + 1}</span>
+                  <span>
+                    <strong>{typeof cell.nearest_station_name === "string" ? cell.nearest_station_name : "Meeting area"}</strong>
+                    {typeof cell.nearest_station_lines === "string" && cell.nearest_station_lines.trim() ? (
+                      <small>{cell.nearest_station_lines}</small>
+                    ) : null}
+                  </span>
+                  <b>{minutes(numericCellValue(cell, "mean_minutes"))}</b>
+                </button>
+              ))}
+            </div>
+          ) : <div className="result-skeleton"><span /><span /><span /></div>}
+        </section>
+
+        {!error ? (
+          <section className={`destination-card${selectedCell ? " selected" : ""}`} aria-live="polite">
+            <div className="destination-card-heading">
+              <span>{selectedCell ? "Selected destination" : "Suggested destination"}</span>
+              {selectedCell ? (
+                <button type="button" title="Clear selected destination" onClick={() => setSelectedCell(null)}>
+                  <X size={15} aria-hidden="true" />
+                </button>
               ) : null}
+            </div>
+            {inspectedCell ? (
+              <>
               <div className="result-place">
                 <div><MapPin size={20} aria-hidden="true" /></div>
-                <span><strong>{areaName}</strong><small>{inspectedCell.nearest_station_lines || "London public transport"}</small></span>
+                <span>
+                  <strong>{areaName}</strong>
+                  {typeof inspectedCell.nearest_station_lines === "string" && inspectedCell.nearest_station_lines.trim() ? (
+                    <small>{inspectedCell.nearest_station_lines}</small>
+                  ) : null}
+                </span>
                 <b title={`${heatmapLabel}: ${minutes(score)}`}>{minutes(averageMinutes)}</b>
               </div>
               <div className="journey-times">
@@ -516,9 +516,10 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
                 <Sparkles size={16} aria-hidden="true" />
                 <span><strong>Find places here</strong><small>Pubs, restaurants, things to do</small></span>
               </button>
-            </>
-          ) : <div className="result-skeleton"><span /><span /><span /></div>}
-        </section>
+              </>
+            ) : <div className="result-skeleton"><span /><span /><span /></div>}
+          </section>
+        ) : null}
 
         <button className="settings-toggle" type="button" onClick={() => setSettingsOpen((current) => !current)} aria-expanded={settingsOpen}>
           <span><Settings2 size={16} aria-hidden="true" /> {activeStrategy?.label || "Advanced scoring"}</span>
@@ -564,9 +565,6 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
           loadingLabel="Finding your middle"
           onSelectCell={(cell) => {
             setSelectedCell(cell);
-            if (cell) {
-              setResultMode("selected");
-            }
           }}
           variant="product"
           activeFriendIndex={activeFriendIndex}

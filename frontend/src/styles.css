@@ -1306,37 +1306,9 @@ button:disabled {
   background: #f7faf7;
 }
 
-.result-tabs {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin-bottom: 12px;
-  border: 1px solid #d3ddd6;
-  border-radius: 7px;
-  padding: 3px;
-  background: #edf3ef;
-}
-
-.result-tabs button {
-  border: 0;
-  border-radius: 5px;
-  padding: 7px 8px;
-  color: #657169;
-  background: transparent;
-  font-size: 10px;
-  font-weight: 900;
-  text-transform: uppercase;
-}
-
-.result-tabs button.active {
-  color: var(--teal-dark);
-  background: #ffffff;
-  box-shadow: 0 1px 4px rgb(23 32 25 / 10%);
-}
-
 .suggestion-list {
   display: grid;
   gap: 5px;
-  margin-bottom: 12px;
 }
 
 .suggestion-list button {
@@ -1398,13 +1370,6 @@ button:disabled {
   font-size: 11px;
 }
 
-.selected-area-empty {
-  margin: 4px 0 2px;
-  color: var(--muted);
-  font-size: 11px;
-  line-height: 1.45;
-}
-
 .result-card-heading {
   display: flex;
   align-items: center;
@@ -1415,6 +1380,51 @@ button:disabled {
   font-weight: 900;
   letter-spacing: 0;
   text-transform: uppercase;
+}
+
+.destination-card {
+  margin-top: 14px;
+  border: 1px solid #c7ddd4;
+  border-left: 3px solid var(--teal);
+  border-radius: 8px;
+  padding: 14px;
+  background: #ffffff;
+  box-shadow: 0 8px 22px rgb(23 32 25 / 6%);
+}
+
+.destination-card.selected {
+  border-color: #efc6bc;
+  border-left-color: var(--coral);
+  background: #fff9f7;
+  box-shadow: 0 10px 26px rgb(232 93 63 / 9%);
+}
+
+.destination-card-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 27px;
+  margin-bottom: 10px;
+  color: #526158;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.destination-card-heading button {
+  display: grid;
+  width: 27px;
+  height: 27px;
+  place-items: center;
+  border: 0;
+  border-radius: 5px;
+  padding: 0;
+  color: var(--coral);
+  background: transparent;
+}
+
+.destination-card-heading button:hover {
+  background: rgb(232 93 63 / 8%);
 }
 
 .result-card-heading button {
