@@ -6,10 +6,12 @@ function StateProbe() {
   const {
     friends,
     included,
+    mapStyle,
     palette,
     colorScale,
     surfaceOpacity,
     suggestionMinDistanceKm,
+    setMapStyle,
     setPalette,
     setColorScale,
     setSurfaceOpacity,
@@ -21,11 +23,13 @@ function StateProbe() {
     <div>
       <output aria-label="friend count">{friends.length}</output>
       <output aria-label="included state">{included.join(",")}</output>
+      <output aria-label="map style">{mapStyle}</output>
       <output aria-label="palette state">{palette}</output>
       <output aria-label="contrast state">{colorScale.contrast}</output>
       <output aria-label="surface opacity">{surfaceOpacity}</output>
       <output aria-label="suggestion spacing">{suggestionMinDistanceKm}</output>
       <button type="button" onClick={() => toggleFriend(1)}>Toggle Sam</button>
+      <button type="button" onClick={() => setMapStyle("voyager")}>Street map</button>
       <button type="button" onClick={() => setPalette("green-red")}>Green red</button>
       <button type="button" onClick={() => setColorScale((current) => ({ ...current, contrast: 1.4 }))}>Contrast</button>
       <button type="button" onClick={() => setSurfaceOpacity(0.64)}>Opacity</button>
@@ -52,6 +56,7 @@ describe("shared application state", () => {
   it("persists selections and colour settings across mode remounts", () => {
     const first = renderProbe();
     fireEvent.click(screen.getByRole("button", { name: "Toggle Sam" }));
+    fireEvent.click(screen.getByRole("button", { name: "Street map" }));
     fireEvent.click(screen.getByRole("button", { name: "Green red" }));
     fireEvent.click(screen.getByRole("button", { name: "Contrast" }));
     fireEvent.click(screen.getByRole("button", { name: "Opacity" }));
@@ -60,6 +65,7 @@ describe("shared application state", () => {
 
     renderProbe();
     expect(screen.getByLabelText("included state")).toHaveTextContent("true,false,true");
+    expect(screen.getByLabelText("map style")).toHaveTextContent("voyager");
     expect(screen.getByLabelText("palette state")).toHaveTextContent("green-red");
     expect(screen.getByLabelText("contrast state")).toHaveTextContent("1.4");
     expect(screen.getByLabelText("surface opacity")).toHaveTextContent("0.64");

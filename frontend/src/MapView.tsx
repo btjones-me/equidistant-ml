@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import L, { type LatLngBoundsExpression } from "leaflet";
-import type { ColorMapStop, ColorScale, Friend, PaletteMode, SurfaceCell } from "./types";
+import { EyeOff } from "lucide-react";
+import type { ColorMapStop, ColorScale, Friend, MapStyle, PaletteMode, SurfaceCell, VenueRecommendation } from "./types";
 
 type MapViewProps = {
   friends: Friend[];
@@ -13,6 +14,7 @@ type MapViewProps = {
   customColorMap: ColorMapStop[];
   colorScale: ColorScale;
   surfaceOpacity: number;
+  mapStyle: MapStyle;
   isLoading: boolean;
   loadingLabel: string;
   onSelectCell: (cell: SurfaceCell | null) => void;
@@ -21,6 +23,9 @@ type MapViewProps = {
   placingFriendIndex?: number | null;
   onMoveFriend?: (index: number, lat: number, lng: number) => void;
   onPlaceFriend?: (index: number, lat: number, lng: number) => void;
+  venues?: VenueRecommendation[];
+  activeVenueId?: string | null;
+  onSelectVenue?: (placeId: string) => void;
 };
 
 type RGB = [number, number, number];
@@ -119,8 +124,25 @@ const surfacePaneName = "surface-cells";
 const tubePaneName = "tube-lines";
 const placeLabelsPaneName = "place-labels";
 const selectionPaneName = "surface-selection";
+const venueMarkerPaneName = "venue-markers";
 const friendMarkerPaneName = "friend-markers";
 const edgeFadeDistanceKm = 2.8;
+const basemapAttribution =
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
+const basemaps: Record<MapStyle, { tiles: string; labels: string }> = {
+  positron: {
+    tiles: "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png",
+    labels: "https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png"
+  },
+  voyager: {
+    tiles: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png",
+    labels: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png"
+  },
+  "dark-matter": {
+    tiles: "https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png",
+    labels: "https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png"
+  }
+};
 
 function valueForCell(cell: SurfaceCell, valueKey: string): number {
   const value = cell[valueKey];
@@ -364,6 +386,7 @@ export default function MapView({
   customColorMap,
   colorScale,
   surfaceOpacity,
+  mapStyle,
   isLoading,
   loadingLabel,
   onSelectCell,
@@ -371,17 +394,24 @@ export default function MapView({
   activeFriendIndex = null,
   placingFriendIndex = null,
   onMoveFriend,
-  onPlaceFriend
+  onPlaceFriend,
+  venues = [],
+  activeVenueId = null,
+  onSelectVenue
 }: MapViewProps) {
   const mapRef = useRef<L.Map | null>(null);
   const mapNodeRef = useRef<HTMLDivElement | null>(null);
+  const basemapLayerRef = useRef<L.TileLayer | null>(null);
+  const labelLayerRef = useRef<L.TileLayer | null>(null);
   const layerRef = useRef<L.LayerGroup | null>(null);
   const markerLayerRef = useRef<L.LayerGroup | null>(null);
   const tubeLayerRef = useRef<L.LayerGroup | null>(null);
+  const venueLayerRef = useRef<L.LayerGroup | null>(null);
   const selectionRef = useRef<L.Layer | null>(null);
   const lastFittedGridSignatureRef = useRef<string | null>(null);
   const [tubeLines, setTubeLines] = useState<TubeLine[]>([]);
   const [showTubeLines, setShowTubeLines] = useState(true);
+  const [surfaceHidden, setSurfaceHidden] = useState(false);
 
   const gridSignature = useMemo(() => gridSignatureForCells(cells), [cells]);
   const isZeroCentered = zeroCenteredValueKeys.has(valueKey);
@@ -434,10 +464,6 @@ export default function MapView({
     }).setView([51.5074, -0.1278], 11);
 
     L.control.zoom({ position: "bottomright" }).addTo(map);
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-    }).addTo(map);
 
     const surfacePane = map.createPane(surfacePaneName);
     surfacePane.style.zIndex = "410";
@@ -447,15 +473,15 @@ export default function MapView({
     const placeLabelsPane = map.createPane(placeLabelsPaneName);
     placeLabelsPane.style.zIndex = "580";
     placeLabelsPane.style.pointerEvents = "none";
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png", {
-      pane: placeLabelsPaneName
-    }).addTo(map);
     map.attributionControl.addAttribution(
       '<a href="https://tfl.gov.uk/info-for/open-data-users/">TfL open data</a>'
     );
     const selectionPane = map.createPane(selectionPaneName);
     selectionPane.style.zIndex = "620";
     selectionPane.style.pointerEvents = "none";
+    const venueMarkerPane = map.createPane(venueMarkerPaneName);
+    venueMarkerPane.style.zIndex = "640";
+    venueMarkerPane.style.pointerEvents = "auto";
     const friendMarkerPane = map.createPane(friendMarkerPaneName);
     friendMarkerPane.style.zIndex = "650";
     friendMarkerPane.style.pointerEvents = variant === "product" ? "auto" : "none";
@@ -474,15 +500,39 @@ export default function MapView({
 
     layerRef.current = L.layerGroup().addTo(map);
     tubeLayerRef.current = L.layerGroup().addTo(map);
+    venueLayerRef.current = L.layerGroup().addTo(map);
     markerLayerRef.current = L.layerGroup().addTo(map);
     mapRef.current = map;
 
     return () => {
       map.off("moveend zoomend", updateMapNodeView);
       map.remove();
+      basemapLayerRef.current = null;
+      labelLayerRef.current = null;
       mapRef.current = null;
     };
   }, [variant]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) {
+      return;
+    }
+    basemapLayerRef.current?.remove();
+    labelLayerRef.current?.remove();
+    const config = basemaps[mapStyle];
+    basemapLayerRef.current = L.tileLayer(config.tiles, { attribution: basemapAttribution }).addTo(map);
+    labelLayerRef.current = L.tileLayer(config.labels, { pane: placeLabelsPaneName }).addTo(map);
+  }, [mapStyle, variant]);
+
+  useEffect(() => {
+    const pane = mapRef.current?.getPane(surfacePaneName);
+    if (!pane) {
+      return;
+    }
+    pane.style.opacity = surfaceHidden ? "0" : "1";
+    pane.style.transition = "opacity 100ms ease";
+  }, [surfaceHidden, variant]);
 
   useEffect(() => {
     let cancelled = false;
@@ -660,6 +710,43 @@ export default function MapView({
   }, [activeFriendIndex, friends, includedFriendIndexes, onMoveFriend, variant]);
 
   useEffect(() => {
+    const layer = venueLayerRef.current;
+    const map = mapRef.current;
+    if (!layer || !map) {
+      return;
+    }
+    layer.clearLayers();
+    venues.forEach((venue, index) => {
+      const active = venue.place_id === activeVenueId;
+      const marker = L.marker([venue.lat, venue.lng], {
+        pane: venueMarkerPaneName,
+        keyboard: true,
+        title: venue.name,
+        icon: L.divIcon({
+          className: "venue-marker-wrap",
+          html: `<span class="venue-map-marker${active ? " active" : ""}"><b>${index + 1}</b></span>`,
+          iconSize: [32, 38],
+          iconAnchor: [16, 36],
+          tooltipAnchor: [0, -31]
+        })
+      });
+      const tooltip = document.createElement("span");
+      tooltip.textContent = venue.name;
+      marker.bindTooltip(tooltip);
+      marker.on("click", () => onSelectVenue?.(venue.place_id));
+      marker.addTo(layer);
+    });
+
+    const activeVenue = venues.find((venue) => venue.place_id === activeVenueId);
+    if (activeVenue) {
+      const point = L.latLng(activeVenue.lat, activeVenue.lng);
+      if (!map.getBounds().pad(-0.12).contains(point)) {
+        map.panTo(point, { animate: true, duration: 0.25 });
+      }
+    }
+  }, [activeVenueId, onSelectVenue, venues]);
+
+  useEffect(() => {
     const map = mapRef.current;
     if (!map || placingFriendIndex === null || !onPlaceFriend) {
       return;
@@ -720,6 +807,44 @@ export default function MapView({
           </div>
         </div>
       </div>
+      <button
+        className={`map-peek-control${surfaceHidden ? " active" : ""}`}
+        type="button"
+        aria-label="Hold to hide heatmap"
+        aria-pressed={surfaceHidden}
+        title="Hold to hide heatmap"
+        onPointerEnter={() => setSurfaceHidden(true)}
+        onPointerLeave={() => setSurfaceHidden(false)}
+        onPointerDown={(event) => {
+          event.preventDefault();
+          setSurfaceHidden(true);
+          if (event.pointerType !== "mouse") {
+            event.currentTarget.setPointerCapture(event.pointerId);
+          }
+        }}
+        onPointerUp={(event) => {
+          if (event.pointerType !== "mouse") {
+            setSurfaceHidden(false);
+          }
+        }}
+        onPointerCancel={() => setSurfaceHidden(false)}
+        onLostPointerCapture={() => setSurfaceHidden(false)}
+        onKeyDown={(event) => {
+          if (event.key === " " || event.key === "Enter") {
+            event.preventDefault();
+            setSurfaceHidden(true);
+          }
+        }}
+        onKeyUp={(event) => {
+          if (event.key === " " || event.key === "Enter") {
+            setSurfaceHidden(false);
+          }
+        }}
+        onBlur={() => setSurfaceHidden(false)}
+        onContextMenu={(event) => event.preventDefault()}
+      >
+        <EyeOff size={16} aria-hidden="true" />
+      </button>
       {tubeLines.length ? (
         <div className="tube-overlay-control">
           <label>

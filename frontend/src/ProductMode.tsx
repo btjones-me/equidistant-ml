@@ -10,17 +10,19 @@ import {
   RotateCcw,
   Search,
   Settings2,
+  Sparkles,
   Trash2,
   Users,
   X
 } from "lucide-react";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MapView from "./MapView";
+import VenueRecommendations from "./VenueRecommendations";
 import { getAtlasSurface, preloadAtlas } from "./lib/atlas";
 import { locationLabelForFriend } from "./lib/locations";
 import { selectSeparatedSuggestions } from "./lib/suggestions";
 import { useAppState } from "./state/AppStateContext";
-import type { CombineMode, Friend, SurfaceCell, SurfaceResponse } from "./types";
+import type { CombineMode, Friend, SurfaceCell, SurfaceResponse, VenueRecommendation } from "./types";
 
 const markerColours = ["#0ea5e9", "#f97316", "#22c55e", "#a855f7", "#e11d48", "#64748b"];
 
@@ -90,6 +92,7 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
     friends,
     included,
     combine,
+    mapStyle,
     palette,
     customColorStops,
     colorScale,
@@ -118,6 +121,9 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
   const [searchQuery, setSearchQuery] = useState("");
   const [searching, setSearching] = useState(false);
   const [remotePlaces, setRemotePlaces] = useState<LocalPlace[]>([]);
+  const [venueDrawerOpen, setVenueDrawerOpen] = useState(false);
+  const [venues, setVenues] = useState<VenueRecommendation[]>([]);
+  const [activeVenueId, setActiveVenueId] = useState<string | null>(null);
   const requestId = useRef(0);
 
   const includedFriendIndexes = useMemo(
@@ -142,6 +148,11 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
   );
   const isLiveModel = surface.metadata?.source === "api";
   const modelStatusLabel = isLiveModel ? "Live model" : "Local model";
+
+  const handleVenueResults = useCallback((places: VenueRecommendation[]) => {
+    setVenues(places);
+    setActiveVenueId((current) => places.some((place) => place.place_id === current) ? current : places[0]?.place_id ?? null);
+  }, []);
 
   useEffect(() => {
     void preloadAtlas().catch(() => undefined);
@@ -500,6 +511,10 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
                   </div>
                 ))}
               </div>
+              <button className="venue-cta" type="button" onClick={() => setVenueDrawerOpen(true)}>
+                <Sparkles size={16} aria-hidden="true" />
+                <span><strong>Find places here</strong><small>Pubs, restaurants, things to do</small></span>
+              </button>
             </>
           ) : <div className="result-skeleton"><span /><span /><span /></div>}
         </section>
@@ -529,7 +544,7 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
         ) : null}
       </section>
 
-      <section className={`product-map-panel${placingFriendIndex !== null ? " placing" : ""}`} aria-label="Travel-time map">
+      <section className={`product-map-panel${placingFriendIndex !== null ? " placing" : ""}${venueDrawerOpen ? " venues-open" : ""}`} aria-label="Travel-time map">
         {placingFriendIndex !== null ? <div className="placement-banner"><MapPin size={15} /> Click anywhere to move {friends[placingFriendIndex]?.name || "this friend"}</div> : null}
         <MapView
           friends={friends}
@@ -542,6 +557,7 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
           customColorMap={serialisedStops}
           colorScale={colorScale}
           surfaceOpacity={surfaceOpacity}
+          mapStyle={mapStyle}
           isLoading={loading}
           loadingLabel="Finding your middle"
           onSelectCell={(cell) => {
@@ -555,8 +571,21 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
           placingFriendIndex={placingFriendIndex}
           onMoveFriend={moveFriend}
           onPlaceFriend={placeFriend}
+          venues={venueDrawerOpen ? venues : []}
+          activeVenueId={activeVenueId}
+          onSelectVenue={setActiveVenueId}
         />
       </section>
+      {inspectedCell ? (
+        <VenueRecommendations
+          open={venueDrawerOpen}
+          area={{ id: inspectedCell.destination_id, name: areaName, lat: inspectedCell.lat, lng: inspectedCell.lng }}
+          activeVenueId={activeVenueId}
+          onClose={() => setVenueDrawerOpen(false)}
+          onResults={handleVenueResults}
+          onSelectVenue={(placeId) => setActiveVenueId(placeId || null)}
+        />
+      ) : null}
     </main>
   );
 }

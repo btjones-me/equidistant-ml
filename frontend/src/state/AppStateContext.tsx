@@ -15,6 +15,7 @@ import type {
   EditableColorMapStop,
   FocusMode,
   Friend,
+  MapStyle,
   PaletteMode
 } from "../types";
 
@@ -52,6 +53,7 @@ type PersistedAppState = {
   combine: CombineMode;
   focus: FocusMode;
   detail: DetailMode;
+  mapStyle: MapStyle;
   palette: Exclude<PaletteMode, "error">;
   customColorStops: EditableColorMapStop[];
   colorScale: ColorScale;
@@ -65,6 +67,7 @@ type AppStateContextValue = PersistedAppState & {
   setCombine: Dispatch<SetStateAction<CombineMode>>;
   setFocus: Dispatch<SetStateAction<FocusMode>>;
   setDetail: Dispatch<SetStateAction<DetailMode>>;
+  setMapStyle: Dispatch<SetStateAction<MapStyle>>;
   setPalette: Dispatch<SetStateAction<Exclude<PaletteMode, "error">>>;
   setCustomColorStops: Dispatch<SetStateAction<EditableColorMapStop[]>>;
   setColorScale: Dispatch<SetStateAction<ColorScale>>;
@@ -83,6 +86,7 @@ function defaultState(): PersistedAppState {
     combine: "balanced",
     focus: "inner",
     detail: "fine",
+    mapStyle: "positron",
     palette: "central",
     customColorStops: [
       { id: "stop-green", position: 0, color: "#15803d" },
@@ -134,6 +138,9 @@ function loadState(): PersistedAppState {
       detail: ["fine", "fast"].includes(parsed.detail ?? "")
         ? (parsed.detail as DetailMode)
         : fallback.detail,
+      mapStyle: ["positron", "voyager", "dark-matter"].includes(parsed.mapStyle ?? "")
+        ? (parsed.mapStyle as MapStyle)
+        : fallback.mapStyle,
       palette: ["central", "green-red", "viridis", "inferno", "custom"].includes(parsed.palette ?? "")
         ? (parsed.palette as Exclude<PaletteMode, "error">)
         : fallback.palette,
@@ -172,6 +179,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [combine, setCombine] = useState(initial.combine);
   const [focus, setFocus] = useState(initial.focus);
   const [detail, setDetail] = useState(initial.detail);
+  const [mapStyle, setMapStyle] = useState(initial.mapStyle);
   const [palette, setPalette] = useState(initial.palette);
   const [customColorStops, setCustomColorStops] = useState(initial.customColorStops);
   const [colorScale, setColorScale] = useState(initial.colorScale);
@@ -185,6 +193,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       combine,
       focus,
       detail,
+      mapStyle,
       palette,
       customColorStops,
       colorScale,
@@ -192,7 +201,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       suggestionMinDistanceKm
     };
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }, [colorScale, combine, customColorStops, detail, focus, friends, included, palette, suggestionMinDistanceKm, surfaceOpacity]);
+  }, [colorScale, combine, customColorStops, detail, focus, friends, included, mapStyle, palette, suggestionMinDistanceKm, surfaceOpacity]);
 
   function changeFriendCount(count: number) {
     const nextCount = Math.max(1, Math.min(6, Math.round(count)));
@@ -233,6 +242,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     setCombine(next.combine);
     setFocus(next.focus);
     setDetail(next.detail);
+    setMapStyle(next.mapStyle);
     setPalette(next.palette);
     setCustomColorStops(next.customColorStops);
     setColorScale(next.colorScale);
@@ -246,6 +256,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     combine,
     focus,
     detail,
+    mapStyle,
     palette,
     customColorStops,
     colorScale,
@@ -256,6 +267,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     setCombine,
     setFocus,
     setDetail,
+    setMapStyle,
     setPalette,
     setCustomColorStops,
     setColorScale,

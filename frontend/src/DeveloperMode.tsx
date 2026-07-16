@@ -309,6 +309,7 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
     combine,
     focus,
     detail,
+    mapStyle,
     palette,
     customColorStops,
     colorScale,
@@ -316,6 +317,7 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
     suggestionMinDistanceKm,
     setCombine,
     setDetail,
+    setMapStyle,
     setPalette,
     setCustomColorStops,
     setColorScale,
@@ -783,6 +785,21 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
           </div>
         </div>
 
+        <div className="control-group">
+          <p className="eyebrow">Basemap</p>
+          <div className="segmented three" aria-label="Basemap style">
+            <button className={mapStyle === "positron" ? "active" : ""} type="button" onClick={() => setMapStyle("positron")}>
+              light
+            </button>
+            <button className={mapStyle === "voyager" ? "active" : ""} type="button" onClick={() => setMapStyle("voyager")}>
+              street
+            </button>
+            <button className={mapStyle === "dark-matter" ? "active" : ""} type="button" onClick={() => setMapStyle("dark-matter")}>
+              dark
+            </button>
+          </div>
+        </div>
+
         {palette === "custom" ? (
           <section className="custom-map-panel" aria-label="Custom colour map">
             <div className="section-heading">
@@ -1235,6 +1252,7 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
           customColorMap={customColorMap}
           colorScale={colorScale}
           surfaceOpacity={surfaceOpacity}
+          mapStyle={mapStyle}
           isLoading={loading || referenceLoading}
           loadingLabel={referenceLoading ? "Fetching TravelTime" : "Updating map"}
           onSelectCell={setSelectedCell}

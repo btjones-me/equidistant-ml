@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import worker from "../worker/index.js";
+import worker, { extractResponseOutputText, validateVenueRecommendationInput } from "../worker/index.js";
 
 const env = {
   SITE_PASSWORD: "test-password-do-not-use",
@@ -122,6 +122,139 @@ function createRateLimitDb() {
     }
   };
   return { db, rows, visitors };
+}
+
+function createVenueDb() {
+  const cache = new Map();
+  const usage = new Map();
+  return {
+    cache,
+    usage,
+    db: {
+      async batch(statements) {
+        return Promise.all(statements.map((statement) => statement.run()));
+      },
+      prepare(sql) {
+        let parameters = [];
+        const statement = {
+          bind(...values) {
+            parameters = values;
+            return statement;
+          },
+          async first() {
+            if (sql.includes("FROM venue_recommendation_cache")) {
+              const row = cache.get(parameters[0]);
+              return row && row.expires_at > parameters[1] ? { payload_json: row.payload_json } : null;
+            }
+            if (sql.includes("INSERT INTO venue_recommendation_usage")) {
+              const key = `${parameters[0]}|${parameters[1]}`;
+              const requestCount = (usage.get(key)?.request_count ?? 0) + 1;
+              usage.set(key, { request_count: requestCount, updated_at: parameters[2] });
+              return { request_count: requestCount };
+            }
+            throw new Error(`Unexpected venue query: ${sql}`);
+          },
+          async run() {
+            if (sql.includes("CREATE TABLE")) {
+              return { success: true };
+            }
+            if (sql.includes("INSERT INTO venue_recommendation_cache")) {
+              cache.set(parameters[0], {
+                payload_json: parameters[1],
+                created_at: parameters[2],
+                expires_at: parameters[3]
+              });
+              return { success: true };
+            }
+            if (sql.includes("DELETE FROM venue_recommendation_cache WHERE cache_key")) {
+              cache.delete(parameters[0]);
+              return { success: true };
+            }
+            if (sql.includes("DELETE FROM venue_recommendation_cache")) {
+              for (const [key, row] of cache) {
+                if (row.expires_at <= parameters[0]) {
+                  cache.delete(key);
+                }
+              }
+              return { success: true };
+            }
+            if (sql.includes("DELETE FROM venue_recommendation_usage")) {
+              for (const [key, row] of usage) {
+                if (row.updated_at < parameters[0]) {
+                  usage.delete(key);
+                }
+              }
+              return { success: true };
+            }
+            throw new Error(`Unexpected venue run: ${sql}`);
+          }
+        };
+        return statement;
+      }
+    }
+  };
+}
+
+async function accessCookie() {
+  const response = await worker.fetch(new Request("https://example.test/unlock", {
+    method: "POST",
+    body: new URLSearchParams({ password: env.SITE_PASSWORD })
+  }), env);
+  return response.headers.get("set-cookie").split(";", 1)[0];
+}
+
+function providerFetchMock(requests, { recommendationIds = [1, 2, 3] } = {}) {
+  return async (url, init = {}) => {
+    const href = String(url);
+    requests.push({ href, init });
+    if (href.includes("places.googleapis.com/v1/places:searchText")) {
+      return Response.json({
+        places: [1, 2, 3, 4].map((index) => ({
+          id: `google-place-${index}`,
+          displayName: { text: `Venue ${index}` },
+          formattedAddress: `${index} Test Street, London`,
+          location: { latitude: 51.51 + index / 1000, longitude: -0.12 - index / 1000 },
+          primaryType: "pub",
+          types: ["pub", "restaurant"],
+          rating: 4.2 + index / 10,
+          userRatingCount: 100 * index,
+          priceLevel: "PRICE_LEVEL_MODERATE",
+          currentOpeningHours: { openNow: true, weekdayDescriptions: ["Wednesday: 12:00-23:00"] },
+          websiteUri: `https://venue-${index}.example/`,
+          googleMapsUri: `https://maps.google.com/?cid=${index}`,
+          photos: [{
+            name: `places/google-place-${index}/photos/${index === 1 ? "p".repeat(600) : `photo-${index}`}`,
+            authorAttributions: [{ displayName: "Test photographer", uri: "https://example.com/photographer" }]
+          }]
+        }))
+      });
+    }
+    if (href === "https://api.openai.com/v1/responses") {
+      return Response.json({
+        output: [
+          {
+            type: "web_search_call",
+            action: { sources: [1, 2, 3].map((index) => ({ url: `https://venue-${index}.example/details` })) }
+          },
+          {
+            type: "message",
+            content: [{
+              type: "output_text",
+              text: JSON.stringify({
+                recommendations: recommendationIds.map((index) => ({
+                  place_id: `google-place-${index}`,
+                  why: `Venue ${index} is a strong group match.`,
+                  verified_details: ["Open this evening", "Accepts groups"],
+                  source_urls: [`https://venue-${index}.example/details`]
+                }))
+              })
+            }]
+          }
+        ]
+      });
+    }
+    throw new Error(`Unexpected provider request: ${href}`);
+  };
 }
 
 test("password gate hides every asset until unlocked", async () => {
@@ -317,4 +450,211 @@ test("hosted HTML receives an absolute social preview URL", async () => {
 
   assert.match(html, /https:\/\/equidistant\.example\/og\.png/);
   assert.doesNotMatch(html, /__EQUIDISTANT_ORIGIN__/);
+});
+
+test("venue request validation constrains text and London coordinates", () => {
+  assert.deepEqual(validateVenueRecommendationInput({
+    query: "  relaxed   pub  ",
+    area_name: "Soho",
+    lat: 51.513,
+    lng: -0.132
+  }), {
+    query: "relaxed pub",
+    areaName: "Soho",
+    lat: 51.513,
+    lng: -0.132
+  });
+  assert.throws(
+    () => validateVenueRecommendationInput({ query: "pub", area_name: "Paris", lat: 48.85, lng: 2.35 }),
+    /London coverage/
+  );
+});
+
+test("Responses API output text is extracted without relying on an SDK helper", () => {
+  assert.equal(extractResponseOutputText({
+    output: [{ type: "message", content: [{ type: "output_text", text: "{\"ok\":true}" }] }]
+  }), "{\"ok\":true}");
+});
+
+test("venue recommendations combine Google facts with researched OpenAI selections", async (context) => {
+  const { db } = createVenueDb();
+  const requests = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = providerFetchMock(requests);
+  context.after(() => { globalThis.fetch = originalFetch; });
+  const cookie = await accessCookie();
+  const recommendationEnv = {
+    ...env,
+    DB: db,
+    RATE_LIMIT_SECRET: "test-rate-secret",
+    GOOGLE_PLACES_API_KEY: "test-google-key",
+    OPENAI_API_KEY: "test-openai-key"
+  };
+  const response = await worker.fetch(new Request("https://example.test/api/venue-recommendations", {
+    method: "POST",
+    headers: { Cookie: cookie, "Content-Type": "application/json", "CF-Connecting-IP": "203.0.113.70" },
+    body: JSON.stringify({ query: "A relaxed pub", area_name: "Soho", lat: 51.513, lng: -0.132 })
+  }), recommendationEnv);
+  const result = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.equal(result.places.length, 3);
+  assert.equal(result.places[0].name, "Venue 1");
+  assert.equal(result.places[0].why, "Venue 1 is a strong group match.");
+  assert.match(result.places[0].photo_url, /^\/api\/place-photo\?name=/);
+  assert.ok(new URL(`https://example.test${result.places[0].photo_url}`).searchParams.get("name").length > 420);
+  assert.doesNotMatch(JSON.stringify(result), /test-(google|openai)-key/);
+
+  const openAIRequest = requests.find((request) => request.href === "https://api.openai.com/v1/responses");
+  const openAIBody = JSON.parse(openAIRequest.init.body);
+  assert.equal(openAIBody.model, "gpt-5.6-terra");
+  assert.equal(openAIBody.reasoning.effort, "medium");
+  assert.equal(openAIBody.tools[0].type, "web_search");
+  assert.equal(openAIBody.text.format.type, "json_schema");
+  assert.deepEqual(
+    openAIBody.text.format.schema.properties.recommendations.items.properties.place_id.enum,
+    ["google-place-1", "google-place-2", "google-place-3", "google-place-4"]
+  );
+});
+
+test("duplicate research selections are completed from verified Google candidates", async (context) => {
+  const { db } = createVenueDb();
+  const requests = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = providerFetchMock(requests, { recommendationIds: [1, 1, 2] });
+  context.after(() => { globalThis.fetch = originalFetch; });
+  const cookie = await accessCookie();
+
+  const response = await worker.fetch(new Request("https://example.test/api/venue-recommendations", {
+    method: "POST",
+    headers: { Cookie: cookie, "Content-Type": "application/json", "CF-Connecting-IP": "203.0.113.73" },
+    body: JSON.stringify({ query: "A wine bar", area_name: "Soho", lat: 51.513, lng: -0.132 })
+  }), {
+    ...env,
+    DB: db,
+    GOOGLE_PLACES_API_KEY: "test-google-key",
+    OPENAI_API_KEY: "test-openai-key"
+  });
+  const result = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(result.places.map((place) => place.place_id), [
+    "google-place-1",
+    "google-place-2",
+    "google-place-3"
+  ]);
+  assert.match(result.places[2].verified_details[0], /Google rating/);
+  assert.equal(result.places[2].source_urls[0], "https://venue-3.example/");
+});
+
+test("identical venue searches use the D1 cache without another paid request", async (context) => {
+  const { db } = createVenueDb();
+  const requests = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = providerFetchMock(requests);
+  context.after(() => { globalThis.fetch = originalFetch; });
+  const cookie = await accessCookie();
+  const recommendationEnv = {
+    ...env,
+    DB: db,
+    GOOGLE_PLACES_API_KEY: "test-google-key",
+    OPENAI_API_KEY: "test-openai-key"
+  };
+  const makeRequest = () => new Request("https://example.test/api/venue-recommendations", {
+    method: "POST",
+    headers: { Cookie: cookie, "Content-Type": "application/json", "CF-Connecting-IP": "203.0.113.71" },
+    body: JSON.stringify({ query: "A quiet museum", area_name: "Soho", lat: 51.513, lng: -0.132 })
+  });
+
+  const first = await worker.fetch(makeRequest(), recommendationEnv);
+  const second = await worker.fetch(makeRequest(), recommendationEnv);
+  const secondBody = await second.json();
+
+  assert.equal(first.status, 200);
+  assert.equal(second.status, 200);
+  assert.equal(secondBody.cached, true);
+  assert.equal(requests.length, 2);
+});
+
+test("place photos still load when the deployment edge cache is unavailable", async (context) => {
+  const originalFetch = globalThis.fetch;
+  const originalCaches = Object.getOwnPropertyDescriptor(globalThis, "caches");
+  const originalWarn = console.warn;
+  const warnings = [];
+  const photoName = `places/place-1/photos/${"p".repeat(600)}`;
+  console.warn = (...values) => warnings.push(values.join(" "));
+  globalThis.fetch = async (url) => {
+    const href = String(url);
+    if (href.startsWith(`https://places.googleapis.com/v1/${photoName}/media`)) {
+      return Response.json({ photoUri: "https://images.example.com/photo.jpg" });
+    }
+    if (href === "https://images.example.com/photo.jpg") {
+      return new Response(new Uint8Array([255, 216, 255, 217]), {
+        headers: { "Content-Type": "image/jpeg" }
+      });
+    }
+    throw new Error(`Unexpected photo request: ${href}`);
+  };
+  Object.defineProperty(globalThis, "caches", {
+    configurable: true,
+    value: {
+      default: {
+        match: async () => { throw new Error("edge cache unavailable"); },
+        put: async () => {}
+      }
+    }
+  });
+  context.after(() => {
+    globalThis.fetch = originalFetch;
+    console.warn = originalWarn;
+    if (originalCaches) {
+      Object.defineProperty(globalThis, "caches", originalCaches);
+    } else {
+      delete globalThis.caches;
+    }
+  });
+  const cookie = await accessCookie();
+
+  const response = await worker.fetch(new Request(
+    `https://example.test/api/place-photo?name=${encodeURIComponent(photoName)}`,
+    { headers: { Cookie: cookie } }
+  ), { ...env, GOOGLE_PLACES_API_KEY: "test-google-key" });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("content-type"), "image/jpeg");
+  assert.equal((await response.arrayBuffer()).byteLength, 4);
+  assert.ok(warnings.some((message) => message.includes("Place photo edge cache unavailable")));
+});
+
+test("uncached venue research is limited to five searches per visitor per hour", async (context) => {
+  const { db } = createVenueDb();
+  const requests = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = providerFetchMock(requests);
+  context.after(() => { globalThis.fetch = originalFetch; });
+  const cookie = await accessCookie();
+  const recommendationEnv = {
+    ...env,
+    DB: db,
+    GOOGLE_PLACES_API_KEY: "test-google-key",
+    OPENAI_API_KEY: "test-openai-key"
+  };
+
+  for (let index = 0; index < 5; index += 1) {
+    const response = await worker.fetch(new Request("https://example.test/api/venue-recommendations", {
+      method: "POST",
+      headers: { Cookie: cookie, "Content-Type": "application/json", "CF-Connecting-IP": "203.0.113.72" },
+      body: JSON.stringify({ query: `Group dinner option ${index}`, area_name: "Soho", lat: 51.513, lng: -0.132 })
+    }), recommendationEnv);
+    assert.equal(response.status, 200);
+  }
+
+  const blocked = await worker.fetch(new Request("https://example.test/api/venue-recommendations", {
+    method: "POST",
+    headers: { Cookie: cookie, "Content-Type": "application/json", "CF-Connecting-IP": "203.0.113.72" },
+    body: JSON.stringify({ query: "A sixth uncached search", area_name: "Soho", lat: 51.513, lng: -0.132 })
+  }), recommendationEnv);
+  assert.equal(blocked.status, 429);
+  assert.match((await blocked.json()).detail, /hourly recommendation limit/);
+  assert.equal(requests.length, 10);
 });
