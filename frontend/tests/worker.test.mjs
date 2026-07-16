@@ -350,6 +350,8 @@ test("password gate hides every asset until unlocked", async () => {
   assert.equal(locked.status, 200);
   assert.match(await locked.text(), /Private preview/);
   assert.equal(locked.headers.get("x-frame-options"), "DENY");
+  assert.match(locked.headers.get("content-security-policy"), /https:\/\/www\.googletagmanager\.com/);
+  assert.match(locked.headers.get("content-security-policy"), /https:\/\/\*\.google-analytics\.com/);
 });
 
 test("incorrect passwords are rejected", async () => {
