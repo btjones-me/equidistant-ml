@@ -368,7 +368,6 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
   const requestKey = useMemo(() => JSON.stringify(surfaceRequestPayload), [surfaceRequestPayload]);
   const hasComparison = Boolean(comparison?.cells.length);
   const activeResponse = hasComparison ? comparison : surface;
-  const isBrowserAtlas = surface.metadata?.source === "browser_atlas";
   const hasGraph = Boolean(
     activeResponse?.cells.some((cell) => typeof cell.graph_score_minutes === "number")
   );
@@ -508,10 +507,11 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
       const response = await fetch("/api/comparison-surface", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: requestKey
+        body: JSON.stringify({ ...surfaceRequestPayload, model_cells: surface.cells })
       });
       if (!response.ok) {
-        throw new Error(await response.text());
+        const failure = (await response.json().catch(() => null)) as { detail?: string } | null;
+        throw new Error(failure?.detail || "TravelTime comparison failed");
       }
       const body = (await response.json()) as SurfaceResponse;
       if (comparisonRequestId.current === requestId) {
@@ -529,7 +529,7 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
         setReferenceLoading(false);
       }
     }
-  }, [friends, includedFriendIndexes.length, requestKey]);
+  }, [friends, includedFriendIndexes.length, requestKey, surface.cells, surfaceRequestPayload]);
 
   const loadUsage = useCallback(async () => {
     setUsageLoading(true);
@@ -574,6 +574,13 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
   function toggleFriend(index: number) {
     toggleSharedFriend(index);
   }
+
+  const moveFriend = useCallback(
+    (index: number, lat: number, lng: number) => {
+      patchFriend(index, { lat, lng, locationLabel: undefined });
+    },
+    [patchFriend]
+  );
 
   function updateColorScale(field: keyof ColorScale, value: number) {
     setColorScale((current) => clampColorScale({ ...current, [field]: value }));
@@ -1151,7 +1158,7 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
         <section className="comparison-panel" aria-label="Model comparison">
           <div className="section-heading">
             <p className="eyebrow">Inspect</p>
-            <button className="action-button" type="button" onClick={requestComparison} disabled={referenceLoading || isBrowserAtlas} title={isBrowserAtlas ? "Live references are available when the local API is running" : "Fetch a TravelTime reference"}>
+            <button className="action-button" type="button" onClick={requestComparison} disabled={loading || referenceLoading || !surface.cells.length} title="Fetch a live TravelTime reference">
               <Database size={16} aria-hidden="true" />
               {referenceLoading ? "Fetching..." : "Fetch TravelTime"}
             </button>
@@ -1181,11 +1188,7 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
               ))}
             </div>
           ) : (
-            <p className="muted-copy">
-              {isBrowserAtlas
-                ? "This hosted view uses the browser atlas. Run the local API to fetch live TravelTime references."
-                : "Fetch a TravelTime reference to compare the offline model against ground truth for the checked participants."}
-            </p>
+            <p className="muted-copy">Fetch a live TravelTime reference to compare the offline model against ground truth for the checked participants.</p>
           )}
         </section>
 
@@ -1286,6 +1289,7 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
           isLoading={loading || referenceLoading}
           loadingLabel={referenceLoading ? "Fetching TravelTime" : "Updating map"}
           onSelectCell={setSelectedCell}
+          onMoveFriend={moveFriend}
         />
       </section>
     </main>

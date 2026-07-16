@@ -10,6 +10,13 @@ const VENUE_CACHE_TTL_SECONDS = 24 * 60 * 60;
 const VENUE_VISITOR_HOURLY_LIMIT = 5;
 const VENUE_GLOBAL_DAILY_LIMIT = 30;
 const VENUE_GLOBAL_MONTHLY_LIMIT = 300;
+const TRAVELTIME_VISITOR_HOURLY_ORIGIN_LIMIT = 12;
+const TRAVELTIME_GLOBAL_DAILY_ORIGIN_LIMIT = 60;
+const TRAVELTIME_GLOBAL_MONTHLY_ORIGIN_LIMIT = 500;
+const TRAVELTIME_FAST_URL = "https://api.traveltimeapp.com/v4/time-filter/fast";
+const TRAVELTIME_LIMIT_SECONDS = 10_800;
+const TRAVELTIME_UNREACHABLE_PENALTY_SECONDS = 1_800;
+const TRAVELTIME_MAX_CELLS = 5_000;
 const OPENAI_MODEL = "gpt-5.6-terra";
 const GOOGLE_PLACES_FIELD_MASK = [
   "places.id",
@@ -126,6 +133,15 @@ async function ensureDatabaseSchema(db) {
           scope TEXT NOT NULL,
           period_key TEXT NOT NULL,
           request_count INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL,
+          PRIMARY KEY (scope, period_key)
+        )
+      `),
+      db.prepare(`
+        CREATE TABLE IF NOT EXISTS traveltime_comparison_usage (
+          scope TEXT NOT NULL,
+          period_key TEXT NOT NULL,
+          origin_count INTEGER NOT NULL,
           updated_at INTEGER NOT NULL,
           PRIMARY KEY (scope, period_key)
         )
@@ -511,6 +527,378 @@ async function fetchWithTimeout(url, init, timeoutMs) {
     return await fetch(url, { ...init, signal: controller.signal });
   } finally {
     clearTimeout(timeout);
+  }
+}
+
+class TravelTimeServiceError extends Error {
+  constructor(status, message, retryAfter = null) {
+    super(message);
+    this.status = status;
+    this.retryAfter = retryAfter;
+  }
+}
+
+function finiteNumber(value) {
+  if (typeof value !== "number" && typeof value !== "string") {
+    return undefined;
+  }
+  if (typeof value === "string" && !value.trim()) {
+    return undefined;
+  }
+  const number = Number(value);
+  return Number.isFinite(number) ? number : undefined;
+}
+
+function sanitiseComparisonCell(value, friendCount) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new TravelTimeServiceError(422, "The offline model surface is invalid.");
+  }
+  const destinationId = boundedText(value.destination_id, 100);
+  const lat = finiteNumber(value.lat);
+  const lng = finiteNumber(value.lng);
+  const modelScore = finiteNumber(value.model_score_minutes);
+  if (!destinationId || lat === undefined || lng === undefined || modelScore === undefined) {
+    throw new TravelTimeServiceError(422, "The offline model surface is incomplete.");
+  }
+  if (lat < 51.2 || lat > 51.75 || lng < -0.6 || lng > 0.35) {
+    throw new TravelTimeServiceError(422, "The comparison surface must remain within London.");
+  }
+  const cell = {
+    destination_id: destinationId,
+    lat,
+    lng,
+    x_index: finiteNumber(value.x_index) ?? 0,
+    y_index: finiteNumber(value.y_index) ?? 0,
+    model_score_minutes: modelScore,
+    score_minutes: finiteNumber(value.score_minutes) ?? modelScore
+  };
+  for (const key of [
+    "south", "north", "west", "east", "h3_resolution", "grid_priority", "cell_area_km2",
+    "graph_score_minutes", "model_residual_minutes", "graph_interchanges", "graph_access_seconds",
+    "graph_egress_seconds", "max_minutes", "mean_minutes", "fairness_minutes"
+  ]) {
+    const number = finiteNumber(value[key]);
+    if (number !== undefined) {
+      cell[key] = number;
+    }
+  }
+  for (const key of ["h3_cell", "grid_band", "graph_modes", "nearest_corridors", "included_friend_indexes"]) {
+    const text = boundedText(value[key], 240);
+    if (text) {
+      cell[key] = text;
+    }
+  }
+  if (Array.isArray(value.boundary) && value.boundary.length <= 16) {
+    const boundary = value.boundary
+      .map((point) => Array.isArray(point) ? [finiteNumber(point[0]), finiteNumber(point[1])] : [])
+      .filter((point) => point.length === 2 && point[0] !== undefined && point[1] !== undefined);
+    if (boundary.length >= 3) {
+      cell.boundary = boundary;
+    }
+  }
+  for (let index = 0; index < friendCount; index += 1) {
+    for (const suffix of ["model_minutes", "graph_minutes", "model_residual_minutes"]) {
+      const key = `friend_${index}_${suffix}`;
+      const number = finiteNumber(value[key]);
+      if (number !== undefined) {
+        cell[key] = number;
+      }
+    }
+    const name = boundedText(value[`friend_${index}_name`], 80);
+    if (name) {
+      cell[`friend_${index}_name`] = name;
+    }
+  }
+  return cell;
+}
+
+export function validateTravelTimeComparisonInput(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new TravelTimeServiceError(422, "Send a valid TravelTime comparison request.");
+  }
+  if (!Array.isArray(value.friends) || value.friends.length < 1 || value.friends.length > 6) {
+    throw new TravelTimeServiceError(422, "Choose between one and six participants.");
+  }
+  const friends = value.friends.map((friend, index) => {
+    const lat = finiteNumber(friend?.lat);
+    const lng = finiteNumber(friend?.lng);
+    if (lat === undefined || lng === undefined || lat < 51.2 || lat > 51.75 || lng < -0.6 || lng > 0.35) {
+      throw new TravelTimeServiceError(422, `Participant ${index + 1} must be within London.`);
+    }
+    return { lat, lng, name: boundedText(friend?.name, 80) || `Friend ${index + 1}` };
+  });
+  const included = Array.isArray(value.included_friend_indexes)
+    ? [...new Set(value.included_friend_indexes.map((index) => Number(index)))].sort((left, right) => left - right)
+    : friends.map((_, index) => index);
+  if (!included.length || included.some((index) => !Number.isInteger(index) || index < 0 || index >= friends.length)) {
+    throw new TravelTimeServiceError(422, "Select at least one valid participant.");
+  }
+  const combine = ["balanced", "max", "mean", "fairness"].includes(value.combine)
+    ? value.combine
+    : "balanced";
+  if (!Array.isArray(value.model_cells) || !value.model_cells.length || value.model_cells.length > TRAVELTIME_MAX_CELLS) {
+    throw new TravelTimeServiceError(422, `The offline surface must contain 1-${TRAVELTIME_MAX_CELLS} cells.`);
+  }
+  const cells = value.model_cells.map((cell) => sanitiseComparisonCell(cell, friends.length));
+  if (new Set(cells.map((cell) => cell.destination_id)).size !== cells.length) {
+    throw new TravelTimeServiceError(422, "The offline surface contains duplicate cells.");
+  }
+  return { friends, included, combine, cells };
+}
+
+async function incrementTravelTimeUsage(db, scope, periodKey, originCount, now) {
+  const row = await db.prepare(`
+    INSERT INTO traveltime_comparison_usage (scope, period_key, origin_count, updated_at)
+    VALUES (?1, ?2, ?3, ?4)
+    ON CONFLICT(scope, period_key) DO UPDATE SET
+      origin_count = origin_count + excluded.origin_count,
+      updated_at = excluded.updated_at
+    RETURNING origin_count
+  `).bind(scope, periodKey, originCount, now).first();
+  return Number(row?.origin_count || originCount);
+}
+
+async function consumeTravelTimeBudget(env, request, originCount, now) {
+  if (!env.DB) {
+    throw new TravelTimeServiceError(503, "TravelTime cost controls are unavailable, so no live request was made.");
+  }
+  await ensureDatabaseSchema(env.DB);
+  const iso = new Date(now * 1000).toISOString();
+  const visitorSeed = readCookie(request, VISITOR_COOKIE) || request.headers.get("CF-Connecting-IP") || "legacy-browser";
+  const visitorKey = await hmacToken(
+    env.RATE_LIMIT_SECRET || env.SITE_PASSWORD,
+    `traveltime:${visitorSeed}`
+  );
+  const checks = [
+    {
+      scope: `visitor:${visitorKey}`,
+      period: iso.slice(0, 13),
+      limit: TRAVELTIME_VISITOR_HOURLY_ORIGIN_LIMIT,
+      message: "You have reached the hourly TravelTime comparison limit.",
+      retryAfter: 3600
+    },
+    {
+      scope: "global:day",
+      period: iso.slice(0, 10),
+      limit: TRAVELTIME_GLOBAL_DAILY_ORIGIN_LIMIT,
+      message: "Today's TravelTime comparison allowance has been used.",
+      retryAfter: 3600
+    },
+    {
+      scope: "global:month",
+      period: iso.slice(0, 7),
+      limit: TRAVELTIME_GLOBAL_MONTHLY_ORIGIN_LIMIT,
+      message: "This month's TravelTime comparison allowance has been used.",
+      retryAfter: 86400
+    }
+  ];
+  for (const check of checks) {
+    const count = await incrementTravelTimeUsage(env.DB, check.scope, check.period, originCount, now);
+    if (count > check.limit) {
+      throw new TravelTimeServiceError(429, check.message, check.retryAfter);
+    }
+  }
+  await env.DB.prepare(
+    "DELETE FROM traveltime_comparison_usage WHERE updated_at < ?1"
+  ).bind(now - 40 * 24 * 60 * 60).run();
+}
+
+function travelTimePayload(input) {
+  const destinationIds = input.cells.map((_, index) => `d_${index}`);
+  const locations = input.included.map((friendIndex) => ({
+    id: `o_${friendIndex}`,
+    coords: { lat: input.friends[friendIndex].lat, lng: input.friends[friendIndex].lng }
+  }));
+  locations.push(...input.cells.map((cell, index) => ({
+    id: destinationIds[index],
+    coords: { lat: cell.lat, lng: cell.lng }
+  })));
+  return {
+    destinationIds,
+    body: {
+      locations,
+      arrival_searches: {
+        one_to_many: input.included.map((friendIndex) => ({
+          id: `o_${friendIndex}`,
+          departure_location_id: `o_${friendIndex}`,
+          arrival_location_ids: destinationIds,
+          travel_time: TRAVELTIME_LIMIT_SECONDS,
+          arrival_time_period: "weekday_morning",
+          properties: ["travel_time"],
+          transportation: { type: "public_transport" }
+        }))
+      }
+    }
+  };
+}
+
+function mean(values) {
+  return values.reduce((total, value) => total + value, 0) / values.length;
+}
+
+function sampleStandardDeviation(values) {
+  if (values.length <= 1) {
+    return 0;
+  }
+  const average = mean(values);
+  return Math.sqrt(values.reduce((total, value) => total + (value - average) ** 2, 0) / (values.length - 1));
+}
+
+function combineTravelTimes(values, mode) {
+  if (values.length === 1) {
+    return values[0];
+  }
+  if (mode === "max") {
+    return Math.max(...values);
+  }
+  if (mode === "mean") {
+    return mean(values);
+  }
+  const fairness = sampleStandardDeviation(values);
+  return mode === "fairness" ? fairness : mean(values) + fairness * 0.5;
+}
+
+function percentile(values, quantile) {
+  if (!values.length) {
+    return null;
+  }
+  const sorted = [...values].sort((left, right) => left - right);
+  return sorted[Math.min(sorted.length - 1, Math.floor((sorted.length - 1) * quantile))];
+}
+
+function comparisonResponse(input, providerBody, destinationIds) {
+  const resultBySearchId = new Map(
+    (Array.isArray(providerBody?.results) ? providerBody.results : []).map((result) => [result.search_id, result])
+  );
+  const references = new Map();
+  for (const friendIndex of input.included) {
+    const result = resultBySearchId.get(`o_${friendIndex}`);
+    if (!result) {
+      throw new TravelTimeServiceError(503, "TravelTime returned an incomplete comparison.");
+    }
+    const reachable = new Map(
+      (Array.isArray(result.locations) ? result.locations : []).map((location) => [
+        location.id,
+        finiteNumber(location?.properties?.travel_time)
+      ])
+    );
+    const unreachable = new Set(Array.isArray(result.unreachable) ? result.unreachable : []);
+    references.set(friendIndex, destinationIds.map((destinationId) => {
+      const seconds = reachable.get(destinationId);
+      return seconds !== undefined && !unreachable.has(destinationId)
+        ? { minutes: seconds / 60, reachable: true }
+        : { minutes: (TRAVELTIME_LIMIT_SECONDS + TRAVELTIME_UNREACHABLE_PENALTY_SECONDS) / 60, reachable: false };
+    }));
+  }
+  const cells = input.cells.map((cell, cellIndex) => {
+    const next = { ...cell };
+    const referenceValues = input.included.map((friendIndex) => {
+      const reference = references.get(friendIndex)[cellIndex];
+      next[`friend_${friendIndex}_reference_minutes`] = reference.minutes;
+      next[`friend_${friendIndex}_reference_reachable`] = reference.reachable;
+      const modelMinutes = finiteNumber(next[`friend_${friendIndex}_model_minutes`]);
+      if (modelMinutes !== undefined) {
+        next[`friend_${friendIndex}_error_minutes`] = modelMinutes - reference.minutes;
+      }
+      return reference.minutes;
+    });
+    next.reference_score_minutes = combineTravelTimes(referenceValues, input.combine);
+    next.signed_error_minutes = next.model_score_minutes - next.reference_score_minutes;
+    next.abs_error_minutes = Math.abs(next.signed_error_minutes);
+    return next;
+  });
+  const absoluteErrors = cells.map((cell) => cell.abs_error_minutes);
+  const signedErrors = cells.map((cell) => cell.signed_error_minutes);
+  const modelScores = cells.map((cell) => cell.model_score_minutes);
+  const metrics = {
+    reference_origin_count: input.included.length,
+    included_friend_indexes: input.included,
+    mae_minutes: mean(absoluteErrors),
+    median_abs_error_minutes: percentile(absoluteErrors, 0.5),
+    p90_abs_error_minutes: percentile(absoluteErrors, 0.9),
+    within_5_min_pct: mean(absoluteErrors.map((error) => error <= 5 ? 100 : 0)),
+    within_10_min_pct: mean(absoluteErrors.map((error) => error <= 10 ? 100 : 0)),
+    mean_signed_error_minutes: mean(signedErrors)
+  };
+  return {
+    lats: [],
+    lngs: [],
+    Z: [],
+    cells,
+    metadata: {
+      value_column: "model_score_minutes",
+      cell_count: cells.length,
+      grid_type: "h3",
+      friend_columns: input.friends.map((_, index) => `friend_${index}_model_minutes`),
+      value_columns: {
+        model: "model_score_minutes",
+        graph: "graph_score_minutes",
+        residual: "model_residual_minutes",
+        reference: "reference_score_minutes",
+        error: "signed_error_minutes"
+      },
+      comparison: metrics,
+      min: Math.min(...modelScores),
+      max: Math.max(...modelScores),
+      p10: percentile(modelScores, 0.1),
+      p50: percentile(modelScores, 0.5),
+      p90: percentile(modelScores, 0.9),
+      source: "browser_atlas"
+    }
+  };
+}
+
+async function travelTimeComparison(request, env) {
+  const contentLength = Number(request.headers.get("Content-Length") || 0);
+  if (contentLength > 8 * 1024 * 1024) {
+    return Response.json({ detail: "The comparison surface is too large." }, { status: 413, headers: secureHeaders() });
+  }
+  let input;
+  try {
+    input = validateTravelTimeComparisonInput(await request.json());
+  } catch (error) {
+    const serviceError = error instanceof TravelTimeServiceError
+      ? error
+      : new TravelTimeServiceError(400, "Send a valid TravelTime comparison request.");
+    return Response.json({ detail: serviceError.message }, { status: serviceError.status, headers: secureHeaders() });
+  }
+  try {
+    if (!env.TRAVELTIME_APP_ID || !env.TRAVELTIME_API_KEY) {
+      throw new TravelTimeServiceError(503, "TravelTime comparison has not been configured.");
+    }
+    await consumeTravelTimeBudget(env, request, input.included.length, Math.floor(Date.now() / 1000));
+    const payload = travelTimePayload(input);
+    const upstream = await fetchWithTimeout(TRAVELTIME_FAST_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Application-Id": env.TRAVELTIME_APP_ID,
+        "X-Api-Key": env.TRAVELTIME_API_KEY
+      },
+      body: JSON.stringify(payload.body)
+    }, 55_000);
+    if (!upstream.ok) {
+      console.warn("TravelTime comparison request failed", upstream.status);
+      throw new TravelTimeServiceError(
+        upstream.status === 429 ? 429 : 503,
+        upstream.status === 429
+          ? "TravelTime is rate limited. Try again shortly."
+          : "TravelTime comparison is temporarily unavailable.",
+        60
+      );
+    }
+    return Response.json(comparisonResponse(input, await upstream.json(), payload.destinationIds), {
+      headers: secureHeaders(new Headers({ "Cache-Control": "no-store" }))
+    });
+  } catch (error) {
+    const serviceError = error instanceof TravelTimeServiceError
+      ? error
+      : new TravelTimeServiceError(503, "TravelTime comparison is temporarily unavailable.");
+    const headers = secureHeaders(new Headers({ "Cache-Control": "no-store" }));
+    if (serviceError.retryAfter) {
+      headers.set("Retry-After", String(serviceError.retryAfter));
+    }
+    return Response.json({ detail: serviceError.message }, { status: serviceError.status, headers });
   }
 }
 
@@ -1031,6 +1419,9 @@ export default {
     }
     if (url.pathname === "/api/venue-recommendations" && request.method === "POST") {
       return venueRecommendations(request, env);
+    }
+    if (url.pathname === "/api/comparison-surface" && request.method === "POST") {
+      return travelTimeComparison(request, env);
     }
     if (url.pathname === "/api/place-photo" && request.method === "GET") {
       return placePhoto(request, env, ctx);

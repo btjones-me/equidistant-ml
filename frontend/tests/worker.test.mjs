@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import worker, { extractResponseOutputText, validateVenueRecommendationInput } from "../worker/index.js";
+import worker, {
+  extractResponseOutputText,
+  validateTravelTimeComparisonInput,
+  validateVenueRecommendationInput
+} from "../worker/index.js";
 
 const env = {
   SITE_PASSWORD: "test-password-do-not-use",
@@ -192,6 +196,90 @@ function createVenueDb() {
         return statement;
       }
     }
+  };
+}
+
+function createTravelTimeDb() {
+  const usage = new Map();
+  return {
+    usage,
+    db: {
+      async batch(statements) {
+        return Promise.all(statements.map((statement) => statement.run()));
+      },
+      prepare(sql) {
+        let parameters = [];
+        const statement = {
+          bind(...values) {
+            parameters = values;
+            return statement;
+          },
+          async first() {
+            if (sql.includes("INSERT INTO traveltime_comparison_usage")) {
+              const key = `${parameters[0]}|${parameters[1]}`;
+              const originCount = (usage.get(key)?.origin_count ?? 0) + parameters[2];
+              usage.set(key, { origin_count: originCount, updated_at: parameters[3] });
+              return { origin_count: originCount };
+            }
+            throw new Error(`Unexpected TravelTime query: ${sql}`);
+          },
+          async run() {
+            if (sql.includes("CREATE TABLE")) {
+              return { success: true };
+            }
+            if (sql.includes("DELETE FROM traveltime_comparison_usage")) {
+              for (const [key, row] of usage) {
+                if (row.updated_at < parameters[0]) {
+                  usage.delete(key);
+                }
+              }
+              return { success: true };
+            }
+            throw new Error(`Unexpected TravelTime run: ${sql}`);
+          }
+        };
+        return statement;
+      }
+    }
+  };
+}
+
+function comparisonRequestBody(friendCount = 1) {
+  const friends = Array.from({ length: friendCount }, (_, index) => ({
+    name: `Friend ${index + 1}`,
+    lat: 51.52 + index / 1000,
+    lng: -0.14 - index / 1000
+  }));
+  return {
+    friends,
+    included_friend_indexes: friends.map((_, index) => index),
+    combine: "balanced",
+    model_cells: [
+      {
+        destination_id: "cell-1",
+        lat: 51.51,
+        lng: -0.13,
+        x_index: 0,
+        y_index: 0,
+        h3_cell: "cell-1",
+        h3_resolution: 9,
+        boundary: [[51.509, -0.131], [51.511, -0.131], [51.51, -0.129]],
+        model_score_minutes: 10,
+        ...Object.fromEntries(friends.map((_, index) => [`friend_${index}_model_minutes`, 10 + index]))
+      },
+      {
+        destination_id: "cell-2",
+        lat: 51.53,
+        lng: -0.11,
+        x_index: 1,
+        y_index: 0,
+        h3_cell: "cell-2",
+        h3_resolution: 9,
+        boundary: [[51.529, -0.111], [51.531, -0.111], [51.53, -0.109]],
+        model_score_minutes: 20,
+        ...Object.fromEntries(friends.map((_, index) => [`friend_${index}_model_minutes`, 20 + index]))
+      }
+    ]
   };
 }
 
@@ -468,6 +556,109 @@ test("venue request validation constrains text and London coordinates", () => {
     () => validateVenueRecommendationInput({ query: "pub", area_name: "Paris", lat: 48.85, lng: 2.35 }),
     /London coverage/
   );
+});
+
+test("TravelTime comparison validation keeps only safe model surface fields", () => {
+  const input = comparisonRequestBody();
+  input.model_cells[0].untrusted = "discard me";
+  const validated = validateTravelTimeComparisonInput(input);
+
+  assert.equal(validated.friends.length, 1);
+  assert.equal(validated.cells.length, 2);
+  assert.equal(validated.cells[0].model_score_minutes, 10);
+  assert.equal(validated.cells[0].untrusted, undefined);
+  assert.throws(
+    () => validateTravelTimeComparisonInput({ ...input, friends: [{ lat: 48.85, lng: 2.35 }] }),
+    /within London/
+  );
+});
+
+test("hosted comparisons merge TravelTime references without exposing credentials", async (context) => {
+  const { db } = createTravelTimeDb();
+  const requests = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (url, init = {}) => {
+    const body = JSON.parse(init.body);
+    requests.push({ href: String(url), init, body });
+    return Response.json({
+      results: body.arrival_searches.one_to_many.map((search) => ({
+        search_id: search.id,
+        locations: [
+          { id: "d_0", properties: { travel_time: 720 } },
+          { id: "d_1", properties: { travel_time: 1080 } }
+        ],
+        unreachable: []
+      }))
+    });
+  };
+  context.after(() => { globalThis.fetch = originalFetch; });
+  const cookie = await accessCookie();
+  const response = await worker.fetch(new Request("https://example.test/api/comparison-surface", {
+    method: "POST",
+    headers: { Cookie: cookie, "Content-Type": "application/json", "CF-Connecting-IP": "203.0.113.80" },
+    body: JSON.stringify(comparisonRequestBody())
+  }), {
+    ...env,
+    DB: db,
+    RATE_LIMIT_SECRET: "test-rate-secret",
+    TRAVELTIME_APP_ID: "test-app-id",
+    TRAVELTIME_API_KEY: "test-api-key"
+  });
+  const result = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.equal(result.cells[0].reference_score_minutes, 12);
+  assert.equal(result.cells[0].signed_error_minutes, -2);
+  assert.equal(result.cells[1].reference_score_minutes, 18);
+  assert.equal(result.cells[1].signed_error_minutes, 2);
+  assert.equal(result.metadata.comparison.mae_minutes, 2);
+  assert.equal(result.metadata.comparison.mean_signed_error_minutes, 0);
+  assert.equal(requests.length, 1);
+  assert.equal(requests[0].href, "https://api.traveltimeapp.com/v4/time-filter/fast");
+  assert.equal(requests[0].body.arrival_searches.one_to_many[0].arrival_time_period, "weekday_morning");
+  assert.equal(requests[0].init.headers["X-Application-Id"], "test-app-id");
+  assert.doesNotMatch(JSON.stringify(result), /test-(app-id|api-key)/);
+});
+
+test("TravelTime comparisons are capped by requested origins per visitor", async (context) => {
+  const { db } = createTravelTimeDb();
+  const requests = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (_url, init = {}) => {
+    const body = JSON.parse(init.body);
+    requests.push(body);
+    return Response.json({
+      results: body.arrival_searches.one_to_many.map((search) => ({
+        search_id: search.id,
+        locations: [
+          { id: "d_0", properties: { travel_time: 720 } },
+          { id: "d_1", properties: { travel_time: 1080 } }
+        ],
+        unreachable: []
+      }))
+    });
+  };
+  context.after(() => { globalThis.fetch = originalFetch; });
+  const cookie = await accessCookie();
+  const comparisonEnv = {
+    ...env,
+    DB: db,
+    RATE_LIMIT_SECRET: "test-rate-secret",
+    TRAVELTIME_APP_ID: "test-app-id",
+    TRAVELTIME_API_KEY: "test-api-key"
+  };
+  const makeRequest = () => new Request("https://example.test/api/comparison-surface", {
+    method: "POST",
+    headers: { Cookie: cookie, "Content-Type": "application/json", "CF-Connecting-IP": "203.0.113.81" },
+    body: JSON.stringify(comparisonRequestBody(6))
+  });
+
+  assert.equal((await worker.fetch(makeRequest(), comparisonEnv)).status, 200);
+  assert.equal((await worker.fetch(makeRequest(), comparisonEnv)).status, 200);
+  const blocked = await worker.fetch(makeRequest(), comparisonEnv);
+  assert.equal(blocked.status, 429);
+  assert.match((await blocked.json()).detail, /hourly TravelTime comparison limit/);
+  assert.equal(requests.length, 2);
 });
 
 test("Responses API output text is extracted without relying on an SDK helper", () => {

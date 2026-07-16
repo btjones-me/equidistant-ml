@@ -422,6 +422,7 @@ export default function MapView({
   const [tubeLines, setTubeLines] = useState<TubeLine[]>([]);
   const [showTubeLines, setShowTubeLines] = useState(true);
   const [surfaceHidden, setSurfaceHidden] = useState(false);
+  const markersDraggable = Boolean(onMoveFriend);
 
   const gridSignature = useMemo(() => gridSignatureForCells(cells), [cells]);
   const isZeroCentered = zeroCenteredValueKeys.has(valueKey);
@@ -494,7 +495,7 @@ export default function MapView({
     venueMarkerPane.style.pointerEvents = "auto";
     const friendMarkerPane = map.createPane(friendMarkerPaneName);
     friendMarkerPane.style.zIndex = "650";
-    friendMarkerPane.style.pointerEvents = variant === "product" ? "auto" : "none";
+    friendMarkerPane.style.pointerEvents = markersDraggable ? "auto" : "none";
 
     const updateMapNodeView = () => {
       if (!mapNodeRef.current) {
@@ -521,7 +522,7 @@ export default function MapView({
       labelLayerRef.current = null;
       mapRef.current = null;
     };
-  }, [variant]);
+  }, [markersDraggable, variant]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -683,10 +684,10 @@ export default function MapView({
     markerLayer.clearLayers();
     friends.forEach((friend, index) => {
       const isIncluded = includedFriendIndexes.includes(index);
-      if (variant === "product") {
+      if (variant === "product" || markersDraggable) {
         const marker = L.marker([friend.lat, friend.lng], {
           pane: friendMarkerPaneName,
-          draggable: Boolean(onMoveFriend),
+          draggable: markersDraggable,
           keyboard: true,
           title: friend.name || `Friend ${index + 1}`,
           icon: L.divIcon({
@@ -719,7 +720,7 @@ export default function MapView({
         })
         .addTo(markerLayer);
     });
-  }, [activeFriendIndex, friends, includedFriendIndexes, onMoveFriend, variant]);
+  }, [activeFriendIndex, friends, includedFriendIndexes, markersDraggable, onMoveFriend, variant]);
 
   useEffect(() => {
     const layer = venueLayerRef.current;
