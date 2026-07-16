@@ -12,6 +12,7 @@ type MapViewProps = {
   palette: PaletteMode;
   customColorMap: ColorMapStop[];
   colorScale: ColorScale;
+  surfaceOpacity: number;
   isLoading: boolean;
   loadingLabel: string;
   onSelectCell: (cell: SurfaceCell | null) => void;
@@ -362,6 +363,7 @@ export default function MapView({
   palette,
   customColorMap,
   colorScale,
+  surfaceOpacity,
   isLoading,
   loadingLabel,
   onSelectCell,
@@ -560,21 +562,22 @@ export default function MapView({
       const polygon = cellLatLngs(cell);
       const color = scaleColor(value, domain, paletteConfig, colorScale.contrast);
       const edgeOpacity = surfaceBounds.isValid() ? edgeFadeOpacity(cell, surfaceBounds) : 1;
+      const fillOpacity = clamp(surfaceOpacity) * edgeOpacity;
       const cellLayer = polygon
         ? L.polygon(polygon, {
             pane: surfacePaneName,
             color,
             fillColor: color,
-            fillOpacity: 0.68 * edgeOpacity,
-            opacity: 0.22 * edgeOpacity,
+            fillOpacity,
+            opacity: clamp(surfaceOpacity * 0.34) * edgeOpacity,
             weight: 0.8
           })
         : L.rectangle(cellBounds(cell, sortedLats, sortedLngs), {
             pane: surfacePaneName,
             color,
             fillColor: color,
-            fillOpacity: 0.66 * edgeOpacity,
-            opacity: 0.24 * edgeOpacity,
+            fillOpacity,
+            opacity: clamp(surfaceOpacity * 0.36) * edgeOpacity,
             weight: 1
           });
       cellLayer.on("click", () => onSelectCell(cell));
@@ -605,6 +608,7 @@ export default function MapView({
     includedFriendIndexes,
     onSelectCell,
     paletteConfig,
+    surfaceOpacity,
     valueKey,
     valueLabel
   ]);

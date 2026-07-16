@@ -93,6 +93,7 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
     palette,
     customColorStops,
     colorScale,
+    surfaceOpacity,
     suggestionMinDistanceKm,
     setFriends,
     setIncluded,
@@ -540,6 +541,7 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
           palette={palette}
           customColorMap={serialisedStops}
           colorScale={colorScale}
+          surfaceOpacity={surfaceOpacity}
           isLoading={loading}
           loadingLabel="Finding your middle"
           onSelectCell={(cell) => {

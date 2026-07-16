@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Copy, Database, Plus, RotateCcw, RefreshCw, Trash2 } from "lucide-react";
 import MapView from "./MapView";
 import { getAtlasSurface } from "./lib/atlas";
-import { recommendedColorScale, useAppState } from "./state/AppStateContext";
+import { DEFAULT_SURFACE_OPACITY, recommendedColorScale, useAppState } from "./state/AppStateContext";
 import type {
   ColorMapStop,
   ColorScale,
@@ -312,12 +312,14 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
     palette,
     customColorStops,
     colorScale,
+    surfaceOpacity,
     suggestionMinDistanceKm,
     setCombine,
     setDetail,
     setPalette,
     setCustomColorStops,
     setColorScale,
+    setSurfaceOpacity,
     setSuggestionMinDistanceKm,
     changeFriendCount: setSharedFriendCount,
     updateFriend: patchFriend,
@@ -936,14 +938,17 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
           </section>
         ) : null}
 
-        <section className="scale-panel" aria-label="Colour range">
+        <section className="scale-panel" aria-label="Surface appearance">
           <div className="section-heading">
-            <p className="eyebrow">Colour range</p>
+            <p className="eyebrow">Surface appearance</p>
             <button
               className="reset-button"
               type="button"
-              onClick={() => setColorScale(activeRecommendedColorScale)}
-              title="Reset colour range"
+              onClick={() => {
+                setColorScale(activeRecommendedColorScale);
+                setSurfaceOpacity(DEFAULT_SURFACE_OPACITY);
+              }}
+              title="Reset surface appearance"
             >
               <RotateCcw size={14} aria-hidden="true" />
             </button>
@@ -1016,6 +1021,30 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
                 step={0.05}
                 value={colorScale.contrast}
                 onChange={(event) => updateColorScale("contrast", Number(event.target.value))}
+              />
+            </label>
+            <label>
+              <span>
+                Heatmap opacity
+                <input
+                  aria-label="Heatmap opacity"
+                  className="scale-value"
+                  type="number"
+                  min={15}
+                  max={90}
+                  step={1}
+                  value={Math.round(surfaceOpacity * 100)}
+                  onChange={(event) => setSurfaceOpacity(Math.min(0.9, Math.max(0.15, Number(event.target.value) / 100)))}
+                />
+              </span>
+              <input
+                aria-label="Heatmap opacity slider"
+                type="range"
+                min={15}
+                max={90}
+                step={1}
+                value={Math.round(surfaceOpacity * 100)}
+                onChange={(event) => setSurfaceOpacity(Number(event.target.value) / 100)}
               />
             </label>
           </div>
@@ -1205,6 +1234,7 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
           palette={mapPalette}
           customColorMap={customColorMap}
           colorScale={colorScale}
+          surfaceOpacity={surfaceOpacity}
           isLoading={loading || referenceLoading}
           loadingLabel={referenceLoading ? "Fetching TravelTime" : "Updating map"}
           onSelectCell={setSelectedCell}
