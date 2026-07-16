@@ -14,6 +14,7 @@ type MapViewProps = {
   customColorMap: ColorMapStop[];
   colorScale: ColorScale;
   surfaceOpacity: number;
+  surfaceValueFade: number;
   mapStyle: MapStyle;
   isLoading: boolean;
   loadingLabel: string;
@@ -167,6 +168,14 @@ function quantile(values: number[], q: number): number {
 
 function clamp(value: number): number {
   return Math.min(1, Math.max(0, value));
+}
+
+function valueOpacityMultiplier(value: number, domain: ColorStats, fade: number): number {
+  if (domain.centered || domain.max <= domain.min) {
+    return 1;
+  }
+  const progress = clamp((value - domain.min) / (domain.max - domain.min));
+  return 1 - clamp(fade) * progress;
 }
 
 function rgbString(rgb: RGB): string {
@@ -386,6 +395,7 @@ export default function MapView({
   customColorMap,
   colorScale,
   surfaceOpacity,
+  surfaceValueFade,
   mapStyle,
   isLoading,
   loadingLabel,
@@ -612,14 +622,15 @@ export default function MapView({
       const polygon = cellLatLngs(cell);
       const color = scaleColor(value, domain, paletteConfig, colorScale.contrast);
       const edgeOpacity = surfaceBounds.isValid() ? edgeFadeOpacity(cell, surfaceBounds) : 1;
-      const fillOpacity = clamp(surfaceOpacity) * edgeOpacity;
+      const valueOpacity = valueOpacityMultiplier(value, domain, surfaceValueFade);
+      const fillOpacity = clamp(surfaceOpacity) * edgeOpacity * valueOpacity;
       const cellLayer = polygon
         ? L.polygon(polygon, {
             pane: surfacePaneName,
             color,
             fillColor: color,
             fillOpacity,
-            opacity: clamp(surfaceOpacity * 0.34) * edgeOpacity,
+            opacity: clamp(surfaceOpacity * 0.34) * edgeOpacity * valueOpacity,
             weight: 0.8
           })
         : L.rectangle(cellBounds(cell, sortedLats, sortedLngs), {
@@ -627,7 +638,7 @@ export default function MapView({
             color,
             fillColor: color,
             fillOpacity,
-            opacity: clamp(surfaceOpacity * 0.36) * edgeOpacity,
+            opacity: clamp(surfaceOpacity * 0.36) * edgeOpacity * valueOpacity,
             weight: 1
           });
       cellLayer.on("click", () => onSelectCell(cell));
@@ -659,6 +670,7 @@ export default function MapView({
     onSelectCell,
     paletteConfig,
     surfaceOpacity,
+    surfaceValueFade,
     valueKey,
     valueLabel
   ]);

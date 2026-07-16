@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Copy, Database, Plus, RotateCcw, RefreshCw, Trash2 } from "lucide-react";
 import MapView from "./MapView";
 import { getAtlasSurface } from "./lib/atlas";
-import { DEFAULT_SURFACE_OPACITY, recommendedColorScale, useAppState } from "./state/AppStateContext";
+import { DEFAULT_SURFACE_OPACITY, DEFAULT_SURFACE_VALUE_FADE, recommendedColorScale, useAppState } from "./state/AppStateContext";
 import type {
   ColorMapStop,
   ColorScale,
@@ -314,6 +314,7 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
     customColorStops,
     colorScale,
     surfaceOpacity,
+    surfaceValueFade,
     suggestionMinDistanceKm,
     setCombine,
     setDetail,
@@ -322,6 +323,7 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
     setCustomColorStops,
     setColorScale,
     setSurfaceOpacity,
+    setSurfaceValueFade,
     setSuggestionMinDistanceKm,
     changeFriendCount: setSharedFriendCount,
     updateFriend: patchFriend,
@@ -964,6 +966,7 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
               onClick={() => {
                 setColorScale(activeRecommendedColorScale);
                 setSurfaceOpacity(DEFAULT_SURFACE_OPACITY);
+                setSurfaceValueFade(DEFAULT_SURFACE_VALUE_FADE);
               }}
               title="Reset surface appearance"
             >
@@ -1062,6 +1065,30 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
                 step={1}
                 value={Math.round(surfaceOpacity * 100)}
                 onChange={(event) => setSurfaceOpacity(Number(event.target.value) / 100)}
+              />
+            </label>
+            <label title="0% keeps opacity uniform; 100% makes the highest travel time transparent">
+              <span>
+                High-time fade
+                <input
+                  aria-label="High-time fade"
+                  className="scale-value"
+                  type="number"
+                  min={0}
+                  max={100}
+                  step={1}
+                  value={Math.round(surfaceValueFade * 100)}
+                  onChange={(event) => setSurfaceValueFade(Math.min(1, Math.max(0, Number(event.target.value) / 100)))}
+                />
+              </span>
+              <input
+                aria-label="High-time fade slider"
+                type="range"
+                min={0}
+                max={100}
+                step={1}
+                value={Math.round(surfaceValueFade * 100)}
+                onChange={(event) => setSurfaceValueFade(Number(event.target.value) / 100)}
               />
             </label>
           </div>
@@ -1252,6 +1279,7 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
           customColorMap={customColorMap}
           colorScale={colorScale}
           surfaceOpacity={surfaceOpacity}
+          surfaceValueFade={surfaceValueFade}
           mapStyle={mapStyle}
           isLoading={loading || referenceLoading}
           loadingLabel={referenceLoading ? "Fetching TravelTime" : "Updating map"}

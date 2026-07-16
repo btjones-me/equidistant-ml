@@ -10,11 +10,13 @@ function StateProbe() {
     palette,
     colorScale,
     surfaceOpacity,
+    surfaceValueFade,
     suggestionMinDistanceKm,
     setMapStyle,
     setPalette,
     setColorScale,
     setSurfaceOpacity,
+    setSurfaceValueFade,
     setSuggestionMinDistanceKm,
     changeFriendCount,
     toggleFriend
@@ -27,12 +29,14 @@ function StateProbe() {
       <output aria-label="palette state">{palette}</output>
       <output aria-label="contrast state">{colorScale.contrast}</output>
       <output aria-label="surface opacity">{surfaceOpacity}</output>
+      <output aria-label="surface value fade">{surfaceValueFade}</output>
       <output aria-label="suggestion spacing">{suggestionMinDistanceKm}</output>
       <button type="button" onClick={() => toggleFriend(1)}>Toggle Sam</button>
       <button type="button" onClick={() => setMapStyle("voyager")}>Street map</button>
       <button type="button" onClick={() => setPalette("green-red")}>Green red</button>
       <button type="button" onClick={() => setColorScale((current) => ({ ...current, contrast: 1.4 }))}>Contrast</button>
       <button type="button" onClick={() => setSurfaceOpacity(0.64)}>Opacity</button>
+      <button type="button" onClick={() => setSurfaceValueFade(0.72)}>Value fade</button>
       <button type="button" onClick={() => setSuggestionMinDistanceKm(4.5)}>Spacing</button>
       <button type="button" onClick={() => changeFriendCount(1)}>One friend</button>
     </div>
@@ -60,6 +64,7 @@ describe("shared application state", () => {
     fireEvent.click(screen.getByRole("button", { name: "Green red" }));
     fireEvent.click(screen.getByRole("button", { name: "Contrast" }));
     fireEvent.click(screen.getByRole("button", { name: "Opacity" }));
+    fireEvent.click(screen.getByRole("button", { name: "Value fade" }));
     fireEvent.click(screen.getByRole("button", { name: "Spacing" }));
     first.unmount();
 
@@ -69,6 +74,7 @@ describe("shared application state", () => {
     expect(screen.getByLabelText("palette state")).toHaveTextContent("green-red");
     expect(screen.getByLabelText("contrast state")).toHaveTextContent("1.4");
     expect(screen.getByLabelText("surface opacity")).toHaveTextContent("0.64");
+    expect(screen.getByLabelText("surface value fade")).toHaveTextContent("0.72");
     expect(screen.getByLabelText("suggestion spacing")).toHaveTextContent("4.5");
   });
 

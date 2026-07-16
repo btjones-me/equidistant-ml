@@ -21,6 +21,7 @@ import type {
 
 const STORAGE_KEY = "equidistant:workspace:v2";
 export const DEFAULT_SURFACE_OPACITY = 0.52;
+export const DEFAULT_SURFACE_VALUE_FADE = 0.45;
 
 export const sampleFriends: Friend[] = [
   { id: "alex", name: "Alex", lat: 51.551808, lng: -0.195603, locationLabel: "West Hampstead" },
@@ -58,6 +59,7 @@ type PersistedAppState = {
   customColorStops: EditableColorMapStop[];
   colorScale: ColorScale;
   surfaceOpacity: number;
+  surfaceValueFade: number;
   suggestionMinDistanceKm: number;
 };
 
@@ -72,6 +74,7 @@ type AppStateContextValue = PersistedAppState & {
   setCustomColorStops: Dispatch<SetStateAction<EditableColorMapStop[]>>;
   setColorScale: Dispatch<SetStateAction<ColorScale>>;
   setSurfaceOpacity: Dispatch<SetStateAction<number>>;
+  setSurfaceValueFade: Dispatch<SetStateAction<number>>;
   setSuggestionMinDistanceKm: Dispatch<SetStateAction<number>>;
   changeFriendCount: (count: number) => void;
   updateFriend: (index: number, patch: Partial<Friend>) => void;
@@ -96,6 +99,7 @@ function defaultState(): PersistedAppState {
     ],
     colorScale: recommendedColorScale(3),
     surfaceOpacity: DEFAULT_SURFACE_OPACITY,
+    surfaceValueFade: DEFAULT_SURFACE_VALUE_FADE,
     suggestionMinDistanceKm: 3
   };
 }
@@ -158,6 +162,12 @@ function loadState(): PersistedAppState {
         Number(parsed.surfaceOpacity) <= 0.9
           ? Number(parsed.surfaceOpacity)
           : fallback.surfaceOpacity,
+      surfaceValueFade:
+        Number.isFinite(parsed.surfaceValueFade) &&
+        Number(parsed.surfaceValueFade) >= 0 &&
+        Number(parsed.surfaceValueFade) <= 1
+          ? Number(parsed.surfaceValueFade)
+          : fallback.surfaceValueFade,
       suggestionMinDistanceKm:
         Number.isFinite(parsed.suggestionMinDistanceKm) &&
         Number(parsed.suggestionMinDistanceKm) >= 0.5 &&
@@ -184,6 +194,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [customColorStops, setCustomColorStops] = useState(initial.customColorStops);
   const [colorScale, setColorScale] = useState(initial.colorScale);
   const [surfaceOpacity, setSurfaceOpacity] = useState(initial.surfaceOpacity);
+  const [surfaceValueFade, setSurfaceValueFade] = useState(initial.surfaceValueFade);
   const [suggestionMinDistanceKm, setSuggestionMinDistanceKm] = useState(initial.suggestionMinDistanceKm);
 
   useEffect(() => {
@@ -198,10 +209,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       customColorStops,
       colorScale,
       surfaceOpacity,
+      surfaceValueFade,
       suggestionMinDistanceKm
     };
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }, [colorScale, combine, customColorStops, detail, focus, friends, included, mapStyle, palette, suggestionMinDistanceKm, surfaceOpacity]);
+  }, [colorScale, combine, customColorStops, detail, focus, friends, included, mapStyle, palette, suggestionMinDistanceKm, surfaceOpacity, surfaceValueFade]);
 
   function changeFriendCount(count: number) {
     const nextCount = Math.max(1, Math.min(6, Math.round(count)));
@@ -247,6 +259,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     setCustomColorStops(next.customColorStops);
     setColorScale(next.colorScale);
     setSurfaceOpacity(next.surfaceOpacity);
+    setSurfaceValueFade(next.surfaceValueFade);
     setSuggestionMinDistanceKm(next.suggestionMinDistanceKm);
   }
 
@@ -261,6 +274,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     customColorStops,
     colorScale,
     surfaceOpacity,
+    surfaceValueFade,
     suggestionMinDistanceKm,
     setFriends,
     setIncluded,
@@ -272,6 +286,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     setCustomColorStops,
     setColorScale,
     setSurfaceOpacity,
+    setSurfaceValueFade,
     setSuggestionMinDistanceKm,
     changeFriendCount,
     updateFriend,

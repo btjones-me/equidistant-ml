@@ -97,6 +97,7 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
     customColorStops,
     colorScale,
     surfaceOpacity,
+    surfaceValueFade,
     suggestionMinDistanceKm,
     setFriends,
     setIncluded,
@@ -557,6 +558,7 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
           customColorMap={serialisedStops}
           colorScale={colorScale}
           surfaceOpacity={surfaceOpacity}
+          surfaceValueFade={surfaceValueFade}
           mapStyle={mapStyle}
           isLoading={loading}
           loadingLabel="Finding your middle"
