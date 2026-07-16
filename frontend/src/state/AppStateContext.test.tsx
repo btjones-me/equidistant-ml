@@ -27,6 +27,8 @@ function StateProbe() {
       <output aria-label="included state">{included.join(",")}</output>
       <output aria-label="map style">{mapStyle}</output>
       <output aria-label="palette state">{palette}</output>
+      <output aria-label="low percentile">{colorScale.lowerPercentile}</output>
+      <output aria-label="high percentile">{colorScale.upperPercentile}</output>
       <output aria-label="contrast state">{colorScale.contrast}</output>
       <output aria-label="surface opacity">{surfaceOpacity}</output>
       <output aria-label="surface value fade">{surfaceValueFade}</output>
@@ -55,6 +57,11 @@ describe("shared application state", () => {
     renderProbe();
     expect(screen.getByLabelText("friend count")).toHaveTextContent("3");
     expect(screen.getByLabelText("included state")).toHaveTextContent("true,true,true");
+    expect(screen.getByLabelText("low percentile")).toHaveTextContent("1");
+    expect(screen.getByLabelText("high percentile")).toHaveTextContent("58");
+    expect(screen.getByLabelText("contrast state")).toHaveTextContent("1");
+    expect(screen.getByLabelText("surface opacity")).toHaveTextContent("0.75");
+    expect(screen.getByLabelText("surface value fade")).toHaveTextContent("1");
   });
 
   it("persists selections and colour settings across mode remounts", () => {

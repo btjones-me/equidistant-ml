@@ -20,8 +20,8 @@ import type {
 } from "../types";
 
 const STORAGE_KEY = "equidistant:workspace:v2";
-export const DEFAULT_SURFACE_OPACITY = 0.52;
-export const DEFAULT_SURFACE_VALUE_FADE = 0.45;
+export const DEFAULT_SURFACE_OPACITY = 0.75;
+export const DEFAULT_SURFACE_VALUE_FADE = 1;
 
 export const sampleFriends: Friend[] = [
   { id: "alex", name: "Alex", lat: 51.551808, lng: -0.195603, locationLabel: "West Hampstead" },
@@ -33,15 +33,15 @@ export const sampleFriends: Friend[] = [
 ];
 
 export const singleParticipantColorScale: ColorScale = {
-  lowerPercentile: 1,
+  lowerPercentile: 0,
   upperPercentile: 100,
-  contrast: 0.75
+  contrast: 0.6
 };
 
 export const groupColorScale: ColorScale = {
   lowerPercentile: 1,
-  upperPercentile: 100,
-  contrast: 1.1
+  upperPercentile: 58,
+  contrast: 1
 };
 
 export function recommendedColorScale(activeFriendCount: number): ColorScale {

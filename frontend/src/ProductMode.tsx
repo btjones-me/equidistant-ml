@@ -21,7 +21,12 @@ import VenueRecommendations from "./VenueRecommendations";
 import { getAtlasSurface, preloadAtlas } from "./lib/atlas";
 import { locationLabelForFriend } from "./lib/locations";
 import { selectSeparatedSuggestions } from "./lib/suggestions";
-import { useAppState } from "./state/AppStateContext";
+import {
+  DEFAULT_SURFACE_OPACITY,
+  DEFAULT_SURFACE_VALUE_FADE,
+  recommendedColorScale,
+  useAppState
+} from "./state/AppStateContext";
 import type { CombineMode, Friend, SurfaceCell, SurfaceResponse, VenueRecommendation } from "./types";
 
 const markerColours = ["#0ea5e9", "#f97316", "#22c55e", "#a855f7", "#e11d48", "#64748b"];
@@ -103,6 +108,9 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
     setIncluded,
     setCombine,
     setPalette,
+    setColorScale,
+    setSurfaceOpacity,
+    setSurfaceValueFade,
     changeFriendCount,
     updateFriend,
     toggleFriend,
@@ -130,6 +138,7 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
     () => included.map((value, index) => (value ? index : -1)).filter((index) => index >= 0),
     [included]
   );
+  const appearancePreset = includedFriendIndexes.length <= 1 ? "single" : "group";
   const serialisedStops = useMemo(
     () => customColorStops.map(({ position, color }) => ({ position, color })).sort((a, b) => a.position - b.position),
     [customColorStops]
@@ -157,6 +166,12 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
   useEffect(() => {
     void preloadAtlas().catch(() => undefined);
   }, []);
+
+  useEffect(() => {
+    setColorScale(recommendedColorScale(appearancePreset === "single" ? 1 : 2));
+    setSurfaceOpacity(DEFAULT_SURFACE_OPACITY);
+    setSurfaceValueFade(DEFAULT_SURFACE_VALUE_FADE);
+  }, [appearancePreset, setColorScale, setSurfaceOpacity, setSurfaceValueFade]);
 
   useEffect(() => {
     if (!friends.every(validCoordinates) || !includedFriendIndexes.length) {

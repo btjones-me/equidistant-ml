@@ -558,7 +558,9 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
 
   useEffect(() => {
     setColorScale(activeRecommendedColorScale);
-  }, [activeRecommendedColorScale]);
+    setSurfaceOpacity(DEFAULT_SURFACE_OPACITY);
+    setSurfaceValueFade(DEFAULT_SURFACE_VALUE_FADE);
+  }, [activeRecommendedColorScale, setColorScale, setSurfaceOpacity, setSurfaceValueFade]);
 
   function updateFriend(index: number, field: "name" | "lat" | "lng", value: string) {
     const parsed = field === "name" ? value : value.trim() === "" ? Number.NaN : Number(value);
