@@ -33,6 +33,7 @@ from equidistant_ml.surfaces.transport_graph import (
     add_graph_features,
     build_reference_from_station_catalog,
     build_transport_graph,
+    fetch_tfl_bus_stop_points,
     fetch_tfl_transport_reference,
     merge_references,
     read_naptan_nodes,
@@ -96,6 +97,7 @@ def cmd_fetch_traveltime(args: argparse.Namespace) -> None:
             TravelTimeCredentials.from_env(),
             timeout_seconds=int(travel_params["timeout_seconds"]),
             sleep_seconds=float(travel_params["sleep_seconds"]),
+            max_hits_per_minute=float(travel_params.get("max_hits_per_minute", 50)),
         )
         labels = fetch_origin_surfaces(
             origins,
@@ -109,6 +111,7 @@ def cmd_fetch_traveltime(args: argparse.Namespace) -> None:
             ),
             properties=travel_params["properties"],
             checkpoint_dir=args.checkpoint_dir,
+            run_id=args.run_id,
         )
     write_parquet(labels, args.output)
 
@@ -119,7 +122,23 @@ def cmd_build_features(args: argparse.Namespace) -> None:
     labels = read_parquet(args.labels)
     origins = read_parquet(args.origins)
     destinations = read_parquet(args.destinations)
-    stations = read_station_catalog(features_params["stations_path"])
+    if getattr(args, "stations", None):
+        station_source = read_parquet(args.stations)
+        if "mode" in station_source:
+            stations = station_source[
+                ~station_source["mode"].isin(["bus", "transfer"])
+            ].copy()
+        else:
+            stations = station_source.copy()
+        stations = stations.rename(columns={"name": "station_name"})
+        if "station_name" not in stations:
+            raise ValueError("Expanded station data must include name/station_name.")
+        if "lines" not in stations:
+            stations["lines"] = ""
+        stations = stations[["station_name", "lat", "lng", "lines"]]
+        stations = stations.drop_duplicates(["station_name", "lat", "lng"])
+    else:
+        stations = read_station_catalog(features_params["stations_path"])
     features = build_feature_frame(
         labels,
         origins,
@@ -146,11 +165,20 @@ def cmd_fetch_transport_reference(args: argparse.Namespace) -> None:
                         ["tube", "overground", "elizabeth-line", "dlr", "tram"],
                     ),
                     bus_route_limit=int(source_params.get("bus_route_limit", 25)),
+                    national_rail_line_allowlist=source_params.get(
+                        "national_rail_line_allowlist"
+                    ),
                     app_key=source_params.get("tfl_app_key"),
                     timeout_seconds=int(source_params.get("timeout_seconds", 30)),
+                    request_interval_seconds=float(
+                        source_params.get("request_interval_seconds", 0.25)
+                    ),
+                    max_retries=int(source_params.get("max_retries", 6)),
                 )
             )
         except Exception as exc:
+            if source_params.get("strict", False) or getattr(args, "strict", False):
+                raise
             print(f"TfL transport fetch failed; using local reference only: {exc}")
 
     naptan_path = source_params.get("naptan_csv_path")
@@ -185,6 +213,38 @@ def cmd_build_transport_graph(args: argparse.Namespace) -> None:
     )
 
 
+def cmd_fetch_bus_stops(args: argparse.Namespace) -> None:
+    params = load_params(args.params)
+    source_params = params.get("transport_sources", {})
+    run_params = params["expanded_run"]
+    if args.mock:
+        bus_stops = pd.DataFrame(
+            columns=[
+                "node_id",
+                "name",
+                "mode",
+                "operator",
+                "lat",
+                "lng",
+                "lines",
+                "corridor_flags",
+                "source",
+            ]
+        )
+    else:
+        bus_stops = fetch_tfl_bus_stop_points(
+            run_params["expanded_bounds"],
+            app_key=source_params.get("tfl_app_key"),
+            timeout_seconds=int(source_params.get("timeout_seconds", 60)),
+            request_interval_seconds=float(
+                source_params.get("request_interval_seconds", 0.5)
+            ),
+            max_pages=int(source_params.get("bus_stop_max_pages", 40)),
+            max_retries=int(source_params.get("max_retries", 6)),
+        )
+    write_parquet(bus_stops, args.output)
+
+
 def cmd_build_graph_features(args: argparse.Namespace) -> None:
     params = load_params(args.params)
     graph_params = params.get("transport_graph", {})
@@ -201,6 +261,9 @@ def cmd_build_graph_features(args: argparse.Namespace) -> None:
         ),
         walking_speed_mps=float(graph_params.get("walking_speed_mps", 1.35)),
     )
+    access_nodes = (
+        read_parquet(args.access_nodes) if getattr(args, "access_nodes", None) else None
+    )
     graph_features = add_graph_features(
         features,
         graph,
@@ -208,6 +271,7 @@ def cmd_build_graph_features(args: argparse.Namespace) -> None:
         access_node_limit=int(feature_params.get("access_node_limit", 4)),
         max_access_distance_m=float(feature_params.get("max_access_distance_m", 1600)),
         bus_density_radius_m=float(feature_params.get("bus_density_radius_m", 500)),
+        access_nodes=access_nodes,
     )
     write_parquet(graph_features, args.output)
 
@@ -321,6 +385,7 @@ def cmd_smoke(args: argparse.Namespace) -> None:
             max_origins=args.max_origins,
             max_destinations=args.max_destinations,
             checkpoint_dir=None,
+            run_id=None,
         )
     )
     cmd_build_features(
@@ -330,6 +395,7 @@ def cmd_smoke(args: argparse.Namespace) -> None:
             origins=str(out_dir / "origins.parquet"),
             destinations=str(out_dir / "grid.parquet"),
             output=str(out_dir / "features.parquet"),
+            stations=None,
         )
     )
 
@@ -422,6 +488,7 @@ def build_parser() -> argparse.ArgumentParser:
     fetch.add_argument(
         "--destinations", default="data/interim/destination_grid.parquet"
     )
+    fetch.add_argument("--run-id")
     fetch.add_argument("--output", default="data/interim/traveltime_labels.parquet")
     fetch.add_argument("--mock", action="store_true")
     fetch.add_argument("--max-origins", type=int)
@@ -441,6 +508,10 @@ def build_parser() -> argparse.ArgumentParser:
         "--destinations", default="data/interim/destination_grid.parquet"
     )
     features.add_argument(
+        "--stations",
+        help="Optional graph-node parquet used as the expanded station catalogue.",
+    )
+    features.add_argument(
         "--output", default="data/features/traveltime_features.parquet"
     )
     features.set_defaults(func=cmd_build_features)
@@ -448,6 +519,7 @@ def build_parser() -> argparse.ArgumentParser:
     transport_ref = subparsers.add_parser("fetch-transport-reference")
     add_params(transport_ref)
     transport_ref.add_argument("--mock", action="store_true")
+    transport_ref.add_argument("--strict", action="store_true")
     transport_ref.add_argument(
         "--nodes-output", default="data/reference/transport_nodes.parquet"
     )
@@ -472,6 +544,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     transport_graph.set_defaults(func=cmd_build_transport_graph)
 
+    bus_stops = subparsers.add_parser("fetch-bus-stops")
+    add_params(bus_stops)
+    bus_stops.add_argument("--mock", action="store_true")
+    bus_stops.add_argument(
+        "--output", default="data/reference/transport_bus_stops.parquet"
+    )
+    bus_stops.set_defaults(func=cmd_fetch_bus_stops)
+
     graph_features = subparsers.add_parser("build-graph-features")
     add_params(graph_features)
     graph_features.add_argument(
@@ -482,6 +562,13 @@ def build_parser() -> argparse.ArgumentParser:
     )
     graph_features.add_argument(
         "--graph-edges", default="data/reference/transport_graph_edges.parquet"
+    )
+    graph_features.add_argument(
+        "--access-nodes",
+        help=(
+            "Optional non-routable access points, such as spatially filtered "
+            "bus stops."
+        ),
     )
     graph_features.add_argument(
         "--output", default="data/features/traveltime_graph_features.parquet"

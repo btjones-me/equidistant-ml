@@ -1,4 +1,4 @@
-.PHONY: install install-dev lint format test check clean setup run-server stop-server generate-data generate-data-dry-run dvc-repro-smoke dvc-repro-graph-smoke generate-traveltime-data fetch-transport-data build-transport-graph graph-hillclimb train train-graph-model evaluate evaluate-corridors export-browser-atlas frontend-install frontend-dev frontend-test frontend-build
+.PHONY: install install-dev lint format test check clean setup run-server stop-server generate-data generate-data-dry-run dvc-repro-smoke dvc-repro-graph-smoke generate-traveltime-data fetch-transport-data build-transport-graph graph-hillclimb train train-graph-model evaluate evaluate-corridors export-browser-atlas expanded-graph prepare-expanded-run fetch-expanded-data train-expanded-candidate export-expanded-atlas nfr-expanded-candidate expanded-candidate frontend-install frontend-dev frontend-test frontend-build
 
 # Development commands
 install:
@@ -64,6 +64,27 @@ evaluate-corridors:
 
 export-browser-atlas:
 	uv run python -m equidistant_ml.surfaces.export_atlas
+
+expanded-graph:
+	uv run dvc repro expanded_build_transport_graph expanded_fetch_bus_stops
+
+prepare-expanded-run:
+	uv run dvc repro expanded_prepare
+
+fetch-expanded-data:
+	uv run dvc repro expanded_validate
+
+train-expanded-candidate:
+	uv run dvc repro expanded_train_evaluate
+
+export-expanded-atlas:
+	uv run dvc repro expanded_export_atlas
+
+nfr-expanded-candidate:
+	uv run dvc repro expanded_nfr
+
+expanded-candidate:
+	uv run dvc repro expanded_nfr
 
 # Application commands
 run-server:

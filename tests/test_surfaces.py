@@ -389,6 +389,22 @@ def test_group_surface_api_returns_h3_layers():
     assert response.headers["content-encoding"] == "gzip"
 
 
+def test_wide_group_surface_rejects_participant_outside_supported_rectangle():
+    client = TestClient(app.app)
+    response = client.post(
+        "/api/group-surface",
+        json={
+            "friends": [{"lat": 51.60, "lng": -0.10, "name": "Outside"}],
+            "grid_mode": "h3",
+            "focus": "wide",
+            "detail": "fine",
+        },
+    )
+
+    assert response.status_code == 400
+    assert "outside the coverage area" in response.json()["detail"]
+
+
 def test_group_surface_api_respects_included_friend_indexes():
     client = TestClient(app.app)
     response = client.post(

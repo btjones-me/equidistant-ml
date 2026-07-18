@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import L, { type LatLngBoundsExpression } from "leaflet";
 import { EyeOff } from "lucide-react";
-import type { ColorMapStop, ColorScale, Friend, MapStyle, PaletteMode, SurfaceCell, VenueRecommendation } from "./types";
+import type { ColorMapStop, ColorScale, CoverageBounds, Friend, MapStyle, PaletteMode, SurfaceCell, VenueRecommendation } from "./types";
 
 type MapViewProps = {
   friends: Friend[];
@@ -22,7 +22,9 @@ type MapViewProps = {
   variant?: "developer" | "product";
   activeFriendIndex?: number | null;
   placingFriendIndex?: number | null;
-  onMoveFriend?: (index: number, lat: number, lng: number) => void;
+  coverageBounds?: CoverageBounds;
+  showCoverageBoundary?: boolean;
+  onMoveFriend?: (index: number, lat: number, lng: number) => { lat: number; lng: number } | void;
   onPlaceFriend?: (index: number, lat: number, lng: number) => void;
   venues?: VenueRecommendation[];
   activeVenueId?: string | null;
@@ -403,6 +405,8 @@ export default function MapView({
   variant = "developer",
   activeFriendIndex = null,
   placingFriendIndex = null,
+  coverageBounds,
+  showCoverageBoundary = false,
   onMoveFriend,
   onPlaceFriend,
   venues = [],
@@ -422,6 +426,12 @@ export default function MapView({
   const [tubeLines, setTubeLines] = useState<TubeLine[]>([]);
   const [showTubeLines, setShowTubeLines] = useState(true);
   const [surfaceHidden, setSurfaceHidden] = useState(false);
+  const [coverageBoundaryRect, setCoverageBoundaryRect] = useState<{
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+  } | null>(null);
   const markersDraggable = Boolean(onMoveFriend);
 
   const gridSignature = useMemo(() => gridSignatureForCells(cells), [cells]);
@@ -535,6 +545,29 @@ export default function MapView({
     basemapLayerRef.current = L.tileLayer(config.tiles, { attribution: basemapAttribution }).addTo(map);
     labelLayerRef.current = L.tileLayer(config.labels, { pane: placeLabelsPaneName }).addTo(map);
   }, [mapStyle, variant]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !coverageBounds) {
+      setCoverageBoundaryRect(null);
+      return;
+    }
+    const updateBoundaryRect = () => {
+      const northWest = map.latLngToContainerPoint([coverageBounds.north, coverageBounds.west]);
+      const southEast = map.latLngToContainerPoint([coverageBounds.south, coverageBounds.east]);
+      setCoverageBoundaryRect({
+        left: Math.min(northWest.x, southEast.x),
+        top: Math.min(northWest.y, southEast.y),
+        width: Math.abs(southEast.x - northWest.x),
+        height: Math.abs(southEast.y - northWest.y)
+      });
+    };
+    updateBoundaryRect();
+    map.on("move zoom resize", updateBoundaryRect);
+    return () => {
+      map.off("move zoom resize", updateBoundaryRect);
+    };
+  }, [coverageBounds]);
 
   useEffect(() => {
     const pane = mapRef.current?.getPane(surfacePaneName);
@@ -703,7 +736,10 @@ export default function MapView({
         marker.bindTooltip(tooltip);
         marker.on("dragend", () => {
           const position = marker.getLatLng();
-          onMoveFriend?.(index, position.lat, position.lng);
+          const snappedPosition = onMoveFriend?.(index, position.lat, position.lng);
+          if (snappedPosition) {
+            marker.setLatLng([snappedPosition.lat, snappedPosition.lng]);
+          }
         });
         marker.addTo(markerLayer);
         return;
@@ -872,6 +908,18 @@ export default function MapView({
               ))}
             </div>
           ) : null}
+        </div>
+      ) : null}
+      {coverageBoundaryRect ? (
+        <div
+          className={`coverage-boundary-outline${showCoverageBoundary ? " visible" : ""}`}
+          aria-hidden="true"
+          style={coverageBoundaryRect}
+        />
+      ) : null}
+      {showCoverageBoundary ? (
+        <div className="coverage-boundary-message" role="status" aria-live="polite">
+          Outside of coverage area
         </div>
       ) : null}
       {isLoading ? (

@@ -352,6 +352,10 @@ test("password gate hides every asset until unlocked", async () => {
   assert.equal(locked.headers.get("x-frame-options"), "DENY");
   assert.match(locked.headers.get("content-security-policy"), /https:\/\/www\.googletagmanager\.com/);
   assert.match(locked.headers.get("content-security-policy"), /https:\/\/\*\.google-analytics\.com/);
+  for (const asset of ["atlas.json", "model.u8", "graph.u8"]) {
+    const response = await worker.fetch(new Request(`https://example.test/model/${asset}`), env);
+    assert.match(await response.text(), /Private preview/);
+  }
 });
 
 test("incorrect passwords are rejected", async () => {

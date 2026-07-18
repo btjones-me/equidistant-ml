@@ -233,3 +233,737 @@ stages:
       hash: md5
       md5: a8bad6b8b01287512f0a4a013be883d8
       size: 2264
+  expanded_fetch_transport_reference:
+    cmd: uv run python -m equidistant_ml.surfaces.pipeline
+      fetch-transport-reference --strict --nodes-output
+      data/runs/harrow_sidcup_v1/graph/reference_nodes.parquet --edges-output
+      data/runs/harrow_sidcup_v1/graph/reference_edges.parquet
+    deps:
+    - path: data/london_tubes.csv
+      hash: md5
+      md5: bdc6bfa73e07c7287bca04b72e4499ae
+      size: 42495
+    - path: equidistant_ml/surfaces
+      hash: md5
+      md5: 616e822bae4961d45bb78c7675adaec7.dir
+      size: 592332
+      nfiles: 30
+    - path: params.yaml
+      hash: md5
+      md5: 757bfe69926349e4893a85f53d157431
+      size: 3893
+    params:
+      params.yaml:
+        features.stations_path: data/london_tubes.csv
+        transport_sources:
+          tfl_enabled: true
+          tfl_modes:
+          - tube
+          - overground
+          - elizabeth-line
+          - dlr
+          - tram
+          - national-rail
+          bus_route_limit: 0
+          national_rail_line_allowlist:
+          - Chiltern Railways
+          - Southeastern
+          - Thameslink
+          - Southern
+          request_interval_seconds: 0.5
+          max_retries: 8
+          bus_stop_max_pages: 40
+          timeout_seconds: 30
+          naptan_csv_path:
+          strict: true
+    outs:
+    - path: data/runs/harrow_sidcup_v1/graph/reference_edges.parquet
+      hash: md5
+      md5: 91846a0cbc3886e4fe7ca6eeaaf239cf
+      size: 73553
+    - path: data/runs/harrow_sidcup_v1/graph/reference_nodes.parquet
+      hash: md5
+      md5: 88b6aaefc523dcee22e825dad3fe3c0d
+      size: 72503
+  expanded_fetch_bus_stops:
+    cmd: uv run python -m equidistant_ml.surfaces.pipeline fetch-bus-stops
+      --output data/runs/harrow_sidcup_v1/graph/bus_stops.parquet
+    deps:
+    - path: equidistant_ml/surfaces
+      hash: md5
+      md5: 616e822bae4961d45bb78c7675adaec7.dir
+      size: 592332
+      nfiles: 30
+    - path: params.yaml
+      hash: md5
+      md5: 757bfe69926349e4893a85f53d157431
+      size: 3893
+    params:
+      params.yaml:
+        expanded_run.expanded_bounds:
+          north: 51.57891586
+          south: 51.4340208
+          west: -0.33516664
+          east: 0.1034297
+        transport_sources:
+          tfl_enabled: true
+          tfl_modes:
+          - tube
+          - overground
+          - elizabeth-line
+          - dlr
+          - tram
+          - national-rail
+          bus_route_limit: 0
+          national_rail_line_allowlist:
+          - Chiltern Railways
+          - Southeastern
+          - Thameslink
+          - Southern
+          request_interval_seconds: 0.5
+          max_retries: 8
+          bus_stop_max_pages: 40
+          timeout_seconds: 30
+          naptan_csv_path:
+          strict: true
+    outs:
+    - path: data/runs/harrow_sidcup_v1/graph/bus_stops.parquet
+      hash: md5
+      md5: d09f8905e55a7fa2581a19e9d9a211f8
+      size: 302494
+  expanded_build_transport_graph:
+    cmd: uv run python -m equidistant_ml.surfaces.pipeline build-transport-graph
+      --nodes data/runs/harrow_sidcup_v1/graph/reference_nodes.parquet --edges
+      data/runs/harrow_sidcup_v1/graph/reference_edges.parquet --nodes-output
+      data/runs/harrow_sidcup_v1/graph/nodes.parquet --edges-output
+      data/runs/harrow_sidcup_v1/graph/edges.parquet
+    deps:
+    - path: data/runs/harrow_sidcup_v1/graph/reference_edges.parquet
+      hash: md5
+      md5: 91846a0cbc3886e4fe7ca6eeaaf239cf
+      size: 73553
+    - path: data/runs/harrow_sidcup_v1/graph/reference_nodes.parquet
+      hash: md5
+      md5: 88b6aaefc523dcee22e825dad3fe3c0d
+      size: 72503
+    - path: equidistant_ml/surfaces
+      hash: md5
+      md5: 616e822bae4961d45bb78c7675adaec7.dir
+      size: 592332
+      nfiles: 30
+    - path: params.yaml
+      hash: md5
+      md5: 757bfe69926349e4893a85f53d157431
+      size: 3893
+    params:
+      params.yaml:
+        transport_graph:
+          raw_nodes_path: data/reference/transport_nodes.parquet
+          raw_edges_path: data/reference/transport_edges.parquet
+          nodes_path: data/reference/transport_graph_nodes.parquet
+          edges_path: data/reference/transport_graph_edges.parquet
+          transfer_radius_m: 180
+          transfer_penalty_seconds: 120
+          walking_speed_mps: 1.35
+    outs:
+    - path: data/runs/harrow_sidcup_v1/graph/edges.parquet
+      hash: md5
+      md5: 168854021d49c9c798de177dc9035c21
+      size: 97321
+    - path: data/runs/harrow_sidcup_v1/graph/nodes.parquet
+      hash: md5
+      md5: 88b6aaefc523dcee22e825dad3fe3c0d
+      size: 72503
+  expanded_prepare:
+    cmd: uv run python -m equidistant_ml.surfaces.expanded_run prepare
+    deps:
+    - path: data/runs/harrow_sidcup_v1/graph/bus_stops.parquet
+      hash: md5
+      md5: d09f8905e55a7fa2581a19e9d9a211f8
+      size: 302494
+    - path: data/runs/harrow_sidcup_v1/graph/edges.parquet
+      hash: md5
+      md5: 168854021d49c9c798de177dc9035c21
+      size: 97321
+    - path: data/runs/harrow_sidcup_v1/graph/nodes.parquet
+      hash: md5
+      md5: 88b6aaefc523dcee22e825dad3fe3c0d
+      size: 72503
+    - path: equidistant_ml/surfaces
+      hash: md5
+      md5: 616e822bae4961d45bb78c7675adaec7.dir
+      size: 592332
+      nfiles: 30
+    - path: params.yaml
+      hash: md5
+      md5: 757bfe69926349e4893a85f53d157431
+      size: 3893
+    params:
+      params.yaml:
+        expanded_run:
+          id: harrow_sidcup_v1
+          seed: 20260717
+          split_h3_resolution: 7
+          original_bounds:
+            north: 51.56
+            south: 51.46
+            west: -0.245
+            east: 0.03
+          expanded_bounds:
+            north: 51.57891586
+            south: 51.4340208
+            west: -0.33516664
+            east: 0.1034297
+          required_graph_stations:
+          - Harrow-on-the-Hill
+          - Sidcup
+          sampling:
+            train:
+              original: 320
+              outer: 96
+              original_station_fraction: 0.35
+              outer_station_fraction: 0.4
+            tune:
+              original: 32
+              outer: 16
+              original_station_fraction: 0.35
+              outer_station_fraction: 0.4
+            test:
+              original: 48
+              outer: 48
+              original_station_fraction: 0.5
+              outer_station_fraction: 0.5
+          atlas:
+            inner_south: 51.46
+            inner_north: 51.56
+            inner_west: -0.245
+            inner_east: 0.03
+            inner_lat_count: 20
+            inner_lng_count: 28
+            outer_spacing_multiplier: 2.0
+            interpolation_neighbours: 4
+            validation_origins_per_region: 12
+          regularized_graph_model:
+            seed: 42
+            n_estimators: 950
+            learning_rate: 0.012
+            num_leaves: 255
+            min_child_samples: 10
+            reg_lambda: 1.0
+            subsample: 0.9
+            colsample_bytree: 0.9
+            n_jobs: -1
+        prediction_grid:
+          focus: inner
+          detail: fine
+          focuses:
+            central:
+            - zone1_core
+            inner:
+            - zone1_core
+            - zone2_3_inner
+            wide:
+            - zone1_core
+            - zone2_3_inner
+            - expanded_ring
+          details:
+            fast:
+              resolution_offset: -1
+            fine:
+              resolution_offset: 0
+          bands:
+            zone1_core:
+              label: Zone 1 core
+              north: 51.535
+              south: 51.492
+              west: -0.19
+              east: -0.065
+              resolution: 9
+              buffer_degrees: 0.006
+            zone2_3_inner:
+              label: Zones 2-3
+              north: 51.56
+              south: 51.46
+              west: -0.245
+              east: 0.03
+              resolution: 9
+              buffer_degrees: 0.012
+            expanded_ring:
+              label: Expanded ring
+              north: 51.57891586
+              south: 51.4340208
+              west: -0.33516664
+              east: 0.1034297
+              resolution: 8
+              buffer_degrees: 0.0
+        traveltime:
+          transportation_type: public_transport
+          arrival_time_period: weekday_morning
+          travel_time_seconds: 10800
+          unreachable_penalty_seconds: 1800
+          properties:
+          - travel_time
+          timeout_seconds: 90
+          sleep_seconds: 1.0
+          max_hits_per_minute: 50
+    outs:
+    - path: data/runs/harrow_sidcup_v1/destinations.parquet
+      hash: md5
+      md5: a9529c994bdf3534317f8dbbe0d04d3a
+      size: 353596
+    - path: data/runs/harrow_sidcup_v1/origins.parquet
+      hash: md5
+      md5: 8742a953cb740d18fb54148b92dc4aa6
+      size: 19761
+  expanded_fetch_traveltime:
+    cmd: uv run python -m equidistant_ml.surfaces.pipeline fetch-traveltime
+      --run-id harrow_sidcup_v1 --origins
+      data/runs/harrow_sidcup_v1/origins.parquet --destinations
+      data/runs/harrow_sidcup_v1/destinations.parquet --checkpoint-dir
+      data/runs/harrow_sidcup_v1/label_parts --output
+      data/runs/harrow_sidcup_v1/labels.parquet
+    deps:
+    - path: data/runs/harrow_sidcup_v1/destinations.parquet
+      hash: md5
+      md5: a9529c994bdf3534317f8dbbe0d04d3a
+      size: 353596
+    - path: data/runs/harrow_sidcup_v1/origins.parquet
+      hash: md5
+      md5: 8742a953cb740d18fb54148b92dc4aa6
+      size: 19761
+    - path: equidistant_ml/surfaces
+      hash: md5
+      md5: 616e822bae4961d45bb78c7675adaec7.dir
+      size: 592332
+      nfiles: 30
+    - path: params.yaml
+      hash: md5
+      md5: 757bfe69926349e4893a85f53d157431
+      size: 3893
+    params:
+      params.yaml:
+        expanded_run.id: harrow_sidcup_v1
+        traveltime:
+          transportation_type: public_transport
+          arrival_time_period: weekday_morning
+          travel_time_seconds: 10800
+          unreachable_penalty_seconds: 1800
+          properties:
+          - travel_time
+          timeout_seconds: 90
+          sleep_seconds: 1.0
+          max_hits_per_minute: 50
+    outs:
+    - path: data/runs/harrow_sidcup_v1/label_parts
+      hash: md5
+      md5: fc5d9d0fa6bd8393941ff0fa86945194.dir
+      size: 30630934
+      nfiles: 560
+    - path: data/runs/harrow_sidcup_v1/labels.parquet
+      hash: md5
+      md5: b2753e2ffeff2e9f416112a4fa39558e
+      size: 7082961
+  expanded_build_features:
+    cmd: uv run python -m equidistant_ml.surfaces.pipeline build-features
+      --labels data/runs/harrow_sidcup_v1/labels.parquet --origins
+      data/runs/harrow_sidcup_v1/origins.parquet --destinations
+      data/runs/harrow_sidcup_v1/destinations.parquet --stations
+      data/runs/harrow_sidcup_v1/graph/nodes.parquet --output
+      data/runs/harrow_sidcup_v1/features.parquet
+    deps:
+    - path: data/runs/harrow_sidcup_v1/destinations.parquet
+      hash: md5
+      md5: a9529c994bdf3534317f8dbbe0d04d3a
+      size: 353596
+    - path: data/runs/harrow_sidcup_v1/graph/nodes.parquet
+      hash: md5
+      md5: 88b6aaefc523dcee22e825dad3fe3c0d
+      size: 72503
+    - path: data/runs/harrow_sidcup_v1/labels.parquet
+      hash: md5
+      md5: b2753e2ffeff2e9f416112a4fa39558e
+      size: 7082961
+    - path: data/runs/harrow_sidcup_v1/origins.parquet
+      hash: md5
+      md5: 8742a953cb740d18fb54148b92dc4aa6
+      size: 19761
+    - path: equidistant_ml/surfaces
+      hash: md5
+      md5: 616e822bae4961d45bb78c7675adaec7.dir
+      size: 592332
+      nfiles: 30
+    - path: params.yaml
+      hash: md5
+      md5: 757bfe69926349e4893a85f53d157431
+      size: 3893
+    params:
+      params.yaml:
+        features:
+          stations_path: data/london_tubes.csv
+          nearest_station_count: 3
+          density_radius_m: 1200
+    outs:
+    - path: data/runs/harrow_sidcup_v1/features.parquet
+      hash: md5
+      md5: f496594a750be2dcdde5eb68e47c4898
+      size: 134683339
+  expanded_build_graph_features:
+    cmd: uv run python -m equidistant_ml.surfaces.pipeline build-graph-features
+      --features data/runs/harrow_sidcup_v1/features.parquet --graph-nodes
+      data/runs/harrow_sidcup_v1/graph/nodes.parquet --graph-edges
+      data/runs/harrow_sidcup_v1/graph/edges.parquet --access-nodes
+      data/runs/harrow_sidcup_v1/graph/bus_stops.parquet --output
+      data/runs/harrow_sidcup_v1/graph_features.parquet
+    deps:
+    - path: data/runs/harrow_sidcup_v1/features.parquet
+      hash: md5
+      md5: f496594a750be2dcdde5eb68e47c4898
+      size: 134683339
+    - path: data/runs/harrow_sidcup_v1/graph/bus_stops.parquet
+      hash: md5
+      md5: d09f8905e55a7fa2581a19e9d9a211f8
+      size: 302494
+    - path: data/runs/harrow_sidcup_v1/graph/edges.parquet
+      hash: md5
+      md5: 168854021d49c9c798de177dc9035c21
+      size: 97321
+    - path: data/runs/harrow_sidcup_v1/graph/nodes.parquet
+      hash: md5
+      md5: 88b6aaefc523dcee22e825dad3fe3c0d
+      size: 72503
+    - path: equidistant_ml/surfaces
+      hash: md5
+      md5: 616e822bae4961d45bb78c7675adaec7.dir
+      size: 592332
+      nfiles: 30
+    - path: params.yaml
+      hash: md5
+      md5: 757bfe69926349e4893a85f53d157431
+      size: 3893
+    params:
+      params.yaml:
+        graph_features:
+          access_node_limit: 4
+          max_access_distance_m: 1600
+          bus_density_radius_m: 500
+        transport_graph:
+          raw_nodes_path: data/reference/transport_nodes.parquet
+          raw_edges_path: data/reference/transport_edges.parquet
+          nodes_path: data/reference/transport_graph_nodes.parquet
+          edges_path: data/reference/transport_graph_edges.parquet
+          transfer_radius_m: 180
+          transfer_penalty_seconds: 120
+          walking_speed_mps: 1.35
+    outs:
+    - path: data/runs/harrow_sidcup_v1/graph_features.parquet
+      hash: md5
+      md5: f084cfc2cc23c89c86f47585ab4075f8
+      size: 180064486
+  expanded_validate:
+    cmd: uv run python -m equidistant_ml.surfaces.expanded_run validate
+    deps:
+    - path: data/runs/harrow_sidcup_v1/destinations.parquet
+      hash: md5
+      md5: a9529c994bdf3534317f8dbbe0d04d3a
+      size: 353596
+    - path: data/runs/harrow_sidcup_v1/features.parquet
+      hash: md5
+      md5: f496594a750be2dcdde5eb68e47c4898
+      size: 134683339
+    - path: data/runs/harrow_sidcup_v1/graph/bus_stops.parquet
+      hash: md5
+      md5: d09f8905e55a7fa2581a19e9d9a211f8
+      size: 302494
+    - path: data/runs/harrow_sidcup_v1/graph/edges.parquet
+      hash: md5
+      md5: 168854021d49c9c798de177dc9035c21
+      size: 97321
+    - path: data/runs/harrow_sidcup_v1/graph/nodes.parquet
+      hash: md5
+      md5: 88b6aaefc523dcee22e825dad3fe3c0d
+      size: 72503
+    - path: data/runs/harrow_sidcup_v1/graph_features.parquet
+      hash: md5
+      md5: f084cfc2cc23c89c86f47585ab4075f8
+      size: 180064486
+    - path: data/runs/harrow_sidcup_v1/label_parts
+      hash: md5
+      md5: fc5d9d0fa6bd8393941ff0fa86945194.dir
+      size: 30630934
+      nfiles: 560
+    - path: data/runs/harrow_sidcup_v1/labels.parquet
+      hash: md5
+      md5: b2753e2ffeff2e9f416112a4fa39558e
+      size: 7082961
+    - path: data/runs/harrow_sidcup_v1/origins.parquet
+      hash: md5
+      md5: 8742a953cb740d18fb54148b92dc4aa6
+      size: 19761
+    - path: equidistant_ml/surfaces
+      hash: md5
+      md5: 616e822bae4961d45bb78c7675adaec7.dir
+      size: 592332
+      nfiles: 30
+    - path: params.yaml
+      hash: md5
+      md5: 757bfe69926349e4893a85f53d157431
+      size: 3893
+    params:
+      params.yaml:
+        expanded_run:
+          id: harrow_sidcup_v1
+          seed: 20260717
+          split_h3_resolution: 7
+          original_bounds:
+            north: 51.56
+            south: 51.46
+            west: -0.245
+            east: 0.03
+          expanded_bounds:
+            north: 51.57891586
+            south: 51.4340208
+            west: -0.33516664
+            east: 0.1034297
+          required_graph_stations:
+          - Harrow-on-the-Hill
+          - Sidcup
+          sampling:
+            train:
+              original: 320
+              outer: 96
+              original_station_fraction: 0.35
+              outer_station_fraction: 0.4
+            tune:
+              original: 32
+              outer: 16
+              original_station_fraction: 0.35
+              outer_station_fraction: 0.4
+            test:
+              original: 48
+              outer: 48
+              original_station_fraction: 0.5
+              outer_station_fraction: 0.5
+          atlas:
+            inner_south: 51.46
+            inner_north: 51.56
+            inner_west: -0.245
+            inner_east: 0.03
+            inner_lat_count: 20
+            inner_lng_count: 28
+            outer_spacing_multiplier: 2.0
+            interpolation_neighbours: 4
+            validation_origins_per_region: 12
+          regularized_graph_model:
+            seed: 42
+            n_estimators: 950
+            learning_rate: 0.012
+            num_leaves: 255
+            min_child_samples: 10
+            reg_lambda: 1.0
+            subsample: 0.9
+            colsample_bytree: 0.9
+            n_jobs: -1
+        traveltime:
+          transportation_type: public_transport
+          arrival_time_period: weekday_morning
+          travel_time_seconds: 10800
+          unreachable_penalty_seconds: 1800
+          properties:
+          - travel_time
+          timeout_seconds: 90
+          sleep_seconds: 1.0
+          max_hits_per_minute: 50
+    outs:
+    - path: data/runs/harrow_sidcup_v1/validation.json
+      hash: md5
+      md5: 90aaee10a8ecf174c7e73b942655d187
+      size: 435
+  expanded_train_evaluate:
+    cmd: uv run python -m equidistant_ml.surfaces.expanded_run train-evaluate
+    deps:
+    - path: data/runs/harrow_sidcup_v1/features.parquet
+      hash: md5
+      md5: f496594a750be2dcdde5eb68e47c4898
+      size: 134683339
+    - path: data/runs/harrow_sidcup_v1/graph_features.parquet
+      hash: md5
+      md5: f084cfc2cc23c89c86f47585ab4075f8
+      size: 180064486
+    - path: data/runs/harrow_sidcup_v1/validation.json
+      hash: md5
+      md5: 90aaee10a8ecf174c7e73b942655d187
+      size: 435
+    - path: equidistant_ml/surfaces
+      hash: md5
+      md5: 616e822bae4961d45bb78c7675adaec7.dir
+      size: 592332
+      nfiles: 30
+    - path: params.yaml
+      hash: md5
+      md5: 757bfe69926349e4893a85f53d157431
+      size: 3893
+    params:
+      params.yaml:
+        baseline:
+          alpha: 1.0
+        expanded_run.regularized_graph_model:
+          seed: 42
+          n_estimators: 950
+          learning_rate: 0.012
+          num_leaves: 255
+          min_child_samples: 10
+          reg_lambda: 1.0
+          subsample: 0.9
+          colsample_bytree: 0.9
+          n_jobs: -1
+        graph_baseline:
+          alpha: 1.0
+        graph_model:
+          seed: 42
+          n_estimators: 350
+          learning_rate: 0.04
+          num_leaves: 39
+          min_child_samples: 20
+          n_jobs: -1
+        model:
+          seed: 42
+          n_estimators: 300
+          classifier_n_estimators: 200
+          learning_rate: 0.05
+          num_leaves: 31
+          min_child_samples: 20
+          reachable_probability_threshold: 0.05
+          n_jobs: -1
+    outs:
+    - path: metrics/runs/harrow_sidcup_v1/model.json
+      hash: md5
+      md5: 3f640244a2a839020b300f2d1edda630
+      size: 92071
+    - path: models/runs/harrow_sidcup_v1
+      hash: md5
+      md5: 4cb057df002d161228bf8002b2efbc5a.dir
+      size: 49766551
+      nfiles: 6
+  expanded_export_atlas:
+    cmd: uv run python -m equidistant_ml.surfaces.expanded_atlas
+    deps:
+    - path: data/runs/harrow_sidcup_v1/destinations.parquet
+      hash: md5
+      md5: a9529c994bdf3534317f8dbbe0d04d3a
+      size: 353596
+    - path: data/runs/harrow_sidcup_v1/graph/bus_stops.parquet
+      hash: md5
+      md5: d09f8905e55a7fa2581a19e9d9a211f8
+      size: 302494
+    - path: data/runs/harrow_sidcup_v1/graph/edges.parquet
+      hash: md5
+      md5: 168854021d49c9c798de177dc9035c21
+      size: 97321
+    - path: data/runs/harrow_sidcup_v1/graph/nodes.parquet
+      hash: md5
+      md5: 88b6aaefc523dcee22e825dad3fe3c0d
+      size: 72503
+    - path: equidistant_ml/surfaces
+      hash: md5
+      md5: c2e098e77e645bd4f230e2512a4c8475.dir
+      size: 620997
+      nfiles: 30
+    - path: metrics/runs/harrow_sidcup_v1/model.json
+      hash: md5
+      md5: 3f640244a2a839020b300f2d1edda630
+      size: 92071
+    - path: models/runs/harrow_sidcup_v1/selected.joblib
+      hash: md5
+      md5: 28b3133edf5942a1212642ebce2ff996
+      size: 23398649
+    - path: params.yaml
+      hash: md5
+      md5: d21122effbcec57ca43c9a77efc422fe
+      size: 4035
+    params:
+      params.yaml:
+        expanded_run.atlas:
+          inner_south: 51.46
+          inner_north: 51.56
+          inner_west: -0.245
+          inner_east: 0.03
+          inner_lat_count: 20
+          inner_lng_count: 28
+          outer_spacing_multiplier: 2.0
+          interpolation_neighbours: 4
+          discontinuity_threshold_minutes: 20.0
+          adaptive_anchor_count: 100
+          adaptive_min_separation_m: 250
+          adaptive_min_mae_minutes: 1.0
+          validation_origins_per_region: 12
+    outs:
+    - path: artifacts/runs/harrow_sidcup_v1/atlas
+      hash: md5
+      md5: addd0459dc91bb108817abd6def0889c.dir
+      size: 7490173
+      nfiles: 4
+  expanded_nfr:
+    cmd: uv run python -m equidistant_ml.surfaces.nfr run
+    deps:
+    - path: artifacts/runs/harrow_sidcup_v1/atlas
+      hash: md5
+      md5: addd0459dc91bb108817abd6def0889c.dir
+      size: 7490173
+      nfiles: 4
+    - path: data/runs/harrow_sidcup_v1/destinations.parquet
+      hash: md5
+      md5: a9529c994bdf3534317f8dbbe0d04d3a
+      size: 353596
+    - path: data/runs/harrow_sidcup_v1/graph/bus_stops.parquet
+      hash: md5
+      md5: d09f8905e55a7fa2581a19e9d9a211f8
+      size: 302494
+    - path: data/runs/harrow_sidcup_v1/graph/edges.parquet
+      hash: md5
+      md5: 168854021d49c9c798de177dc9035c21
+      size: 97321
+    - path: data/runs/harrow_sidcup_v1/graph/nodes.parquet
+      hash: md5
+      md5: 88b6aaefc523dcee22e825dad3fe3c0d
+      size: 72503
+    - path: equidistant_ml/surfaces
+      hash: md5
+      md5: c2e098e77e645bd4f230e2512a4c8475.dir
+      size: 620997
+      nfiles: 30
+    - path: frontend/build/benchmark-atlas.mjs
+      hash: md5
+      md5: abf099fcaa9d74238fcb9a10131a9da1
+      size: 4487
+    - path: frontend/dist
+      hash: md5
+      md5: 7e2c6ee81acdefab939e2f6ef8a18c40.dir
+      size: 7399915
+      nfiles: 11
+    - path: frontend/public/model
+      hash: md5
+      md5: eb7d040d345e6b021243e88443639377.dir
+      size: 4705964
+      nfiles: 3
+    - path: metrics/runs/harrow_sidcup_v1/model.json
+      hash: md5
+      md5: 3f640244a2a839020b300f2d1edda630
+      size: 92071
+    - path: models/runs/harrow_sidcup_v1
+      hash: md5
+      md5: 4cb057df002d161228bf8002b2efbc5a.dir
+      size: 49766551
+      nfiles: 6
+    - path: params.yaml
+      hash: md5
+      md5: d21122effbcec57ca43c9a77efc422fe
+      size: 4035
+    outs:
+    - path: artifacts/runs/harrow_sidcup_v1/nfr.json
+      hash: md5
+      md5: facec28c4df3df62535e6f2fb3b563c9
+      size: 11162
+    - path: artifacts/runs/harrow_sidcup_v1/report.json
+      hash: md5
+      md5: 16db449037bed6bed3c00a395f3f8f5d
+      size: 141028

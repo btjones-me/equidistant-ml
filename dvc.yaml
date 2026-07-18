@@ -153,7 +153,9 @@ stages:
           cache: false
 
   evaluate_corridors:
-    cmd: uv run python -m equidistant_ml.surfaces.pipeline evaluate-graph
+    cmd: >-
+      uv run python -m equidistant_ml.surfaces.pipeline evaluate-graph
+      --output metrics/graph_model.json
     deps:
       - equidistant_ml/surfaces
       - data/features/traveltime_graph_features.parquet
@@ -164,5 +166,205 @@ stages:
     params:
       - validation
     metrics:
-      - metrics/model.json:
+      - metrics/graph_model.json:
           cache: false
+
+  expanded_fetch_transport_reference:
+    cmd: >-
+      uv run python -m equidistant_ml.surfaces.pipeline fetch-transport-reference
+      --strict
+      --nodes-output data/runs/harrow_sidcup_v1/graph/reference_nodes.parquet
+      --edges-output data/runs/harrow_sidcup_v1/graph/reference_edges.parquet
+    deps:
+      - equidistant_ml/surfaces
+      - data/london_tubes.csv
+      - params.yaml
+    params:
+      - features.stations_path
+      - transport_sources
+    outs:
+      - data/runs/harrow_sidcup_v1/graph/reference_nodes.parquet
+      - data/runs/harrow_sidcup_v1/graph/reference_edges.parquet
+
+  expanded_fetch_bus_stops:
+    cmd: >-
+      uv run python -m equidistant_ml.surfaces.pipeline fetch-bus-stops
+      --output data/runs/harrow_sidcup_v1/graph/bus_stops.parquet
+    deps:
+      - equidistant_ml/surfaces
+      - params.yaml
+    params:
+      - expanded_run.expanded_bounds
+      - transport_sources
+    outs:
+      - data/runs/harrow_sidcup_v1/graph/bus_stops.parquet
+
+  expanded_build_transport_graph:
+    cmd: >-
+      uv run python -m equidistant_ml.surfaces.pipeline build-transport-graph
+      --nodes data/runs/harrow_sidcup_v1/graph/reference_nodes.parquet
+      --edges data/runs/harrow_sidcup_v1/graph/reference_edges.parquet
+      --nodes-output data/runs/harrow_sidcup_v1/graph/nodes.parquet
+      --edges-output data/runs/harrow_sidcup_v1/graph/edges.parquet
+    deps:
+      - equidistant_ml/surfaces
+      - data/runs/harrow_sidcup_v1/graph/reference_nodes.parquet
+      - data/runs/harrow_sidcup_v1/graph/reference_edges.parquet
+      - params.yaml
+    params:
+      - transport_graph
+    outs:
+      - data/runs/harrow_sidcup_v1/graph/nodes.parquet
+      - data/runs/harrow_sidcup_v1/graph/edges.parquet
+
+  expanded_prepare:
+    cmd: uv run python -m equidistant_ml.surfaces.expanded_run prepare
+    deps:
+      - equidistant_ml/surfaces
+      - data/runs/harrow_sidcup_v1/graph/nodes.parquet
+      - data/runs/harrow_sidcup_v1/graph/edges.parquet
+      - data/runs/harrow_sidcup_v1/graph/bus_stops.parquet
+      - params.yaml
+    params:
+      - prediction_grid
+      - expanded_run
+      - traveltime
+    outs:
+      - data/runs/harrow_sidcup_v1/origins.parquet
+      - data/runs/harrow_sidcup_v1/destinations.parquet
+
+  expanded_fetch_traveltime:
+    cmd: >-
+      uv run python -m equidistant_ml.surfaces.pipeline fetch-traveltime
+      --run-id harrow_sidcup_v1
+      --origins data/runs/harrow_sidcup_v1/origins.parquet
+      --destinations data/runs/harrow_sidcup_v1/destinations.parquet
+      --checkpoint-dir data/runs/harrow_sidcup_v1/label_parts
+      --output data/runs/harrow_sidcup_v1/labels.parquet
+    deps:
+      - equidistant_ml/surfaces
+      - data/runs/harrow_sidcup_v1/origins.parquet
+      - data/runs/harrow_sidcup_v1/destinations.parquet
+      - params.yaml
+    params:
+      - traveltime
+      - expanded_run.id
+    outs:
+      - data/runs/harrow_sidcup_v1/label_parts
+      - data/runs/harrow_sidcup_v1/labels.parquet
+
+  expanded_build_features:
+    cmd: >-
+      uv run python -m equidistant_ml.surfaces.pipeline build-features
+      --labels data/runs/harrow_sidcup_v1/labels.parquet
+      --origins data/runs/harrow_sidcup_v1/origins.parquet
+      --destinations data/runs/harrow_sidcup_v1/destinations.parquet
+      --stations data/runs/harrow_sidcup_v1/graph/nodes.parquet
+      --output data/runs/harrow_sidcup_v1/features.parquet
+    deps:
+      - equidistant_ml/surfaces
+      - data/runs/harrow_sidcup_v1/labels.parquet
+      - data/runs/harrow_sidcup_v1/origins.parquet
+      - data/runs/harrow_sidcup_v1/destinations.parquet
+      - data/runs/harrow_sidcup_v1/graph/nodes.parquet
+      - params.yaml
+    params:
+      - features
+    outs:
+      - data/runs/harrow_sidcup_v1/features.parquet
+
+  expanded_build_graph_features:
+    cmd: >-
+      uv run python -m equidistant_ml.surfaces.pipeline build-graph-features
+      --features data/runs/harrow_sidcup_v1/features.parquet
+      --graph-nodes data/runs/harrow_sidcup_v1/graph/nodes.parquet
+      --graph-edges data/runs/harrow_sidcup_v1/graph/edges.parquet
+      --access-nodes data/runs/harrow_sidcup_v1/graph/bus_stops.parquet
+      --output data/runs/harrow_sidcup_v1/graph_features.parquet
+    deps:
+      - equidistant_ml/surfaces
+      - data/runs/harrow_sidcup_v1/features.parquet
+      - data/runs/harrow_sidcup_v1/graph/nodes.parquet
+      - data/runs/harrow_sidcup_v1/graph/edges.parquet
+      - data/runs/harrow_sidcup_v1/graph/bus_stops.parquet
+      - params.yaml
+    params:
+      - transport_graph
+      - graph_features
+    outs:
+      - data/runs/harrow_sidcup_v1/graph_features.parquet
+
+  expanded_validate:
+    cmd: uv run python -m equidistant_ml.surfaces.expanded_run validate
+    deps:
+      - equidistant_ml/surfaces
+      - data/runs/harrow_sidcup_v1/origins.parquet
+      - data/runs/harrow_sidcup_v1/destinations.parquet
+      - data/runs/harrow_sidcup_v1/label_parts
+      - data/runs/harrow_sidcup_v1/labels.parquet
+      - data/runs/harrow_sidcup_v1/features.parquet
+      - data/runs/harrow_sidcup_v1/graph_features.parquet
+      - data/runs/harrow_sidcup_v1/graph/nodes.parquet
+      - data/runs/harrow_sidcup_v1/graph/edges.parquet
+      - data/runs/harrow_sidcup_v1/graph/bus_stops.parquet
+      - params.yaml
+    params:
+      - expanded_run
+      - traveltime
+    outs:
+      - data/runs/harrow_sidcup_v1/validation.json
+
+  expanded_train_evaluate:
+    cmd: uv run python -m equidistant_ml.surfaces.expanded_run train-evaluate
+    deps:
+      - equidistant_ml/surfaces
+      - data/runs/harrow_sidcup_v1/validation.json
+      - data/runs/harrow_sidcup_v1/features.parquet
+      - data/runs/harrow_sidcup_v1/graph_features.parquet
+      - params.yaml
+    params:
+      - baseline
+      - model
+      - graph_baseline
+      - graph_model
+      - expanded_run.regularized_graph_model
+    outs:
+      - models/runs/harrow_sidcup_v1
+    metrics:
+      - metrics/runs/harrow_sidcup_v1/model.json:
+          cache: false
+
+  expanded_export_atlas:
+    cmd: uv run python -m equidistant_ml.surfaces.expanded_atlas
+    deps:
+      - equidistant_ml/surfaces
+      - data/runs/harrow_sidcup_v1/destinations.parquet
+      - data/runs/harrow_sidcup_v1/graph/nodes.parquet
+      - data/runs/harrow_sidcup_v1/graph/edges.parquet
+      - data/runs/harrow_sidcup_v1/graph/bus_stops.parquet
+      - models/runs/harrow_sidcup_v1/selected.joblib
+      - metrics/runs/harrow_sidcup_v1/model.json
+      - params.yaml
+    params:
+      - expanded_run.atlas
+    outs:
+      - artifacts/runs/harrow_sidcup_v1/atlas
+
+  expanded_nfr:
+    cmd: uv run python -m equidistant_ml.surfaces.nfr run
+    deps:
+      - equidistant_ml/surfaces
+      - frontend/build/benchmark-atlas.mjs
+      - frontend/dist
+      - frontend/public/model
+      - artifacts/runs/harrow_sidcup_v1/atlas
+      - data/runs/harrow_sidcup_v1/destinations.parquet
+      - data/runs/harrow_sidcup_v1/graph/nodes.parquet
+      - data/runs/harrow_sidcup_v1/graph/edges.parquet
+      - data/runs/harrow_sidcup_v1/graph/bus_stops.parquet
+      - models/runs/harrow_sidcup_v1
+      - metrics/runs/harrow_sidcup_v1/model.json
+      - params.yaml
+    outs:
+      - artifacts/runs/harrow_sidcup_v1/nfr.json
+      - artifacts/runs/harrow_sidcup_v1/report.json

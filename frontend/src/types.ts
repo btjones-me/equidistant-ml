@@ -117,6 +117,13 @@ export type SurfaceCell = {
   [key: string]: string | number | boolean | [number, number][] | undefined;
 };
 
+export type CoverageBounds = {
+  south: number;
+  north: number;
+  west: number;
+  east: number;
+};
+
 export type SurfaceResponse = {
   lats: number[];
   lngs: number[];
@@ -144,5 +151,6 @@ export type SurfaceResponse = {
     model_type?: string;
     interpolation_mae_minutes?: number;
     coverage_notice?: string;
+    coverage_bounds?: CoverageBounds;
   };
 };

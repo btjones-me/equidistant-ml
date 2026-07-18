@@ -18,6 +18,7 @@ from equidistant_ml.surfaces.grid import (
     bbox_from_params,
     build_destination_grid,
     build_h3_destination_grid,
+    build_hierarchical_expanded_grid,
 )
 from equidistant_ml.surfaces.models import (
     GroupCombine,
@@ -221,7 +222,29 @@ def h3_destination_grid(
         band["id"] = band_id
         band["resolution"] = max(0, int(band["resolution"]) + resolution_offset)
         bands.append(band)
+    if "expanded_ring" in focus_band_ids:
+        expanded = next(band for band in bands if band["id"] == "expanded_ring")
+        fine = [band for band in bands if band["id"] != "expanded_ring"]
+        return build_hierarchical_expanded_grid(fine, expanded)
     return build_h3_destination_grid(bands)
+
+
+def _validate_supported_origins(
+    origins: pd.DataFrame, params: dict, grid_mode: str, focus: str | None
+) -> None:
+    if grid_mode != "h3" or focus != "wide":
+        return
+    bounds = params.get("expanded_run", {}).get("expanded_bounds")
+    if not bounds:
+        return
+    outside = origins[
+        ~origins["lat"].between(float(bounds["south"]), float(bounds["north"]))
+        | ~origins["lng"].between(float(bounds["west"]), float(bounds["east"]))
+    ]
+    if not outside.empty:
+        raise ValueError(
+            "Participant origin is outside the coverage area."
+        )
 
 
 def _labels_for_prediction(origin_id: str, destinations: pd.DataFrame) -> pd.DataFrame:
@@ -392,6 +415,7 @@ def predict_origin_surface(
     origins = pd.DataFrame(
         [{"origin_id": origin_id, "lat": float(origin_lat), "lng": float(origin_lng)}]
     )
+    _validate_supported_origins(origins, params, grid_mode, focus)
     stations = _prediction_stations(params)
     return _predict_surfaces_for_origins(
         origins,
@@ -482,6 +506,7 @@ def predict_group_surface(
             for index, friend in enumerate(friend_list)
         ]
     )
+    _validate_supported_origins(origins, params, grid_mode, focus)
     batch_surfaces = _predict_surfaces_for_origins(
         origins,
         destinations,

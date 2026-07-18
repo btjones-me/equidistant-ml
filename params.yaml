@@ -22,6 +22,7 @@ traveltime:
     - travel_time
   timeout_seconds: 90
   sleep_seconds: 1.0
+  max_hits_per_minute: 50
 
 features:
   stations_path: data/london_tubes.csv
@@ -36,10 +37,19 @@ transport_sources:
     - elizabeth-line
     - dlr
     - tram
-    - bus
-  bus_route_limit: 25
+    - national-rail
+  bus_route_limit: 0
+  national_rail_line_allowlist:
+    - Chiltern Railways
+    - Southeastern
+    - Thameslink
+    - Southern
+  request_interval_seconds: 0.5
+  max_retries: 8
+  bus_stop_max_pages: 40
   timeout_seconds: 30
   naptan_csv_path: null
+  strict: true
 
 transport_graph:
   raw_nodes_path: data/reference/transport_nodes.parquet
@@ -88,3 +98,105 @@ graph_model:
   num_leaves: 39
   min_child_samples: 20
   n_jobs: -1
+
+prediction_grid:
+  focus: inner
+  detail: fine
+  focuses:
+    central:
+      - zone1_core
+    inner:
+      - zone1_core
+      - zone2_3_inner
+    wide:
+      - zone1_core
+      - zone2_3_inner
+      - expanded_ring
+  details:
+    fast:
+      resolution_offset: -1
+    fine:
+      resolution_offset: 0
+  bands:
+    zone1_core:
+      label: Zone 1 core
+      north: 51.535
+      south: 51.492
+      west: -0.19
+      east: -0.065
+      resolution: 9
+      buffer_degrees: 0.006
+    zone2_3_inner:
+      label: Zones 2-3
+      north: 51.56
+      south: 51.46
+      west: -0.245
+      east: 0.03
+      resolution: 9
+      buffer_degrees: 0.012
+    expanded_ring:
+      label: Expanded ring
+      north: 51.57891586
+      south: 51.4340208
+      west: -0.33516664
+      east: 0.1034297
+      resolution: 8
+      buffer_degrees: 0.0
+
+expanded_run:
+  id: harrow_sidcup_v1
+  seed: 20260717
+  split_h3_resolution: 7
+  original_bounds:
+    north: 51.56
+    south: 51.46
+    west: -0.245
+    east: 0.03
+  expanded_bounds:
+    north: 51.57891586
+    south: 51.4340208
+    west: -0.33516664
+    east: 0.1034297
+  required_graph_stations:
+    - Harrow-on-the-Hill
+    - Sidcup
+  sampling:
+    train:
+      original: 320
+      outer: 96
+      original_station_fraction: 0.35
+      outer_station_fraction: 0.40
+    tune:
+      original: 32
+      outer: 16
+      original_station_fraction: 0.35
+      outer_station_fraction: 0.40
+    test:
+      original: 48
+      outer: 48
+      original_station_fraction: 0.50
+      outer_station_fraction: 0.50
+  atlas:
+    inner_south: 51.46
+    inner_north: 51.56
+    inner_west: -0.245
+    inner_east: 0.03
+    inner_lat_count: 20
+    inner_lng_count: 28
+    outer_spacing_multiplier: 2.0
+    interpolation_neighbours: 4
+    discontinuity_threshold_minutes: 20.0
+    adaptive_anchor_count: 100
+    adaptive_min_separation_m: 250
+    adaptive_min_mae_minutes: 1.0
+    validation_origins_per_region: 12
+  regularized_graph_model:
+    seed: 42
+    n_estimators: 950
+    learning_rate: 0.012
+    num_leaves: 255
+    min_child_samples: 10
+    reg_lambda: 1.0
+    subsample: 0.9
+    colsample_bytree: 0.9
+    n_jobs: -1

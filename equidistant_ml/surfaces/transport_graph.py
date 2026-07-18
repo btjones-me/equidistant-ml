@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import heapq
 import math
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
@@ -315,8 +316,11 @@ def fetch_tfl_transport_reference(
     modes: Iterable[str],
     *,
     bus_route_limit: int,
+    national_rail_line_allowlist: Iterable[str] | None = None,
     app_key: str | None = None,
     timeout_seconds: int = 30,
+    request_interval_seconds: float = 0.25,
+    max_retries: int = 6,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Fetch route topology from TfL Unified API.
 
@@ -328,14 +332,43 @@ def fetch_tfl_transport_reference(
     node_by_id: dict[str, dict[str, Any]] = {}
     edge_rows: list[dict[str, Any]] = []
     params = {"app_key": app_key} if app_key else None
+    last_request_started = 0.0
+    minimum_interval = float(request_interval_seconds)
+    rail_allowlist = {
+        safe_feature_name(value) for value in (national_rail_line_allowlist or [])
+    }
+
+    def get_json(url: str, *, allow_not_found: bool = False) -> Any | None:
+        nonlocal last_request_started, minimum_interval
+        for attempt in range(max_retries + 1):
+            wait_seconds = minimum_interval - (time.monotonic() - last_request_started)
+            if wait_seconds > 0:
+                time.sleep(wait_seconds)
+            last_request_started = time.monotonic()
+            response = session.get(url, params=params, timeout=timeout_seconds)
+            if response.status_code == 404 and allow_not_found:
+                return None
+            if response.status_code != 429:
+                response.raise_for_status()
+                return response.json()
+            retry_after = response.headers.get("Retry-After")
+            try:
+                retry_seconds = float(retry_after) if retry_after else 0.0
+            except ValueError:
+                retry_seconds = 0.0
+            minimum_interval = max(minimum_interval, 1.0)
+            if attempt >= max_retries:
+                response.raise_for_status()
+            time.sleep(max(retry_seconds, min(2**attempt, 30.0)))
+        raise RuntimeError("TfL retry loop exited unexpectedly.")
 
     mode_list = [mode for mode in modes if mode]
     if not mode_list:
         return pd.DataFrame(), pd.DataFrame()
     lines_url = f"https://api.tfl.gov.uk/Line/Mode/{','.join(mode_list)}"
-    lines_response = session.get(lines_url, params=params, timeout=timeout_seconds)
-    lines_response.raise_for_status()
-    lines = lines_response.json()
+    lines = get_json(lines_url)
+    if lines is None:
+        raise ValueError("TfL line catalogue unexpectedly returned no payload.")
 
     bus_seen = 0
     for line in lines:
@@ -343,6 +376,13 @@ def fetch_tfl_transport_reference(
         if not line_id:
             continue
         line_mode = _normalise_mode(str(line.get("modeName") or ""))
+        if line_mode == "national_rail" and rail_allowlist:
+            line_keys = {
+                safe_feature_name(line_id),
+                safe_feature_name(line.get("name", "")),
+            }
+            if not line_keys.intersection(rail_allowlist):
+                continue
         if line_mode == "bus":
             bus_seen += 1
             if bus_seen > bus_route_limit:
@@ -352,10 +392,10 @@ def fetch_tfl_transport_reference(
             sequence_url = (
                 f"https://api.tfl.gov.uk/Line/{line_id}/Route/Sequence/{direction}"
             )
-            response = session.get(sequence_url, params=params, timeout=timeout_seconds)
-            if response.status_code >= 400:
+            payload = get_json(sequence_url, allow_not_found=True)
+            if payload is None:
                 continue
-            for stop_sequence in _iter_tfl_stop_sequences(response.json()):
+            for stop_sequence in _iter_tfl_stop_sequences(payload):
                 previous_node_id: str | None = None
                 previous_stop: dict[str, Any] | None = None
                 for stop in stop_sequence:
@@ -412,6 +452,98 @@ def fetch_tfl_transport_reference(
     return _normalise_nodes(pd.DataFrame(node_by_id.values())), _normalise_edges(
         pd.DataFrame(edge_rows)
     )
+
+
+def fetch_tfl_bus_stop_points(
+    bounds: dict[str, float],
+    *,
+    app_key: str | None = None,
+    timeout_seconds: int = 60,
+    request_interval_seconds: float = 0.5,
+    max_pages: int = 40,
+    max_retries: int = 6,
+) -> pd.DataFrame:
+    """Fetch spatially filtered bus stops without creating routable bus edges."""
+    session = requests.Session()
+    last_request_started = 0.0
+    minimum_interval = float(request_interval_seconds)
+    rows: list[dict[str, Any]] = []
+    for page in range(1, max_pages + 1):
+        payload = None
+        for attempt in range(max_retries + 1):
+            wait_seconds = minimum_interval - (time.monotonic() - last_request_started)
+            if wait_seconds > 0:
+                time.sleep(wait_seconds)
+            last_request_started = time.monotonic()
+            query: dict[str, Any] = {"page": page}
+            if app_key:
+                query["app_key"] = app_key
+            response = session.get(
+                "https://api.tfl.gov.uk/StopPoint/Mode/bus",
+                params=query,
+                timeout=timeout_seconds,
+            )
+            if response.status_code != 429:
+                response.raise_for_status()
+                payload = response.json()
+                break
+            retry_after = response.headers.get("Retry-After")
+            try:
+                retry_seconds = float(retry_after) if retry_after else 0.0
+            except ValueError:
+                retry_seconds = 0.0
+            minimum_interval = max(minimum_interval, 1.0)
+            if attempt >= max_retries:
+                response.raise_for_status()
+            time.sleep(max(retry_seconds, min(2**attempt, 30.0)))
+        if payload is None:
+            raise RuntimeError("TfL bus-stop retry loop exited unexpectedly.")
+        stop_points = payload.get("stopPoints", [])
+        if not stop_points:
+            break
+        for stop in stop_points:
+            if stop.get("stopType") != "NaptanPublicBusCoachTram":
+                continue
+            lat = stop.get("lat")
+            lng = stop.get("lon")
+            if lat is None or lng is None:
+                continue
+            if not (
+                float(bounds["south"]) <= float(lat) <= float(bounds["north"])
+                and float(bounds["west"]) <= float(lng) <= float(bounds["east"])
+            ):
+                continue
+            stop_id = str(stop.get("naptanId") or stop.get("id") or "")
+            if not stop_id:
+                continue
+            lines = ", ".join(
+                sorted(
+                    {
+                        str(line.get("name") or line.get("id") or "")
+                        for line in stop.get("lines", [])
+                        if line.get("name") or line.get("id")
+                    }
+                )
+            )
+            rows.append(
+                {
+                    "node_id": stop_id,
+                    "name": str(stop.get("commonName") or stop_id),
+                    "mode": "bus",
+                    "operator": "TfL",
+                    "lat": float(lat),
+                    "lng": float(lng),
+                    "lines": lines,
+                    "corridor_flags": "bus",
+                    "source": "tfl_bus_stop_pagination",
+                }
+            )
+    else:
+        raise ValueError(
+            f"TfL bus-stop pagination exceeded {max_pages} pages; "
+            "refusing partial data."
+        )
+    return _normalise_nodes(pd.DataFrame(rows)).drop_duplicates("node_id")
 
 
 def _iter_tfl_stop_sequences(payload: dict[str, Any]) -> Iterable[list[dict[str, Any]]]:
@@ -572,6 +704,7 @@ def add_graph_features(
     access_node_limit: int,
     max_access_distance_m: float,
     bus_density_radius_m: float,
+    access_nodes: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     if graph is None or graph.nodes.empty or graph.edges.empty:
         fallback = empty_graph_features(len(features))
@@ -609,10 +742,15 @@ def add_graph_features(
         max_distance_m=max_access_distance_m,
         walking_speed_mps=walking_speed_mps,
     )
+    point_feature_nodes = graph.nodes
+    if access_nodes is not None and not access_nodes.empty:
+        point_feature_nodes = pd.concat(
+            [graph.nodes, _normalise_nodes(access_nodes)], ignore_index=True
+        ).drop_duplicates("node_id", keep="first")
     point_features = _point_access_features(
         origin_points,
         destination_points,
-        graph.nodes,
+        point_feature_nodes,
         radius_m=bus_density_radius_m,
     )
 

@@ -915,11 +915,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--params", default="params.yaml")
     parser.add_argument(
         "--train-features",
-        default="data/holdout/central_aug_train_20260709/features.parquet",
+        default="data/experiments/graph_hillclimb/train_features.parquet",
     )
     parser.add_argument(
         "--holdout-features",
-        default="data/holdout/central_20260709/features.parquet",
+        default="data/experiments/graph_hillclimb/holdout_features.parquet",
     )
     parser.add_argument(
         "--train-graph-features",
@@ -931,7 +931,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--current-model",
-        default="models/travel_time_model_central_aug.joblib",
+        default="models/travel_time_model.joblib",
     )
     parser.add_argument(
         "--output-model",
@@ -939,7 +939,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--output-metrics",
-        default="metrics/graph_hillclimb_20260709.json",
+        default="metrics/graph_hillclimb.json",
     )
     parser.add_argument(
         "--output-summary",
@@ -947,7 +947,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--refresh-graph-features", action="store_true")
     parser.add_argument("--tune-fraction", type=float, default=0.25)
-    parser.add_argument("--seed", type=int, default=20260709)
+    parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--stack-alpha", type=float, default=0.01)
     parser.add_argument("--min-promote-delta-min", type=float, default=0.05)
     return parser

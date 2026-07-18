@@ -134,6 +134,8 @@ def surface(payload: SurfaceRequest):
             detail=payload.detail,
         )
         return surface_to_grid_response(df, "travel_time_minutes")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
     except Exception as e:
         loguru.logger.exception(e)
         raise HTTPException(status_code=500, detail=f"Surface prediction failed: {e}")
@@ -160,6 +162,8 @@ def _cached_group_surface(payload_json: str) -> dict:
 def group_surface(payload: GroupSurfaceRequest):
     try:
         return _cached_group_surface(payload.model_dump_json())
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
     except Exception as e:
         loguru.logger.exception(e)
         raise HTTPException(
@@ -192,6 +196,8 @@ def comparison_surface(payload: ComparisonSurfaceRequest):
             "error": "signed_error_minutes",
         }
         return response
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
     except Exception as e:
         loguru.logger.exception(e)
         raise HTTPException(

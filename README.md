@@ -112,6 +112,40 @@ The graph layer uses TfL topology plus deterministic rail-corridor fallbacks for
 Tube, Overground, Elizabeth line, Thameslink, and National Rail. TravelTime
 remains the label source; the graph is a topology prior and diagnostic baseline.
 
+### Harrow-to-Sidcup candidate run
+
+The expanded evaluation is isolated under run ID `harrow_sidcup_v1`. It keeps
+its graph, 560 origins, 3,538-cell grid, fingerprinted API shards, features,
+models, metrics, and atlas separate from the production lineage:
+
+```shell
+make expanded-graph
+make prepare-expanded-run
+make fetch-expanded-data
+make train-expanded-candidate
+make export-expanded-atlas
+make nfr-expanded-candidate
+```
+
+`expanded_validate` is a hard gate: training refuses incomplete Cartesian
+labels, legacy or mismatched checkpoints, overlapping H3-7 split blocks,
+changed inputs, incomplete feature rows, or graph hash drift. The selected model
+is trained only from the fresh training split; the tuning split chooses it and
+the test split is evaluated once afterward. Candidate outputs remain under
+`artifacts/runs/harrow_sidcup_v1/` and are not copied into
+`frontend/public/model/` by this workflow.
+
+Atlas export also probes 700 deterministic outer origins using direct model
+inference only. Half may nominate adaptive anchors and half remain disjoint for
+validation. Extra anchors are accepted only when validation MAE improves without
+worsening p90; otherwise the smaller base atlas is retained. Runtime interpolation
+uses anchor surface signatures to avoid averaging across sharp transport-access
+discontinuities. The training manifest excludes atlas-only parameters from its
+lineage hash and records the atlas configuration separately.
+
+Non-paid TravelTime data is for internal evaluation. Confirm a suitable licence
+before publishing the candidate or using it commercially.
+
 ## Browser atlas
 
 Regenerate the production inference atlas after promoting a new model:
@@ -131,6 +165,12 @@ The promoted graph-augmented model records approximately 2.70 minutes MAE and
 adds approximately 1.39 minutes MAE relative to direct model inference. These
 figures describe weekday-morning public-transport estimates, not guarantees for
 a specific journey.
+
+For the isolated Harrow-to-Sidcup candidate, discontinuity-aware interpolation
+keeps original-to-original atlas MAE at 3.16 minutes and reduces outer-origin
+atlas MAE to 4.92-5.01 minutes. The attempted 100-anchor expansion failed the
+disjoint probe gate, so the candidate remains at 765 anchors with no added model
+surface payload.
 
 ## Deployment
 

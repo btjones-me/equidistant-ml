@@ -49,8 +49,11 @@ pip-wheel-metadata
 /data/smoke/
 /data/smoke_graph/
 /data/reference/
+/data/runs/
 /data/holdout/
 /models/
+/metrics/runs/
+/artifacts/runs/
 /gmaps_cache*
 /frontend/node_modules/
 /frontend/dist/
@@ -60,3 +63,4 @@ pip-wheel-metadata
 /docs/model_surface_audit.md
 /docs/graph_hillclimb_results.md
 /metrics/*_20260709.json
+/metrics/graph_hillclimb.json

@@ -18,7 +18,7 @@ import {
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MapView from "./MapView";
 import VenueRecommendations from "./VenueRecommendations";
-import { getAtlasSurface, preloadAtlas } from "./lib/atlas";
+import { clampToAtlasBounds, getAtlasSurface, preloadAtlas } from "./lib/atlas";
 import { locationLabelForFriend } from "./lib/locations";
 import { selectSeparatedSuggestions } from "./lib/suggestions";
 import {
@@ -29,6 +29,7 @@ import {
 } from "./state/AppStateContext";
 import type { CombineMode, Friend, SurfaceCell, SurfaceResponse, VenueRecommendation } from "./types";
 
+const productFocus = import.meta.env.VITE_PRODUCT_FOCUS === "inner" ? "inner" : "wide";
 const markerColours = ["#0ea5e9", "#f97316", "#22c55e", "#a855f7", "#e11d48", "#64748b"];
 
 const strategyOptions: Array<{ value: CombineMode; label: string; description: string }> = [
@@ -132,7 +133,9 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
   const [venueDrawerOpen, setVenueDrawerOpen] = useState(false);
   const [venues, setVenues] = useState<VenueRecommendation[]>([]);
   const [activeVenueId, setActiveVenueId] = useState<string | null>(null);
+  const [coverageFeedbackVisible, setCoverageFeedbackVisible] = useState(false);
   const requestId = useRef(0);
+  const coverageFeedbackTimer = useRef<number | null>(null);
 
   const includedFriendIndexes = useMemo(
     () => included.map((value, index) => (value ? index : -1)).filter((index) => index >= 0),
@@ -167,6 +170,15 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
     void preloadAtlas().catch(() => undefined);
   }, []);
 
+  useEffect(
+    () => () => {
+      if (coverageFeedbackTimer.current !== null) {
+        window.clearTimeout(coverageFeedbackTimer.current);
+      }
+    },
+    []
+  );
+
   useEffect(() => {
     setColorScale(recommendedColorScale(appearancePreset === "single" ? 1 : 2));
     setSurfaceOpacity(DEFAULT_SURFACE_OPACITY);
@@ -184,7 +196,7 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
     setLoading(true);
     setError(null);
     const timer = window.setTimeout(() => {
-      void getAtlasSurface({ friends, includedFriendIndexes, combine, focus: "inner" })
+      void getAtlasSurface({ friends, includedFriendIndexes, combine, focus: productFocus })
         .then((response) => {
           if (requestId.current !== nextRequestId) {
             return;
@@ -215,12 +227,37 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
     setActiveSuggestionIndex((current) => Math.min(current, Math.max(0, suggestedCells.length - 1)));
   }, [suggestedCells.length]);
 
+  const showCoverageFeedback = useCallback(() => {
+    setCoverageFeedbackVisible(true);
+    if (coverageFeedbackTimer.current !== null) {
+      window.clearTimeout(coverageFeedbackTimer.current);
+    }
+    coverageFeedbackTimer.current = window.setTimeout(() => {
+      setCoverageFeedbackVisible(false);
+      coverageFeedbackTimer.current = null;
+    }, 4_000);
+  }, []);
+
   const moveFriend = useCallback(
-    (index: number, lat: number, lng: number) => {
-      updateFriend(index, { lat, lng, locationLabel: undefined });
+    (index: number, lat: number, lng: number, locationLabel?: string) => {
+      const coverageBounds = surface.metadata?.coverage_bounds;
+      const bounded = coverageBounds
+        ? clampToAtlasBounds({ lat, lng }, coverageBounds)
+        : { lat, lng, wasClamped: false };
+      if (bounded.wasClamped) {
+        showCoverageFeedback();
+      }
+      setError(null);
+      setLoading(true);
+      updateFriend(index, {
+        lat: bounded.lat,
+        lng: bounded.lng,
+        locationLabel: bounded.wasClamped ? undefined : locationLabel
+      });
       setActiveFriendIndex(index);
+      return { lat: bounded.lat, lng: bounded.lng };
     },
-    [updateFriend]
+    [showCoverageFeedback, surface.metadata?.coverage_bounds, updateFriend]
   );
 
   const placeFriend = useCallback(
@@ -266,11 +303,7 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
   }
 
   function choosePlace(place: LocalPlace) {
-    updateFriend(activeFriendIndex, {
-      lat: place.lat,
-      lng: place.lng,
-      locationLabel: place.name
-    });
+    moveFriend(activeFriendIndex, place.lat, place.lng, place.name);
     setSearchQuery("");
     setRemotePlaces([]);
     setEditingLocationIndex(null);
@@ -584,6 +617,8 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
           variant="product"
           activeFriendIndex={activeFriendIndex}
           placingFriendIndex={placingFriendIndex}
+          coverageBounds={surface.metadata?.coverage_bounds}
+          showCoverageBoundary={coverageFeedbackVisible}
           onMoveFriend={moveFriend}
           onPlaceFriend={placeFriend}
           venues={venueDrawerOpen ? venues : []}

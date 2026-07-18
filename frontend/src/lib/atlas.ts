@@ -1,4 +1,4 @@
-import type { CombineMode, Friend, SurfaceCell, SurfaceResponse } from "../types";
+import type { CombineMode, CoverageBounds, Friend, SurfaceCell, SurfaceResponse } from "../types";
 
 type AtlasOrigin = {
   origin_id: string;
@@ -6,6 +6,9 @@ type AtlasOrigin = {
   lng: number;
   lat_index: number;
   lng_index: number;
+  anchor_region?: "central" | "outer";
+  anchor_source?: "grid" | "adaptive_probe";
+  surface_signature_minutes?: number;
 };
 
 type AtlasCell = Pick<
@@ -22,6 +25,7 @@ type AtlasCell = Pick<
 > & {
   nearest_station_name?: string;
   nearest_station_lines?: string;
+  coverage_region?: "original" | "outer";
 };
 
 type AtlasMetadata = {
@@ -30,10 +34,20 @@ type AtlasMetadata = {
   origin_count: number;
   cell_count: number;
   interpolation_neighbours: number;
+  discontinuity_threshold_minutes?: number;
   model_type: string;
   source_model_sha256?: string;
+  model_file_sha256?: string;
+  graph_file_sha256?: string;
   model_file: string;
   graph_file: string;
+  origin_bounds?: CoverageBounds;
+  coverage_bounds?: CoverageBounds;
+  band_ownership?: {
+    central?: { grid_bands?: string[]; coverage_regions?: string[] };
+    inner?: { grid_bands?: string[]; coverage_regions?: string[] };
+    wide?: { grid_bands?: string[]; coverage_regions?: string[] };
+  };
   interpolation_validation?: {
     mae_minutes_vs_direct_model?: number;
     p90_abs_error_minutes_vs_direct_model?: number;
@@ -60,9 +74,24 @@ let graphAtlasPromise: Promise<Uint8Array> | null = null;
 const responseCache = new Map<string, SurfaceResponse>();
 const MAX_CACHE_ITEMS = 20;
 
-function assetUrl(path: string): string {
+function assetUrl(path: string, checksum?: string): string {
   const base = import.meta.env.BASE_URL.endsWith("/") ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
-  return new URL(`${base}model/${path}`, window.location.origin).toString();
+  const url = new URL(`${base}model/${path}`, window.location.origin);
+  if (checksum) {
+    url.searchParams.set("v", checksum.slice(0, 16));
+  }
+  return url.toString();
+}
+
+async function sha256Hex(buffer: ArrayBuffer): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", buffer);
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+async function assertChecksum(buffer: ArrayBuffer, expected: string | undefined, label: string): Promise<void> {
+  if (expected && (await sha256Hex(buffer)) !== expected.toLowerCase()) {
+    throw new Error(`The offline ${label} checksum does not match its metadata.`);
+  }
 }
 
 async function loadCoreAtlas(): Promise<CoreAtlas> {
@@ -74,7 +103,9 @@ async function loadCoreAtlas(): Promise<CoreAtlas> {
     throw new Error(`The offline London model metadata was not served correctly (${metadataResponse.url}).`);
   }
   const metadata = (await metadataResponse.json()) as AtlasMetadata;
-  const modelResponse = await fetch(assetUrl(metadata.model_file), { cache: "force-cache" });
+  const modelResponse = await fetch(assetUrl(metadata.model_file, metadata.model_file_sha256), {
+    cache: "force-cache"
+  });
   if (!modelResponse.ok) {
     throw new Error("The offline London model could not be loaded.");
   }
@@ -83,6 +114,7 @@ async function loadCoreAtlas(): Promise<CoreAtlas> {
   if (modelBuffer.byteLength !== expectedLength) {
     throw new Error("The offline London model files do not match their metadata.");
   }
+  await assertChecksum(modelBuffer, metadata.model_file_sha256, "London model");
   return {
     metadata,
     model: new Uint8Array(modelBuffer)
@@ -95,7 +127,9 @@ export function preloadAtlas(): Promise<void> {
 }
 
 async function loadGraphAtlas(metadata: AtlasMetadata): Promise<Uint8Array> {
-  const graphResponse = await fetch(assetUrl(metadata.graph_file), { cache: "force-cache" });
+  const graphResponse = await fetch(assetUrl(metadata.graph_file, metadata.graph_file_sha256), {
+    cache: "force-cache"
+  });
   if (!graphResponse.ok) {
     throw new Error("The offline graph baseline could not be loaded.");
   }
@@ -103,6 +137,7 @@ async function loadGraphAtlas(metadata: AtlasMetadata): Promise<Uint8Array> {
   if (graphBuffer.byteLength !== metadata.origin_count * metadata.cell_count) {
     throw new Error("The offline graph baseline does not match its metadata.");
   }
+  await assertChecksum(graphBuffer, metadata.graph_file_sha256, "graph baseline");
   return new Uint8Array(graphBuffer);
 }
 
@@ -119,14 +154,51 @@ function distanceMetres(latA: number, lngA: number, latB: number, lngB: number):
   return 6_371_000 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+type RankedAnchor = { index: number; distance: number; signature?: number };
+
+export function selectCompatibleAnchors(
+  ranked: RankedAnchor[],
+  discontinuityThresholdMinutes: number | undefined
+): RankedAnchor[] {
+  if (discontinuityThresholdMinutes === undefined || ranked.length < 3) {
+    return ranked;
+  }
+  if (ranked.some((anchor) => anchor.signature === undefined)) {
+    return ranked;
+  }
+  const bySignature = [...ranked].sort(
+    (left, right) => (left.signature as number) - (right.signature as number)
+  );
+  let largestGap = 0;
+  let splitAfter = -1;
+  for (let index = 0; index < bySignature.length - 1; index += 1) {
+    const gap = (bySignature[index + 1].signature as number) - (bySignature[index].signature as number);
+    if (gap > largestGap) {
+      largestGap = gap;
+      splitAfter = index;
+    }
+  }
+  if (largestGap <= discontinuityThresholdMinutes || splitAfter < 0) {
+    return ranked;
+  }
+  const groups = [bySignature.slice(0, splitAfter + 1), bySignature.slice(splitAfter + 1)];
+  if (groups[0].length !== groups[1].length) {
+    return groups[0].length > groups[1].length ? groups[0] : groups[1];
+  }
+  const nearestIndex = ranked[0].index;
+  return groups.find((group) => group.some((anchor) => anchor.index === nearestIndex)) ?? ranked;
+}
+
 function nearestAnchorWeights(origin: Friend, metadata: AtlasMetadata): Array<{ index: number; weight: number }> {
-  const ranked = metadata.origins
+  const nearest = metadata.origins
     .map((anchor, index) => ({
       index,
-      distance: distanceMetres(origin.lat, origin.lng, anchor.lat, anchor.lng)
+      distance: distanceMetres(origin.lat, origin.lng, anchor.lat, anchor.lng),
+      signature: anchor.surface_signature_minutes
     }))
     .sort((left, right) => left.distance - right.distance)
     .slice(0, Math.max(1, metadata.interpolation_neighbours));
+  const ranked = selectCompatibleAnchors(nearest, metadata.discontinuity_threshold_minutes);
   if (ranked[0].distance < 20) {
     return [{ index: ranked[0].index, weight: 1 }];
   }
@@ -149,6 +221,41 @@ function interpolateSurface(
     }
   }
   return output;
+}
+
+export function isWithinAtlasBounds(origin: Pick<Friend, "lat" | "lng">, metadata: Pick<AtlasMetadata, "origin_bounds" | "coverage_bounds">): boolean {
+  const bounds = metadata.coverage_bounds ?? metadata.origin_bounds;
+  if (!bounds) {
+    return true;
+  }
+  return origin.lat >= bounds.south && origin.lat <= bounds.north && origin.lng >= bounds.west && origin.lng <= bounds.east;
+}
+
+export function clampToAtlasBounds(
+  origin: Pick<Friend, "lat" | "lng">,
+  bounds: CoverageBounds
+): { lat: number; lng: number; wasClamped: boolean } {
+  const lat = Math.min(bounds.north, Math.max(bounds.south, origin.lat));
+  const lng = Math.min(bounds.east, Math.max(bounds.west, origin.lng));
+  return { lat, lng, wasClamped: lat !== origin.lat || lng !== origin.lng };
+}
+
+export function cellOwnedByFocus(
+  cell: Pick<AtlasCell, "grid_band" | "coverage_region">,
+  focus: AtlasSurfaceRequest["focus"],
+  metadata: Pick<AtlasMetadata, "version" | "band_ownership">
+): boolean {
+  const ownership = metadata.band_ownership?.[focus];
+  if (ownership) {
+    const gridBandMatch =
+      !ownership.grid_bands ||
+      (cell.grid_band !== undefined && ownership.grid_bands.includes(cell.grid_band));
+    const coverageMatch =
+      !ownership.coverage_regions ||
+      (cell.coverage_region !== undefined && ownership.coverage_regions.includes(cell.coverage_region));
+    return gridBandMatch && coverageMatch;
+  }
+  return focus !== "central" || cell.grid_band === "Zone 1 core";
 }
 
 function mean(values: number[]): number {
@@ -220,6 +327,10 @@ export async function getAtlasSurface(request: AtlasSurfaceRequest): Promise<Sur
   }
   coreAtlasPromise ??= loadCoreAtlas();
   const atlas = await coreAtlasPromise;
+  const outside = request.friends.filter((friend) => !isWithinAtlasBounds(friend, atlas.metadata));
+  if (outside.length) {
+    throw new Error("A location is outside the coverage area.");
+  }
   if (request.includeGraph) {
     graphAtlasPromise ??= loadGraphAtlas(atlas.metadata);
   }
@@ -231,7 +342,7 @@ export async function getAtlasSurface(request: AtlasSurfaceRequest): Promise<Sur
   const included = request.includedFriendIndexes.length ? request.includedFriendIndexes : [0];
   const sourceCellIndexes = atlas.metadata.cells
     .map((cell, index) => ({ cell, index }))
-    .filter(({ cell }) => request.focus !== "central" || cell.grid_band === "Zone 1 core");
+    .filter(({ cell }) => cellOwnedByFocus(cell, request.focus, atlas.metadata));
   const cells = sourceCellIndexes.map(({ cell, index }) => {
     const modelFriendValues = modelSurfaces.map((surface) => surface[index]);
     const graphFriendValues = graphSurfaces?.map((surface) => surface[index]) ?? [];
@@ -291,7 +402,13 @@ export async function getAtlasSurface(request: AtlasSurfaceRequest): Promise<Sur
       source: "browser_atlas",
       model_type: atlas.metadata.model_type,
       interpolation_mae_minutes: atlas.metadata.interpolation_validation?.mae_minutes_vs_direct_model,
-      coverage_notice: request.focus === "wide" ? "The hosted model is optimised for Zones 1-3." : undefined
+      coverage_bounds: atlas.metadata.coverage_bounds ?? atlas.metadata.origin_bounds,
+      coverage_notice:
+        request.focus === "wide"
+          ? atlas.metadata.version >= 2
+            ? "Outer coverage uses lower-density destinations and atlas anchors."
+            : "The hosted model is optimised for Zones 1-3."
+          : undefined
     }
   };
   putCache(key, response);

@@ -115,6 +115,112 @@ def build_h3_destination_grid(band_params: list[dict]) -> pd.DataFrame:
     return result
 
 
+def _h3_cell_row(
+    cell: str,
+    *,
+    label: str,
+    priority: int,
+    coverage_region: str,
+) -> dict:
+    lat, lng = h3.cell_to_latlng(cell)
+    boundary = [
+        [round(float(point_lat), 7), round(float(point_lng), 7)]
+        for point_lat, point_lng in h3.cell_to_boundary(cell)
+    ]
+    return {
+        "destination_id": cell,
+        "lat": round(float(lat), 7),
+        "lng": round(float(lng), 7),
+        "h3_cell": cell,
+        "h3_resolution": int(h3.get_resolution(cell)),
+        "boundary": boundary,
+        "grid_band": label,
+        "grid_priority": priority,
+        "coverage_region": coverage_region,
+        "cell_area_km2": round(float(h3.cell_area(cell, unit="km^2")), 6),
+    }
+
+
+def build_hierarchical_expanded_grid(
+    fine_band_params: list[dict],
+    expanded_band: dict,
+) -> pd.DataFrame:
+    """Build a gap-free mixed-resolution grid while preserving every fine cell.
+
+    The expanded rectangle is first filled at the outer resolution. Any outer
+    parent containing one of the existing fine cells is replaced by all of its
+    children. This prevents overlapping parent/child cells and fills the small
+    transition slivers that bbox-centre ownership otherwise leaves behind.
+    """
+    fine = build_h3_destination_grid(fine_band_params).copy()
+    if fine.empty:
+        raise ValueError("The fine destination grid is empty.")
+    fine["coverage_region"] = "original"
+
+    outer_params = dict(expanded_band)
+    outer_params.setdefault("id", "expanded_ring")
+    outer_params.setdefault("label", "Expanded ring")
+    coarse = build_h3_destination_grid([outer_params]).copy()
+    if coarse.empty:
+        raise ValueError("The expanded destination grid is empty.")
+
+    outer_resolution = int(outer_params["resolution"])
+    fine_cells = set(fine["destination_id"].astype(str))
+    coarse_cells = set(coarse["destination_id"].astype(str))
+    refined_parents = {h3.cell_to_parent(cell, outer_resolution) for cell in fine_cells}
+    missing_parents = refined_parents - coarse_cells
+    if missing_parents:
+        raise ValueError(
+            "Expanded bounds do not contain every original fine-grid parent: "
+            f"{sorted(missing_parents)[:5]}"
+        )
+
+    transition_cells: set[str] = set()
+    for parent in refined_parents:
+        transition_cells.update(h3.cell_to_children(parent, outer_resolution + 1))
+    if not fine_cells.issubset(transition_cells):
+        raise ValueError("Original H3 cells were lost during hierarchical refinement.")
+
+    rows = fine.to_dict(orient="records")
+    for cell in sorted(transition_cells - fine_cells):
+        rows.append(
+            _h3_cell_row(
+                cell,
+                label="Transition band",
+                priority=len(fine_band_params),
+                coverage_region="outer",
+            )
+        )
+    for cell in sorted(coarse_cells - refined_parents):
+        rows.append(
+            _h3_cell_row(
+                cell,
+                label=str(outer_params.get("label", "Expanded ring")),
+                priority=len(fine_band_params) + 1,
+                coverage_region="outer",
+            )
+        )
+
+    result = pd.DataFrame(rows)
+    result = result.drop_duplicates("destination_id").sort_values(
+        ["grid_priority", "h3_resolution", "destination_id"]
+    )
+    result = result.reset_index(drop=True)
+    result["x_index"] = result.index
+    result["y_index"] = 0
+    result["cell_index"] = result.index
+
+    result_cells = set(result["destination_id"].astype(str))
+    for cell in result_cells:
+        resolution = h3.get_resolution(cell)
+        for parent_resolution in range(resolution):
+            if h3.cell_to_parent(cell, parent_resolution) in result_cells:
+                raise ValueError(
+                    f"Overlapping H3 parent and child detected for {cell}."
+                )
+    return result
+
+
 def sample_origin_anchors(
     bbox: BBox,
     stations: pd.DataFrame,
