@@ -10,6 +10,8 @@ const VENUE_CACHE_TTL_SECONDS = 24 * 60 * 60;
 const VENUE_VISITOR_HOURLY_LIMIT = 5;
 const VENUE_GLOBAL_DAILY_LIMIT = 30;
 const VENUE_GLOBAL_MONTHLY_LIMIT = 300;
+const VENUE_PHOTO_GLOBAL_DAILY_LIMIT = 90;
+const VENUE_PHOTO_GLOBAL_MONTHLY_LIMIT = 900;
 const TRAVELTIME_VISITOR_HOURLY_ORIGIN_LIMIT = 12;
 const TRAVELTIME_GLOBAL_DAILY_ORIGIN_LIMIT = 60;
 const TRAVELTIME_GLOBAL_MONTHLY_ORIGIN_LIMIT = 500;
@@ -506,6 +508,39 @@ async function consumeVenueBudget(env, request, now) {
       period: iso.slice(0, 7),
       limit: VENUE_GLOBAL_MONTHLY_LIMIT,
       message: "This month's recommendation allowance has been used.",
+      retryAfter: 86400
+    }
+  ];
+  for (const check of checks) {
+    const count = await incrementVenueUsage(env.DB, check.scope, check.period, now);
+    if (count > check.limit) {
+      throw new VenueServiceError(429, check.message, check.retryAfter);
+    }
+  }
+  await env.DB.prepare(
+    "DELETE FROM venue_recommendation_usage WHERE updated_at < ?1"
+  ).bind(now - 40 * 24 * 60 * 60).run();
+}
+
+async function consumeVenuePhotoBudget(env, now) {
+  if (!env.DB) {
+    throw new VenueServiceError(503, "Photo cost controls are unavailable, so no paid request was made.");
+  }
+  await ensureDatabaseSchema(env.DB);
+  const iso = new Date(now * 1000).toISOString();
+  const checks = [
+    {
+      scope: "global:photo:day",
+      period: iso.slice(0, 10),
+      limit: VENUE_PHOTO_GLOBAL_DAILY_LIMIT,
+      message: "Today's live photo allowance has been used. Try again tomorrow.",
+      retryAfter: 3600
+    },
+    {
+      scope: "global:photo:month",
+      period: iso.slice(0, 7),
+      limit: VENUE_PHOTO_GLOBAL_MONTHLY_LIMIT,
+      message: "This month's live photo allowance has been used.",
       retryAfter: 86400
     }
   ];
@@ -1288,11 +1323,14 @@ async function placePhoto(request, env, ctx) {
   if (!env.GOOGLE_PLACES_API_KEY) {
     return Response.json({ detail: "Place photos are unavailable." }, { status: 503, headers: secureHeaders() });
   }
-  const photoName = new URL(request.url).searchParams.get("name") || "";
+  const requestUrl = new URL(request.url);
+  const photoName = requestUrl.searchParams.get("name") || "";
   if (!/^places\/[A-Za-z0-9._-]+\/photos\/[A-Za-z0-9._-]+$/.test(photoName) || photoName.length > 2048) {
     return Response.json({ detail: "Invalid place photo." }, { status: 422, headers: secureHeaders() });
   }
-  const cacheRequest = new Request(request.url, { method: "GET" });
+  const cacheUrl = new URL("/api/place-photo", requestUrl);
+  cacheUrl.searchParams.set("name", photoName);
+  const cacheRequest = new Request(cacheUrl, { method: "GET" });
   let edgeCache = null;
   try {
     edgeCache = typeof caches !== "undefined" ? caches.default : null;
@@ -1305,6 +1343,7 @@ async function placePhoto(request, env, ctx) {
     console.warn("Place photo edge cache unavailable", error instanceof Error ? error.message : "unknown error");
   }
   try {
+    await consumeVenuePhotoBudget(env, Math.floor(Date.now() / 1000));
     const metadataUrl = new URL(`https://places.googleapis.com/v1/${photoName}/media`);
     metadataUrl.searchParams.set("maxWidthPx", "720");
     metadataUrl.searchParams.set("skipHttpRedirect", "true");
@@ -1342,7 +1381,14 @@ async function placePhoto(request, env, ctx) {
     return result;
   } catch (error) {
     console.warn("Google Place photo request failed", error instanceof Error ? error.message : "unknown error");
-    return Response.json({ detail: "Place photo unavailable." }, { status: 503, headers: secureHeaders() });
+    const serviceError = error instanceof VenueServiceError
+      ? error
+      : new VenueServiceError(503, "Place photo unavailable.");
+    const headers = secureHeaders(new Headers({ "Cache-Control": "no-store" }));
+    if (serviceError.retryAfter) {
+      headers.set("Retry-After", String(serviceError.retryAfter));
+    }
+    return Response.json({ detail: serviceError.message }, { status: serviceError.status, headers });
   }
 }
 

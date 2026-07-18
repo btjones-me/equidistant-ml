@@ -770,6 +770,7 @@ test("identical venue searches use the D1 cache without another paid request", a
 });
 
 test("place photos still load when the deployment edge cache is unavailable", async (context) => {
+  const { db } = createVenueDb();
   const originalFetch = globalThis.fetch;
   const originalCaches = Object.getOwnPropertyDescriptor(globalThis, "caches");
   const originalWarn = console.warn;
@@ -811,12 +812,137 @@ test("place photos still load when the deployment edge cache is unavailable", as
   const response = await worker.fetch(new Request(
     `https://example.test/api/place-photo?name=${encodeURIComponent(photoName)}`,
     { headers: { Cookie: cookie } }
-  ), { ...env, GOOGLE_PLACES_API_KEY: "test-google-key" });
+  ), { ...env, DB: db, GOOGLE_PLACES_API_KEY: "test-google-key" });
 
   assert.equal(response.status, 200);
   assert.equal(response.headers.get("content-type"), "image/jpeg");
   assert.equal((await response.arrayBuffer()).byteLength, 4);
   assert.ok(warnings.some((message) => message.includes("Place photo edge cache unavailable")));
+});
+
+test("place photo cache keys ignore unrelated query parameters", async (context) => {
+  const { db, usage } = createVenueDb();
+  const originalFetch = globalThis.fetch;
+  const originalCaches = Object.getOwnPropertyDescriptor(globalThis, "caches");
+  const cache = new Map();
+  const requests = [];
+  const photoName = "places/place-1/photos/photo-1";
+  globalThis.fetch = async (url) => {
+    const href = String(url);
+    requests.push(href);
+    if (href.startsWith(`https://places.googleapis.com/v1/${photoName}/media`)) {
+      return Response.json({ photoUri: "https://images.example.com/photo.jpg" });
+    }
+    if (href === "https://images.example.com/photo.jpg") {
+      return new Response(new Uint8Array([255, 216, 255, 217]), {
+        headers: { "Content-Type": "image/jpeg" }
+      });
+    }
+    throw new Error(`Unexpected photo request: ${href}`);
+  };
+  Object.defineProperty(globalThis, "caches", {
+    configurable: true,
+    value: {
+      default: {
+        match: async (request) => cache.get(request.url)?.clone() ?? null,
+        put: async (request, response) => cache.set(request.url, response.clone())
+      }
+    }
+  });
+  context.after(() => {
+    globalThis.fetch = originalFetch;
+    if (originalCaches) {
+      Object.defineProperty(globalThis, "caches", originalCaches);
+    } else {
+      delete globalThis.caches;
+    }
+  });
+  const cookie = await accessCookie();
+  const photoEnv = { ...env, DB: db, GOOGLE_PLACES_API_KEY: "test-google-key" };
+  const makeRequest = (nonce) => new Request(
+    `https://example.test/api/place-photo?name=${encodeURIComponent(photoName)}&nonce=${nonce}`,
+    { headers: { Cookie: cookie } }
+  );
+
+  const first = await worker.fetch(makeRequest("first"), photoEnv);
+  const second = await worker.fetch(makeRequest("second"), photoEnv);
+
+  assert.equal(first.status, 200);
+  assert.equal(second.status, 200);
+  assert.equal(requests.length, 2);
+  assert.deepEqual([...cache.keys()], [
+    `https://example.test/api/place-photo?name=${encodeURIComponent(photoName)}`
+  ]);
+  assert.equal([...usage.values()].every((row) => row.request_count === 1), true);
+});
+
+test("place photos fail closed before Google when cost controls are unavailable", async (context) => {
+  const originalFetch = globalThis.fetch;
+  const originalCaches = Object.getOwnPropertyDescriptor(globalThis, "caches");
+  let fetched = false;
+  globalThis.fetch = async () => {
+    fetched = true;
+    throw new Error("Google should not be called");
+  };
+  Object.defineProperty(globalThis, "caches", {
+    configurable: true,
+    value: { default: { match: async () => null, put: async () => {} } }
+  });
+  context.after(() => {
+    globalThis.fetch = originalFetch;
+    if (originalCaches) {
+      Object.defineProperty(globalThis, "caches", originalCaches);
+    } else {
+      delete globalThis.caches;
+    }
+  });
+  const cookie = await accessCookie();
+
+  const response = await worker.fetch(new Request(
+    "https://example.test/api/place-photo?name=places%2Fplace-1%2Fphotos%2Fphoto-1",
+    { headers: { Cookie: cookie } }
+  ), { ...env, GOOGLE_PLACES_API_KEY: "test-google-key" });
+
+  assert.equal(response.status, 503);
+  assert.match((await response.json()).detail, /no paid request was made/);
+  assert.equal(fetched, false);
+});
+
+test("place photos stop before Google at the monthly free-tier buffer", async (context) => {
+  const { db, usage } = createVenueDb();
+  const originalFetch = globalThis.fetch;
+  const originalCaches = Object.getOwnPropertyDescriptor(globalThis, "caches");
+  let fetched = false;
+  const now = Math.floor(Date.now() / 1000);
+  const month = new Date(now * 1000).toISOString().slice(0, 7);
+  usage.set(`global:photo:month|${month}`, { request_count: 900, updated_at: now });
+  globalThis.fetch = async () => {
+    fetched = true;
+    throw new Error("Google should not be called");
+  };
+  Object.defineProperty(globalThis, "caches", {
+    configurable: true,
+    value: { default: { match: async () => null, put: async () => {} } }
+  });
+  context.after(() => {
+    globalThis.fetch = originalFetch;
+    if (originalCaches) {
+      Object.defineProperty(globalThis, "caches", originalCaches);
+    } else {
+      delete globalThis.caches;
+    }
+  });
+  const cookie = await accessCookie();
+
+  const response = await worker.fetch(new Request(
+    "https://example.test/api/place-photo?name=places%2Fplace-1%2Fphotos%2Fphoto-1",
+    { headers: { Cookie: cookie } }
+  ), { ...env, DB: db, GOOGLE_PLACES_API_KEY: "test-google-key" });
+
+  assert.equal(response.status, 429);
+  assert.match((await response.json()).detail, /month's live photo allowance/);
+  assert.equal(response.headers.get("Retry-After"), "86400");
+  assert.equal(fetched, false);
 });
 
 test("uncached venue research is limited to five searches per visitor per hour", async (context) => {
