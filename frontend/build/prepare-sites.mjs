@@ -1,4 +1,5 @@
-import { mkdir, readFile, readdir, rename, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, rename } from "node:fs/promises";
+import { build } from "esbuild";
 import { resolve } from "node:path";
 
 const LOCAL_ASSET_NAMESPACE = "_eq_local_protected_assets";
@@ -27,7 +28,7 @@ const workerSource = await readFile(resolve(root, "worker/index.js"), "utf8");
 if (!workerSource.includes(ASSET_NAMESPACE_PLACEHOLDER)) {
   throw new Error("Worker asset namespace placeholder is missing");
 }
-await writeFile(
-  resolve(root, "dist/server/index.js"),
-  workerSource.replaceAll(ASSET_NAMESPACE_PLACEHOLDER, `/${ASSET_NAMESPACE}`)
-);
+await build({
+  stdin: { contents: workerSource.replaceAll(ASSET_NAMESPACE_PLACEHOLDER, `/${ASSET_NAMESPACE}`), resolveDir: resolve(root, "worker"), sourcefile: "index.js" },
+  outfile: resolve(root, "dist/server/index.js"), bundle: true, format: "esm", platform: "browser", target: "es2022"
+});

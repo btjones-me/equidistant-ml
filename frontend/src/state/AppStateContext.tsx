@@ -19,7 +19,7 @@ import type {
   PaletteMode
 } from "../types";
 
-const STORAGE_KEY = "equidistant:workspace:v2";
+export const workspaceStorageKey = (accountId: string) => `equidistant:workspace:v3:${accountId}`;
 export const DEFAULT_SURFACE_OPACITY = 0.75;
 export const DEFAULT_SURFACE_VALUE_FADE = 1;
 
@@ -108,10 +108,10 @@ function isFiniteFriend(friend: Friend): boolean {
   return Boolean(friend?.id && typeof friend.name === "string" && Number.isFinite(friend.lat) && Number.isFinite(friend.lng));
 }
 
-function loadState(): PersistedAppState {
+function loadState(storageKey: string): PersistedAppState {
   const fallback = defaultState();
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = window.localStorage.getItem(storageKey);
     if (!raw) {
       return fallback;
     }
@@ -182,8 +182,13 @@ function loadState(): PersistedAppState {
 
 const AppStateContext = createContext<AppStateContextValue | null>(null);
 
-export function AppStateProvider({ children }: { children: ReactNode }) {
-  const initial = useMemo(loadState, []);
+export function AppStateProvider({ children, accountId }: { children: ReactNode; accountId: string }) {
+  return <AccountWorkspace key={accountId} accountId={accountId}>{children}</AccountWorkspace>;
+}
+
+function AccountWorkspace({ children, accountId }: { children: ReactNode; accountId: string }) {
+  const storageKey = workspaceStorageKey(accountId);
+  const initial = useMemo(() => loadState(storageKey), [storageKey]);
   const [friends, setFriends] = useState(initial.friends);
   const [included, setIncluded] = useState(initial.included);
   const [combine, setCombine] = useState(initial.combine);
@@ -212,8 +217,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       surfaceValueFade,
       suggestionMinDistanceKm
     };
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }, [colorScale, combine, customColorStops, detail, focus, friends, included, mapStyle, palette, suggestionMinDistanceKm, surfaceOpacity, surfaceValueFade]);
+    try { window.localStorage.setItem(storageKey, JSON.stringify(state)); } catch { /* Storage may be unavailable in private browsing. */ }
+  }, [storageKey, colorScale, combine, customColorStops, detail, focus, friends, included, mapStyle, palette, suggestionMinDistanceKm, surfaceOpacity, surfaceValueFade]);
 
   function changeFriendCount(count: number) {
     const nextCount = Math.max(1, Math.min(6, Math.round(count)));

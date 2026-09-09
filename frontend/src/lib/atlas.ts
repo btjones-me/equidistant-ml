@@ -295,7 +295,7 @@ function percentile(values: number[], quantile: number): number | null {
 
 function cacheKey(request: AtlasSurfaceRequest): string {
   return JSON.stringify({
-    friends: request.friends.map((friend) => [Number(friend.lat.toFixed(6)), Number(friend.lng.toFixed(6))]),
+    friends: request.friends.map((friend) => [friend.name, friend.lat, friend.lng]),
     included: request.includedFriendIndexes,
     combine: request.combine,
     focus: request.focus,

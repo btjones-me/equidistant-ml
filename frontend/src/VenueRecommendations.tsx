@@ -1,3 +1,4 @@
+import { accountFetch, activeAccountId } from "./lib/account";
 import {
   Clock3,
   ExternalLink,
@@ -38,7 +39,7 @@ const quickPrompts = [
 const sessionCache = new Map<string, VenueRecommendationsResponse>();
 
 function cacheKey(area: VenueArea, query: string): string {
-  return `${area.id}:${query.trim().toLowerCase().replace(/\s+/g, " ")}`;
+  return JSON.stringify([activeAccountId(), area.id, area.name, area.lat, area.lng, query.trim()]);
 }
 
 function displayPrice(value: string | null): string | null {
@@ -127,7 +128,7 @@ export default function VenueRecommendations({
     setLoading(true);
     setError(null);
     try {
-      const upstream = await fetch("/api/venue-recommendations", {
+      const upstream = await accountFetch("/api/venue-recommendations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { AppStateProvider, useAppState } from "./AppStateContext";
+import { AppStateProvider, useAppState, workspaceStorageKey } from "./AppStateContext";
 
 function StateProbe() {
   const {
@@ -19,11 +19,13 @@ function StateProbe() {
     setSurfaceValueFade,
     setSuggestionMinDistanceKm,
     changeFriendCount,
+    updateFriend,
     toggleFriend
   } = useAppState();
   return (
     <div>
       <output aria-label="friend count">{friends.length}</output>
+      <output aria-label="first participant">{JSON.stringify(friends[0])}</output>
       <output aria-label="included state">{included.join(",")}</output>
       <output aria-label="map style">{mapStyle}</output>
       <output aria-label="palette state">{palette}</output>
@@ -41,12 +43,13 @@ function StateProbe() {
       <button type="button" onClick={() => setSurfaceValueFade(0.72)}>Value fade</button>
       <button type="button" onClick={() => setSuggestionMinDistanceKm(4.5)}>Spacing</button>
       <button type="button" onClick={() => changeFriendCount(1)}>One friend</button>
+      <button type="button" onClick={() => updateFriend(0, { name: "Profile A participant", lat: 51.5, lng: -0.15 })}>Edit participant</button>
     </div>
   );
 }
 
-function renderProbe() {
-  return render(<AppStateProvider><StateProbe /></AppStateProvider>);
+function renderProbe(accountId = "account-a") {
+  return render(<AppStateProvider key={accountId} accountId={accountId}><StateProbe /></AppStateProvider>);
 }
 
 describe("shared application state", () => {
@@ -91,4 +94,40 @@ describe("shared application state", () => {
     expect(screen.getByLabelText("friend count")).toHaveTextContent("1");
     expect(screen.getByLabelText("included state")).toHaveTextContent("true");
   });
+
+  it("does not copy one browser's saved participants into separate browser storage", () => {
+    const storageKey = workspaceStorageKey("account-a");
+    const first = renderProbe();
+    fireEvent.click(screen.getByRole("button", { name: "Edit participant" }));
+    const profileA = window.localStorage.getItem(storageKey)!;
+    expect(JSON.parse(profileA).friends[0].name).toBe("Profile A participant");
+    first.unmount();
+
+    // A separate browser starts with its own empty origin storage, while the
+    // same module remains loaded here to catch accidental mutable defaults.
+    window.localStorage.clear();
+    const second = renderProbe();
+    expect(screen.getByLabelText("first participant")).not.toHaveTextContent("Profile A participant");
+    expect(JSON.parse(window.localStorage.getItem(storageKey)!).friends[0].lat).not.toBe(51.5);
+    second.unmount();
+
+    window.localStorage.clear();
+    window.localStorage.setItem(storageKey, profileA);
+    renderProbe();
+    expect(screen.getByLabelText("first participant")).toHaveTextContent("Profile A participant");
+    expect(screen.getByLabelText("first participant")).toHaveTextContent('"lat":51.5');
+  });
+  it("keeps Google accounts separate in the same browser without adopting unowned legacy data", () => {
+    const legacy = JSON.stringify({ friends: [{ id: "legacy", name: "Unowned participant", lat: 51.6, lng: -0.1 }] });
+    window.localStorage.setItem("equidistant:workspace:v2", legacy);
+    const view = render(<AppStateProvider accountId="account-a"><StateProbe /></AppStateProvider>);
+    expect(screen.getByLabelText("first participant")).not.toHaveTextContent("Unowned participant");
+    fireEvent.click(screen.getByRole("button", { name: "Edit participant" }));
+    view.rerender(<AppStateProvider accountId="account-b"><StateProbe /></AppStateProvider>);
+    expect(screen.getByLabelText("first participant")).not.toHaveTextContent("Profile A participant");
+    view.rerender(<AppStateProvider accountId="account-a"><StateProbe /></AppStateProvider>);
+    expect(screen.getByLabelText("first participant")).toHaveTextContent("Profile A participant");
+    expect(window.localStorage.getItem("equidistant:workspace:v2")).toBe(legacy);
+  });
+
 });

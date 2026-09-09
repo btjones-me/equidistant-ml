@@ -80,4 +80,24 @@ describe("venue recommendations", () => {
     expect(onSelectVenue).toHaveBeenCalledWith("place-1");
     expect(screen.getAllByRole("link", { name: /Google Maps/i })).toHaveLength(3);
   });
+
+  it("researches again if an area keeps its ID but changes location", async () => {
+    const onResults = vi.fn();
+    const fetchMock = vi.fn(async (_url: string, init: RequestInit) => {
+      const input = JSON.parse(String(init.body));
+      return Response.json({ ...response, area: { name: input.area_name, lat: input.lat, lng: input.lng } });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const props = { open: true, activeVenueId: null, onClose: vi.fn(), onResults, onSelectVenue: vi.fn() };
+    const firstArea = { id: "moving-area", name: "First area", lat: 51.513, lng: -0.132 };
+    const view = render(<VenueRecommendations {...props} area={firstArea} />);
+    fireEvent.change(screen.getByLabelText("What would suit the group?"), { target: { value: "A relaxed pub" } });
+    fireEvent.click(screen.getByRole("button", { name: /Find 3 places/i }));
+    await waitFor(() => expect(screen.getByText("Place 1")).toBeInTheDocument());
+
+    view.rerender(<VenueRecommendations {...props} area={{ ...firstArea, name: "Second area", lat: 51.52 }} />);
+    fireEvent.click(screen.getByRole("button", { name: /Find 3 places/i }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(screen.getByText("Place 1")).toBeInTheDocument());
+  });
 });

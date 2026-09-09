@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   cellOwnedByFocus,
   clampToAtlasBounds,
@@ -101,5 +101,35 @@ describe("offline atlas group scoring", () => {
     ];
 
     expect(selectCompatibleAnchors(ranked, 20)).toEqual(ranked);
+  });
+
+  it("updates cached map labels when a participant is renamed", async () => {
+    vi.resetModules();
+    const { getAtlasSurface } = await import("./atlas");
+    const metadata = {
+      version: 1, quantisation_step_minutes: 1,
+      origin_count: 1, cell_count: 1, interpolation_neighbours: 1,
+      model_file: "model.u8", graph_file: "graph.u8", model_type: "test",
+      origins: [{ origin_id: "o", lat: 51.51, lng: -0.1, lat_index: 0, lng_index: 0 }],
+      cells: [{ destination_id: "d", lat: 51.52, lng: -0.12, grid_band: "Zone 1 core", boundary: [] }]
+    };
+    const fetchMock = vi.fn(async (url: string) => url.includes("atlas.json")
+      ? Response.json(metadata)
+      : new Response(new Uint8Array([20])));
+    vi.stubGlobal("fetch", fetchMock);
+    try {
+      const request = {
+        friends: [{ id: "person", name: "Original name", lat: 51.51, lng: -0.1 }],
+        includedFriendIndexes: [0], combine: "balanced" as const, focus: "central" as const
+      };
+      const first = await getAtlasSurface(request);
+      const renamed = await getAtlasSurface({ ...request, friends: [{ ...request.friends[0], name: "Updated name" }] });
+      expect(first.cells[0].friend_0_name).toBe("Original name");
+      expect(renamed.cells[0].friend_0_name).toBe("Updated name");
+      expect(renamed.cells[0].model_score_minutes).toBe(first.cells[0].model_score_minutes);
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });

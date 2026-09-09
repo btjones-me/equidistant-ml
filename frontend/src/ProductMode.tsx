@@ -18,6 +18,7 @@ import {
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MapView from "./MapView";
 import VenueRecommendations from "./VenueRecommendations";
+import { accountFetch } from "./lib/account";
 import { clampToAtlasBounds, getAtlasSurface, preloadAtlas } from "./lib/atlas";
 import { locationLabelForFriend } from "./lib/locations";
 import { selectSeparatedSuggestions } from "./lib/suggestions";
@@ -93,7 +94,9 @@ function uniqueLocalPlaces(cells: SurfaceCell[], query: string): LocalPlace[] {
   return [...matches.values()];
 }
 
-export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () => void }) {
+export default function ProductMode({ onDeveloperMode, onSignOut, accountEmail }: {
+  onDeveloperMode?: () => void; onSignOut: () => void; accountEmail: string;
+}) {
   const {
     friends,
     included,
@@ -323,7 +326,7 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
     setSearching(true);
     setRemotePlaces([]);
     try {
-      const response = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`);
+      const response = await accountFetch(`/api/geocode?q=${encodeURIComponent(query)}`);
       if (!response.ok) {
         throw new Error("Location search is temporarily unavailable.");
       }
@@ -380,17 +383,17 @@ export default function ProductMode({ onDeveloperMode }: { onDeveloperMode: () =
           </button>
           {menuOpen ? (
             <div className="app-menu" role="menu">
-              <button type="button" role="menuitem" onClick={onDeveloperMode}>
+              {onDeveloperMode ? <button type="button" role="menuitem" onClick={onDeveloperMode}>
                 <FlaskConical size={17} aria-hidden="true" />
                 <span><strong>Developer mode</strong><small>Inspect layers and model diagnostics</small></span>
-              </button>
+              </button> : null}
               <button type="button" role="menuitem" onClick={() => { resetWorkspace(); setMenuOpen(false); }}>
                 <RotateCcw size={17} aria-hidden="true" />
                 <span><strong>Reset workspace</strong><small>Restore the sample group and map style</small></span>
               </button>
-              <button type="button" role="menuitem" onClick={() => window.location.assign("/logout")}>
+              <button type="button" role="menuitem" onClick={onSignOut}>
                 <LockKeyhole size={17} aria-hidden="true" />
-                <span><strong>Lock app</strong><small>Require the preview password again</small></span>
+                <span><strong>Sign out</strong><small>{accountEmail}</small></span>
               </button>
             </div>
           ) : null}

@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1788907349954,
+      "tag": "0000_google_accounts",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1788907723366,
+      "tag": "0001_bounded_signin",
+      "breakpoints": true
+    }
+  ]
+}

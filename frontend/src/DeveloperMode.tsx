@@ -1,3 +1,4 @@
+import { accountFetch } from "./lib/account";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Copy, Database, Plus, RotateCcw, RefreshCw, Trash2 } from "lucide-react";
 import MapView from "./MapView";
@@ -435,7 +436,7 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch("/api/group-surface", {
+      const response = await accountFetch("/api/group-surface", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: requestKey
@@ -504,7 +505,7 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
     setReferenceLoading(true);
     setError(null);
     try {
-      const response = await fetch("/api/comparison-surface", {
+      const response = await accountFetch("/api/comparison-surface", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...surfaceRequestPayload, model_cells: surface.cells })
@@ -535,7 +536,7 @@ export default function DeveloperMode({ onExit }: { onExit: () => void }) {
     setUsageLoading(true);
     setUsageError(null);
     try {
-      const response = await fetch("/api/usage", { cache: "no-store" });
+      const response = await accountFetch("/api/usage", { cache: "no-store" });
       if (!response.ok) {
         throw new Error("Usage data is unavailable in this environment.");
       }

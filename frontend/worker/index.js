@@ -1,10 +1,9 @@
-const ACCESS_COOKIE = "equidistant_access";
+import googleLogo from "./google-logo.js";
+import { privacyPage } from "./privacy.js";
+import { allowedPhoto, authRoute, configured, currentUser, requireAuthDatabase, isSameOrigin, signPhotoUrls } from "./auth.js";
+
 const VISITOR_COOKIE = "__Host-equidistant_visitor";
-const ACCESS_MESSAGE = "equidistant-sites-access-v1";
 const ASSET_NAMESPACE = "__EQUIDISTANT_ASSET_NAMESPACE__";
-const RATE_LIMIT_MAX_FAILURES = 5;
-const RATE_LIMIT_WINDOW_SECONDS = 10 * 60;
-const RATE_LIMIT_RETENTION_SECONDS = 24 * 60 * 60;
 const VISITOR_COOKIE_MAX_AGE = 365 * 24 * 60 * 60;
 const VENUE_CACHE_TTL_SECONDS = 24 * 60 * 60;
 const VENUE_VISITOR_HOURLY_LIMIT = 5;
@@ -19,7 +18,7 @@ const TRAVELTIME_FAST_URL = "https://api.traveltimeapp.com/v4/time-filter/fast";
 const TRAVELTIME_LIMIT_SECONDS = 10_800;
 const TRAVELTIME_UNREACHABLE_PENALTY_SECONDS = 1_800;
 const TRAVELTIME_MAX_CELLS = 5_000;
-const OPENAI_MODEL = "gpt-5.6-terra";
+const OPENAI_MODEL = "gpt-5.6-luna";
 const GOOGLE_PLACES_FIELD_MASK = [
   "places.id",
   "places.displayName",
@@ -37,7 +36,7 @@ const GOOGLE_PLACES_FIELD_MASK = [
   "places.editorialSummary",
   "places.photos"
 ].join(",");
-let databaseSchemaPromise;
+const databaseSchemas = new WeakMap();
 
 function bytesToHex(bytes) {
   return [...new Uint8Array(bytes)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
@@ -52,10 +51,6 @@ async function hmacToken(secret, message) {
     ["sign"]
   );
   return bytesToHex(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(message)));
-}
-
-async function accessToken(password) {
-  return hmacToken(password, ACCESS_MESSAGE);
 }
 
 function secureHeaders(headers = new Headers()) {
@@ -73,12 +68,9 @@ function htmlResponse(body, status = 200, extraHeaders = {}) {
 }
 
 function loginPage({ error = "", unavailable = false } = {}) {
-  return `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#087f73"><title>Equidistant · Private preview</title>
-<style>
-:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#172019;background:#edf1ed}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:linear-gradient(160deg,#f8faf8 0 54%,#e4ece6 54% 100%)}main{width:min(100%,390px);border:1px solid #d5ddd7;border-radius:8px;padding:28px;background:#fff;box-shadow:0 24px 70px rgb(23 32 25 / 14%)}.brand{display:flex;align-items:center;gap:10px;margin-bottom:30px;font-weight:850}.mark{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;color:#fff;background:#087f73;font-size:18px}p{color:#68736c;font-size:13px;line-height:1.5}h1{margin:0;font-family:Georgia,"Times New Roman",serif;font-size:30px;font-weight:600;letter-spacing:0}form{display:grid;gap:10px;margin-top:22px}label{font-size:11px;font-weight:850;text-transform:uppercase}input{width:100%;border:1px solid #bcc9c0;border-radius:7px;padding:12px;color:#172019;background:#fff;font:inherit}input:focus{outline:3px solid rgb(8 127 115 / 18%);border-color:#087f73}button{border:0;border-radius:7px;padding:12px;color:#fff;background:#087f73;font:inherit;font-weight:850;cursor:pointer}.error{margin:10px 0 0;color:#a43e2f}.note{margin:18px 0 0;font-size:11px}
-</style></head><body><main><div class="brand"><span class="mark">◎</span>Equidistant</div><h1>${unavailable ? "Preview unavailable" : "Private preview"}</h1><p>${unavailable ? "Access has not been configured for this deployment." : "Enter the shared preview password to open the London travel-time app."}</p>${unavailable ? "" : `<form method="post" action="/unlock"><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" autofocus required><button type="submit">Open Equidistant</button></form>`}${error ? `<p class="error">${error}</p>` : ""}<p class="note">This preview uses an offline model. Successful unlocks record an anonymous browser count and coarse city-level location; no raw IP is stored.</p></main></body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#087f73"><title>Equidistant · Sign in</title>
+<style>:root{font-family:system-ui,sans-serif;color:#172019;background:#edf1ed}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px}main{width:min(100%,420px);padding:32px;background:white;border:1px solid #d5ddd7;border-radius:12px}h1{font-family:Georgia,serif;font-size:32px}p{font-size:16px;line-height:1.6;color:#526359}.signin{display:flex;align-items:center;justify-content:center;gap:12px;border:1px solid #747775;border-radius:4px;background:#fff;color:#1f1f1f;padding:12px;font:500 14px Arial,sans-serif;text-decoration:none}.signin:focus-visible{outline:3px solid #087f73;outline-offset:4px}.error{color:#a43e2f}.note{font-size:14px}</style></head>
+<body><main><strong>◎ Equidistant</strong><h1>Meet in the middle.</h1><p>${unavailable ? "Sign-in is temporarily unavailable. Please try again later." : "Sign in to find a fair meeting place for your group."}</p>${unavailable ? "" : `<a class="signin" href="/auth/google/start"><img src="${googleLogo}" width="20" height="20" alt=""><span>Sign in with Google</span></a>`}${error ? '<p class="error">Sign-in did not finish. Please try again.</p>' : ''}<p class="note">Your group stays in this browser, separately for each account. We use your Google name and email for sign-in and access to features.</p><p class="note"><a href="/privacy">Privacy</a></p></main></body></html>`;
 }
 
 function readCookie(request, name) {
@@ -101,8 +93,8 @@ function protectedAssetRequest(request, pathname) {
 }
 
 async function ensureDatabaseSchema(db) {
-  if (!databaseSchemaPromise) {
-    databaseSchemaPromise = db.batch([
+  if (!databaseSchemas.has(db)) {
+    databaseSchemas.set(db, db.batch([
       db.prepare(`
         CREATE TABLE IF NOT EXISTS unlock_rate_limits (
           client_key TEXT PRIMARY KEY NOT NULL,
@@ -149,46 +141,11 @@ async function ensureDatabaseSchema(db) {
         )
       `)
     ]).catch((error) => {
-      databaseSchemaPromise = undefined;
+      databaseSchemas.delete(db);
       throw error;
-    });
+    }));
   }
-  await databaseSchemaPromise;
-}
-
-async function unlockRateLimit(env, request) {
-  const clientIp = request.headers.get("CF-Connecting-IP")?.trim();
-  if (!env.DB || !clientIp) {
-    return { limited: false, clientKey: null, now: 0, retryAfter: 0 };
-  }
-
-  try {
-    await ensureDatabaseSchema(env.DB);
-    const now = Math.floor(Date.now() / 1000);
-    const clientKey = await hmacToken(
-      env.RATE_LIMIT_SECRET || env.SITE_PASSWORD,
-      `unlock:${clientIp}`
-    );
-    const row = await env.DB.prepare(
-      "SELECT window_started_at, failures FROM unlock_rate_limits WHERE client_key = ?1"
-    ).bind(clientKey).first();
-    if (row && now - Number(row.window_started_at) < RATE_LIMIT_WINDOW_SECONDS) {
-      const retryAfter = Math.max(
-        1,
-        Number(row.window_started_at) + RATE_LIMIT_WINDOW_SECONDS - now
-      );
-      return {
-        limited: Number(row.failures) >= RATE_LIMIT_MAX_FAILURES,
-        clientKey,
-        now,
-        retryAfter
-      };
-    }
-    return { limited: false, clientKey, now, retryAfter: 0 };
-  } catch (error) {
-    console.warn("Unlock rate limiter unavailable", error instanceof Error ? error.message : "unknown error");
-    return { limited: false, clientKey: null, now: 0, retryAfter: 0 };
-  }
+  await databaseSchemas.get(db);
 }
 
 function visitorIdentity(request) {
@@ -212,7 +169,7 @@ async function recordVisitor(env, request, visitorId) {
   try {
     await ensureDatabaseSchema(env.DB);
     const visitorKey = await hmacToken(
-      env.ANALYTICS_SECRET || env.RATE_LIMIT_SECRET || env.SITE_PASSWORD,
+      env.ANALYTICS_SECRET || env.RATE_LIMIT_SECRET || env.AUTH_SECRET,
       `visitor:${visitorId}`
     );
     const now = Math.floor(Date.now() / 1000);
@@ -292,46 +249,6 @@ async function usageSummary(env) {
   }
 }
 
-async function recordUnlockFailure(env, rateLimit) {
-  if (!env.DB || !rateLimit.clientKey) {
-    return;
-  }
-  try {
-    await env.DB.prepare(`
-      INSERT INTO unlock_rate_limits (client_key, window_started_at, failures, updated_at)
-      VALUES (?1, ?2, 1, ?2)
-      ON CONFLICT(client_key) DO UPDATE SET
-        failures = CASE
-          WHEN ?2 - window_started_at >= ?3 THEN 1
-          ELSE failures + 1
-        END,
-        window_started_at = CASE
-          WHEN ?2 - window_started_at >= ?3 THEN ?2
-          ELSE window_started_at
-        END,
-        updated_at = ?2
-    `).bind(rateLimit.clientKey, rateLimit.now, RATE_LIMIT_WINDOW_SECONDS).run();
-    await env.DB.prepare(
-      "DELETE FROM unlock_rate_limits WHERE updated_at < ?1"
-    ).bind(rateLimit.now - RATE_LIMIT_RETENTION_SECONDS).run();
-  } catch (error) {
-    console.warn("Unable to record unlock failure", error instanceof Error ? error.message : "unknown error");
-  }
-}
-
-async function clearUnlockFailures(env, clientKey) {
-  if (!env.DB || !clientKey) {
-    return;
-  }
-  try {
-    await env.DB.prepare(
-      "DELETE FROM unlock_rate_limits WHERE client_key = ?1"
-    ).bind(clientKey).run();
-  } catch (error) {
-    console.warn("Unable to clear unlock failures", error instanceof Error ? error.message : "unknown error");
-  }
-}
-
 async function geocode(request) {
   const query = new URL(request.url).searchParams.get("q")?.trim() || "";
   if (query.length < 2 || query.length > 120) {
@@ -403,10 +320,6 @@ function safeHttpsUrl(value) {
   }
 }
 
-function normalisedQuery(value) {
-  return compactText(value, 300).toLowerCase();
-}
-
 export function validateVenueRecommendationInput(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     throw new VenueServiceError(422, "Enter what kind of place the group wants.");
@@ -428,12 +341,12 @@ async function sha256Token(message) {
   return bytesToHex(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(message)));
 }
 
-async function venueCacheKey(input) {
-  return sha256Token([
-    input.lat.toFixed(3),
-    input.lng.toFixed(3),
-    normalisedQuery(input.query)
-  ].join("|"));
+async function venueCacheKey(input, user) {
+  // The cached response includes the request's area and wording. Every input
+  // sent to research must match; rounding coordinates leaks a nearby request.
+  return sha256Token(JSON.stringify([
+    "venue-v3", user.id, OPENAI_MODEL, input.lat, input.lng, input.areaName, input.query
+  ]));
 }
 
 async function readVenueCache(db, cacheKey, now) {
@@ -477,25 +390,30 @@ async function incrementVenueUsage(db, scope, periodKey, now) {
   return Number(row?.request_count || 1);
 }
 
-async function consumeVenueBudget(env, request, now) {
+export async function consumeVenueBudget(env, user, now) {
   if (!env.DB) {
     throw new VenueServiceError(503, "Recommendation cost controls are unavailable, so no paid request was made.");
   }
   await ensureDatabaseSchema(env.DB);
   const iso = new Date(now * 1000).toISOString();
-  const visitorSeed = readCookie(request, VISITOR_COOKIE) || request.headers.get("CF-Connecting-IP") || "legacy-browser";
-  const visitorKey = await hmacToken(
-    env.RATE_LIMIT_SECRET || env.SITE_PASSWORD,
-    `venue:${visitorSeed}`
-  );
+  await requireAuthDatabase(env.DB);
+  if (!user.privileged) {
+    // One conditional write enforces the rolling window even for concurrent requests.
+    const accepted = await env.DB.prepare(`
+      INSERT INTO recommendation_events (request_id, user_id, created_at)
+      SELECT ?1, ?2, ?3 WHERE (
+        SELECT COUNT(*) FROM recommendation_events WHERE user_id = ?2 AND created_at > ?4
+      ) < ?5 RETURNING request_id
+    `).bind(crypto.randomUUID(), user.id, now, now - 3600, VENUE_VISITOR_HOURLY_LIMIT).first();
+    if (!accepted) {
+      const earliest = await env.DB.prepare("SELECT MIN(created_at) AS oldest FROM recommendation_events WHERE user_id = ?1 AND created_at > ?2")
+        .bind(user.id, now - 3600).first();
+      const retryAfter = Math.max(1, Number(earliest?.oldest ?? now) + 3600 - now);
+      throw new VenueServiceError(429, `You have used five live searches in the last 60 minutes. Try again in ${Math.ceil(retryAfter / 60)} minutes. Saved results still work.`, retryAfter);
+    }
+  }
+  await env.DB.prepare("DELETE FROM recommendation_events WHERE created_at <= ?1").bind(now - 3600).run();
   const checks = [
-    {
-      scope: `visitor:${visitorKey}`,
-      period: iso.slice(0, 13),
-      limit: VENUE_VISITOR_HOURLY_LIMIT,
-      message: "You have reached the hourly recommendation limit. Saved searches still work.",
-      retryAfter: 3600
-    },
     {
       scope: "global:day",
       period: iso.slice(0, 10),
@@ -701,7 +619,7 @@ async function consumeTravelTimeBudget(env, request, originCount, now) {
   const iso = new Date(now * 1000).toISOString();
   const visitorSeed = readCookie(request, VISITOR_COOKIE) || request.headers.get("CF-Connecting-IP") || "legacy-browser";
   const visitorKey = await hmacToken(
-    env.RATE_LIMIT_SECRET || env.SITE_PASSWORD,
+    env.RATE_LIMIT_SECRET || env.AUTH_SECRET,
     `traveltime:${visitorSeed}`
   );
   const checks = [
@@ -1267,7 +1185,7 @@ async function researchVenueCandidates(env, input, candidates) {
   return places;
 }
 
-async function venueRecommendations(request, env) {
+async function venueRecommendations(request, env, user) {
   const contentLength = Number(request.headers.get("Content-Length") || 0);
   if (contentLength > 8192) {
     return Response.json({ detail: "That request is too long." }, { status: 413, headers: secureHeaders() });
@@ -1286,14 +1204,14 @@ async function venueRecommendations(request, env) {
       throw new VenueServiceError(503, "Recommendation cost controls are unavailable, so no paid request was made.");
     }
     await ensureDatabaseSchema(env.DB);
-    const cacheKey = await venueCacheKey(input);
+    const cacheKey = await venueCacheKey(input, user);
     const cached = await readVenueCache(env.DB, cacheKey, now);
     if (cached) {
-      return Response.json({ ...cached, cached: true }, {
-        headers: secureHeaders(new Headers({ "Cache-Control": "private, max-age=300" }))
+      return Response.json(await signPhotoUrls({ ...cached, cached: true }, user, env), {
+        headers: secureHeaders(new Headers({ "Cache-Control": "no-store" }))
       });
     }
-    await consumeVenueBudget(env, request, now);
+    await consumeVenueBudget(env, user, now);
     const candidates = await searchGooglePlaces(env, input);
     const places = await researchVenueCandidates(env, input, candidates);
     const payload = {
@@ -1304,7 +1222,7 @@ async function venueRecommendations(request, env) {
       cached: false
     };
     await writeVenueCache(env.DB, cacheKey, payload, now);
-    return Response.json(payload, {
+    return Response.json(await signPhotoUrls(payload, user, env), {
       headers: secureHeaders(new Headers({ "Cache-Control": "no-store" }))
     });
   } catch (error) {
@@ -1392,71 +1310,44 @@ async function placePhoto(request, env, ctx) {
   }
 }
 
-export default {
-  async fetch(request, env, ctx) {
+async function handleRequest(request, env, ctx) {
     const url = new URL(request.url);
-    const password = env.SITE_PASSWORD;
-    if (!password) {
-      return htmlResponse(loginPage({ unavailable: true }), 503);
+    if (url.pathname === "/privacy" && ["GET", "HEAD"].includes(request.method)) {
+      return htmlResponse(request.method === "HEAD" ? null : privacyPage);
     }
-    const expectedToken = await accessToken(password);
-
-    if (url.pathname === "/unlock" && request.method === "POST") {
-      const rateLimit = await unlockRateLimit(env, request);
-      if (rateLimit.limited) {
-        return htmlResponse(
-          loginPage({ error: "Too many incorrect attempts. Try again in a few minutes." }),
-          429,
-          { "Retry-After": String(rateLimit.retryAfter) }
-        );
+    if (!configured(env)) return htmlResponse(loginPage({ unavailable: true }), 503);
+    // Keep one canonical origin: accounts and local workspaces must not split across hostnames.
+    if (url.origin !== env.AUTH_ORIGIN) {
+      if (!["GET", "HEAD"].includes(request.method)) return Response.json({ detail: "Use the main app address." }, { status: 403 });
+      return new Response(null, { status: 303, headers: { Location: env.AUTH_ORIGIN + "/", "Cache-Control": "no-store" } });
+    }
+    const authResponse = await authRoute(request, env);
+    if (authResponse) {
+      if (url.pathname === "/auth/google/callback" && authResponse.headers.get("Location") === "/") {
+        const visitorId = visitorIdentity(request);
+        await recordVisitor(env, request, visitorId);
+        authResponse.headers.append("Set-Cookie", `${VISITOR_COOKIE}=${visitorId}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${VISITOR_COOKIE_MAX_AGE}`);
       }
-      const form = await request.formData();
-      const suppliedPassword = String(form.get("password") || "");
-      if (suppliedPassword !== password) {
-        await recordUnlockFailure(env, rateLimit);
-        return htmlResponse(loginPage({ error: "That password is not correct." }), 401);
-      }
-      await clearUnlockFailures(env, rateLimit.clientKey);
-      const visitorId = visitorIdentity(request);
-      const visitorWrite = recordVisitor(env, request, visitorId);
-      if (ctx?.waitUntil) {
-        ctx.waitUntil(visitorWrite);
-      } else {
-        await visitorWrite;
-      }
-      const headers = secureHeaders(new Headers({
-        Location: "/",
-        "Cache-Control": "no-store"
-      }));
-      headers.append(
-        "Set-Cookie",
-        `${ACCESS_COOKIE}=${expectedToken}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`
-      );
-      headers.append(
-        "Set-Cookie",
-        `${VISITOR_COOKIE}=${visitorId}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${VISITOR_COOKIE_MAX_AGE}`
-      );
-      return new Response(null, {
-        status: 303,
-        headers
-      });
+      return authResponse;
     }
-
-    if (url.pathname === "/logout") {
-      return new Response(null, {
-        status: 303,
-        headers: secureHeaders(new Headers({
-          Location: "/",
-          "Set-Cookie": `${ACCESS_COOKIE}=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0`,
-          "Cache-Control": "no-store"
-        }))
-      });
+    const user = await currentUser(request, env);
+    if (!user) {
+      if (url.pathname.startsWith("/api/")) return Response.json({ detail: "Please sign in with Google." }, { status: 401 });
+      return htmlResponse(loginPage({ error: url.searchParams.get("signin") === "failed" }));
     }
-
-    if (readCookie(request, ACCESS_COOKIE) !== expectedToken) {
-      return htmlResponse(loginPage());
+    if (!["GET", "HEAD"].includes(request.method) && !isSameOrigin(request)) {
+      return Response.json({ detail: "Request origin is not allowed." }, { status: 403 });
     }
-
+    const accountHeader = request.headers.get("X-Equidistant-Account");
+    if (accountHeader && accountHeader !== user.id) return Response.json({ detail: "Your signed-in account changed. Reload to continue." }, { status: 409 });
+    if (url.pathname === "/api/session" && request.method === "GET") {
+      return Response.json({ user: { id: user.id, email: user.email, name: user.name },
+        permissions: { debug: user.privileged, liveTravelTime: user.privileged, unlimitedRecommendations: user.privileged } });
+    }
+    if (!user.privileged && (url.pathname === "/api/usage" || url.pathname === "/api/comparison-surface" ||
+        url.pathname.startsWith("/assets/DeveloperMode-") || url.pathname === "/debug")) {
+      return Response.json({ detail: "This feature is available to approved accounts only." }, { status: 403 });
+    }
     if (url.pathname === "/api/geocode") {
       return geocode(request);
     }
@@ -1464,12 +1355,13 @@ export default {
       return usageSummary(env);
     }
     if (url.pathname === "/api/venue-recommendations" && request.method === "POST") {
-      return venueRecommendations(request, env);
+      return venueRecommendations(request, env, user);
     }
     if (url.pathname === "/api/comparison-surface" && request.method === "POST") {
       return travelTimeComparison(request, env);
     }
     if (url.pathname === "/api/place-photo" && request.method === "GET") {
+      if (!await allowedPhoto(request, user, env)) return Response.json({ detail: "Open photos from your recommendations." }, { status: 403 });
       return placePhoto(request, env, ctx);
     }
     if (url.pathname.startsWith("/api/")) {
@@ -1494,5 +1386,21 @@ export default {
       return new Response(html, { status: assetResponse.status, statusText: assetResponse.statusText, headers });
     }
     return new Response(assetResponse.body, { status: assetResponse.status, statusText: assetResponse.statusText, headers });
+}
+
+export default {
+  async fetch(request, env, ctx) {
+    try {
+      const response = await handleRequest(request, env, ctx);
+      const headers = secureHeaders(new Headers(response.headers));
+      // Identity-bearing pages, APIs, and auth failures must never enter a shared cache.
+      headers.set("Cache-Control", "private, no-store");
+      headers.set("Vary", "Cookie");
+      return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+    } catch {
+      return Response.json({ detail: "The app is temporarily unavailable. Please try again." }, {
+        status: 503, headers: secureHeaders(new Headers({ "Cache-Control": "private, no-store" }))
+      });
+    }
   }
 };

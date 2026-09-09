@@ -28,7 +28,7 @@ locally in the browser.
   credentials, or a live TravelTime dependency.
 - `dvc.yaml` and `params.yaml` define the reproducible data and training stages.
 - `.openai/hosting.json` and `frontend/worker/` package the app for Sites. The
-  worker enforces the shared-password gate before serving any app asset.
+  worker requires Google sign-in before serving any app asset.
 
 The browser atlas interpolates from 560 origin anchors over 3,032 mixed-priority
 H3 destinations. Its measured interpolation MAE against direct local-model
@@ -72,7 +72,7 @@ TravelTime comparisons.
 make check
 ```
 
-This runs Python linting and tests, frontend unit and password-gate tests, and a
+This runs Python linting and tests, frontend unit and authentication/permission tests, and a
 production/Sites build. Individual commands remain available:
 
 ```shell
@@ -174,41 +174,65 @@ surface payload.
 
 ## Deployment
 
-Sites deployment is built from `frontend/`. `SITE_PASSWORD` is supplied as a
-hosted environment value; it is never stored in source or bundled assets. The
-deployable build should also receive a fresh private asset namespace:
+Sites deployment is built from `frontend/`. Google sign-in uses a server-side
+OpenID Connect authorization-code flow with PKCE, a browser-bound one-use state,
+nonce checks, and verified Google ID tokens. Session cookies are opaque, secure,
+HTTP-only, and expire after seven days; logout revokes the stored session.
+The old shared password no longer grants access.
+
+Set `AUTH_ORIGIN=https://equidistant.me`, `GOOGLE_CLIENT_ID`,
+`GOOGLE_CLIENT_SECRET`, and a random `AUTH_SECRET` of at least 32 characters in
+Sites. Register exactly `https://equidistant.me/auth/google/callback` in Google's
+web client. `ADMIN_EMAILS` is a comma-separated allowlist of verified Google
+email addresses; an empty list grants nobody privileged access. It is evaluated
+on each request. All Google accounts may sign in, but only approved accounts
+can open diagnostics, view usage aggregates, or call live TravelTime comparisons.
+Configure Google's external audience for production and request only
+`openid email profile`.
+
+The deployable build must receive a fresh private asset namespace:
 
 ```bash
 cd frontend
 SITE_ASSET_NAMESPACE="_eq_$(openssl rand -hex 32)" npm run build
 ```
 
-That namespace ensures every public app and model URL reaches the password
-worker before it is mapped to a stored asset. Failed password attempts are
-limited to five per client IP in ten minutes using D1; only an HMAC-derived
-client key and short-lived counters are stored. Successful unlocks also update
-one privacy-preserving browser visitor row with Cloudflare's country, region,
-and city metadata; no raw IP or event stream is retained. Aggregates are visible
-from the Usage panel in Developer mode. The static offline atlas then lets the
-production experience serve a small group of concurrent users without a Python
-service or per-request API cost.
+Every public app and model URL passes through the authentication worker before
+being mapped to a stored asset. Package `frontend/drizzle/` with the build;
+Sites applies the additive account/session/quota migrations before Worker upload.
+Generate future migrations with `npx drizzle-kit generate` in `frontend/` and
+never rewrite an applied migration.
+
+Participant workspaces remain local to each browser and are keyed by account ID.
+Legacy unowned browser data is preserved but is not automatically assigned to
+the next person who signs in. Identity-dependent responses are never cached by
+shared HTTP caches. The original sharing host redirects to the canonical origin.
+Successful sign-ins update anonymous browser-count aggregates and coarse
+Cloudflare city/region/country information; raw IPs are not stored.
 
 ### Meeting-area recommendations
 
 The review app can research three pubs, restaurants, attractions, or other
 destinations around a selected meeting area. Google Places supplies canonical
-place details, ratings, map links, and photos; the OpenAI Responses API uses web
-search to verify current details and rank the candidates against the group's
-request. Both provider keys remain worker-only secrets. Google photos are
+place details, ratings, map links, and photos; the OpenAI Responses API uses
+GPT-5.6 Luna with web search to verify current details and rank the candidates
+against the group's request. Both provider keys remain worker-only secrets. Google photos are
 proxied through the worker, so neither key is included in browser code or URLs.
 
-Uncached research is limited to five searches per browser per hour, 30 globally
-per day, and 300 globally per month. Identical searches within roughly the same
-area are cached in D1 for 24 hours and do not consume another provider call.
+For accounts outside `ADMIN_EMAILS`, uncached research attempts are limited to
+five in any rolling 60-minute window across devices and sessions. Reservations
+are atomic in D1, including simultaneous requests; failed provider attempts also
+count. Approved accounts bypass that personal limit. Global caps of 30 per day
+and 300 per month still apply to every account. Exact coordinates, area label,
+query and model are cached per account for 24 hours; cached results do not consume
+another provider call. Photo URLs are signed for the requesting account and
+selected photo, with a 24-hour lifetime. Arbitrary paid photo lookups require an
+approved account, and existing global photo caps remain in force.
 The paid path fails closed if D1 is unavailable, ensuring the application-level
 cost controls cannot be bypassed by a storage outage.
 
 Required hosted values are `OPENAI_API_KEY`, `GOOGLE_PLACES_API_KEY`,
-`SITE_PASSWORD`, `RATE_LIMIT_SECRET`, and `ANALYTICS_SECRET`. The Google key
+`AUTH_ORIGIN`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `AUTH_SECRET`,
+`RATE_LIMIT_SECRET`, and `ANALYTICS_SECRET`. The Google key
 should be API-restricted to Places API (New); it is intentionally not shared
 with the existing Directions data-generation key.
