@@ -61,8 +61,29 @@ authorized domain and `/privacy` as its public privacy notice. Only
 `openid email profile` is requested. Client credentials are stored in hosted
 environment revision 9; the temporary credential download was removed.
 
-The release is prepared for the existing public Site at `https://equidistant.me`.
-Publication and the real Google-login check are the final rollout steps.
+Version 22 was published to the existing public Site at `https://equidistant.me`
+on 9 September 2026 at 08:11 UTC, using hosted environment revision 9.
+Release source: `8b416194ff8ecbf6b4dfbc53dbf1f8f5294e6e20`.
+Deployment: `appgdep_6aa114b0e6ac819189c9e04c72e605ad` (succeeded).
+
+Production verification completed in Chrome with the approved owner account:
+
+- An existing legacy password session received the Google sign-in page after
+  reload. The real Google account selection and name/email consent completed,
+  returned to the canonical origin, and opened the account workspace.
+- The account response granted debug, live TravelTime, and personal quota
+  exemption; the menu displayed developer access and the correct email.
+- One uncached recommendation for the built-in sample group returned three
+  places. The recommendation response and all three photo requests returned 200
+  with `Cache-Control: private, no-store`.
+- Independent requests without cookies received the Google login page, a public
+  privacy notice, and 401 for both the session and usage APIs. Responses used
+  `Cache-Control: private, no-store` and `Vary: Cookie`.
+
+Ordinary-account permissions, rolling limits, and cross-account isolation were
+verified by the automated tests described above. No second person's Google
+account was used for the production check. The historical phone disclosure
+remains unexplained; this release is not evidence of its root cause.
 
 References: [Google OpenID Connect](https://developers.google.com/identity/openid-connect/openid-connect),
 [Google sign-in branding](https://developers.google.com/identity/branding-guidelines),

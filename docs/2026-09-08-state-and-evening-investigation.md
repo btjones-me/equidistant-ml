@@ -1,6 +1,6 @@
 # State, recommendation model, and evening investigation — 8 September 2026
 
-## Implemented locally
+## Implemented and released
 
 - Recommendations use `gpt-5.6-luna`. The existing local OpenAI key can access
   that model (authenticated model lookup returned HTTP 200). The request retains
@@ -162,9 +162,10 @@ analysis are retained under `artifacts/runs/evening_preliminary_20260909/` local
 ## Release scope
 
 The follow-up Google sign-in, account permissions, and rolling 60-minute limit
-are now implemented locally; see `2026-09-08-google-auth-rollout.md` for their
+are now implemented and released; see `2026-09-08-google-auth-rollout.md` for their
 configuration and rollout status. The initial validation figures below describe
-the earlier Luna/cache patch. No changes have yet been published.
+the earlier Luna/cache patch. Version 22 was published on 9 September 2026;
+real Google sign-in and one uncached recommendation were verified in production.
 
 Validation: all 22 original/new frontend tests and 22 Worker tests passed,
 followed by the updated four-test state suite including an additional storage
