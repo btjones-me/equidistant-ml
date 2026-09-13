@@ -58,3 +58,20 @@ calls for the anonymous landing, no network operations in decorative code,
 authenticated-root preservation, HTTP methods, metadata and crawl endpoints.
 Use `node build/landing-geometry.mjs` to regenerate the committed decorative
 geometry from the atlas when intentionally changing its coverage.
+
+## Release verification
+
+Release commit `330153ea8e4156aa01e249cfa28b2dc8672e7d02` was pushed to
+GitHub main and the existing Sites source. Sites version 23 deployed successfully
+on 13 September 2026 with the existing environment revision 9. Deployment ID:
+`appgdep_6aa5eb564a6481919150663d818fdef4`.
+
+All 26 frontend and 35 Worker tests passed. The release build and archive checks
+passed. Independent anonymous requests to `https://equidistant.me` verified the
+new homepage, decorative script, robots, sitemap and existing social image
+returned 200; session and venue APIs returned 401; the atlas returned a 404
+sign-in response. The site's edge filter rejected Python's default user agent
+with 403/1010; the same checks with a standard browser user agent succeeded.
+No paid provider calls or account sign-in were made during live checks.
+This is HTTP and automated verification, not a browser visual/interaction audit
+or a complete security assessment.
