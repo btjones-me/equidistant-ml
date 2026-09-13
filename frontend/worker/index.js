@@ -1,4 +1,4 @@
-import googleLogo from "./google-logo.js";
+import { landingPage, landingScript } from "./landing.js";
 import { privacyPage } from "./privacy.js";
 import { allowedPhoto, authRoute, configured, currentUser, requireAuthDatabase, isSameOrigin, signPhotoUrls } from "./auth.js";
 
@@ -67,11 +67,7 @@ function htmlResponse(body, status = 200, extraHeaders = {}) {
   return new Response(body, { status, headers });
 }
 
-function loginPage({ error = "", unavailable = false } = {}) {
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#087f73"><title>Equidistant · Sign in</title>
-<style>:root{font-family:system-ui,sans-serif;color:#172019;background:#edf1ed}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px}main{width:min(100%,420px);padding:32px;background:white;border:1px solid #d5ddd7;border-radius:12px}h1{font-family:Georgia,serif;font-size:32px}p{font-size:16px;line-height:1.6;color:#526359}.signin{display:flex;align-items:center;justify-content:center;gap:12px;border:1px solid #747775;border-radius:4px;background:#fff;color:#1f1f1f;padding:12px;font:500 14px Arial,sans-serif;text-decoration:none}.signin:focus-visible{outline:3px solid #087f73;outline-offset:4px}.error{color:#a43e2f}.note{font-size:14px}</style></head>
-<body><main><strong>◎ Equidistant</strong><h1>Meet in the middle.</h1><p>${unavailable ? "Sign-in is temporarily unavailable. Please try again later." : "Sign in to find a fair meeting place for your group."}</p>${unavailable ? "" : `<a class="signin" href="/auth/google/start"><img src="${googleLogo}" width="20" height="20" alt=""><span>Sign in with Google</span></a>`}${error ? '<p class="error">Sign-in did not finish. Please try again.</p>' : ''}<p class="note">Your group stays in this browser, separately for each account. We use your Google name and email for sign-in and access to features.</p><p class="note"><a href="/privacy">Privacy</a></p></main></body></html>`;
-}
+const loginPage = landingPage;
 
 function readCookie(request, name) {
   const cookie = request.headers.get("Cookie") || "";
@@ -1312,6 +1308,19 @@ async function placePhoto(request, env, ctx) {
 
 async function handleRequest(request, env, ctx) {
     const url = new URL(request.url);
+    // These existing branding files are the only public packaged assets.
+    if (["/og.png", "/favicon.png"].includes(url.pathname) && ["GET", "HEAD"].includes(request.method)) {
+      return env.ASSETS.fetch(protectedAssetRequest(request, url.pathname));
+    }
+    // Explicit, credential-free public content. No app asset directory is public.
+    if (["/welcome-motion.js", "/robots.txt", "/sitemap.xml"].includes(url.pathname)) {
+      if (!["GET", "HEAD"].includes(request.method)) return new Response(null, { status: 405 });
+      const content = url.pathname === "/welcome-motion.js" ? landingScript : url.pathname === "/robots.txt"
+        ? "User-agent: *\nAllow: /$\nAllow: /privacy$\nAllow: /welcome-motion.js$\nDisallow: /api/\nDisallow: /auth/\nDisallow: /assets/\nDisallow: /model/\nDisallow: /debug\nSitemap: https://equidistant.me/sitemap.xml\n"
+        : '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://equidistant.me/</loc></url><url><loc>https://equidistant.me/privacy</loc></url></urlset>';
+      const type = url.pathname.endsWith(".js") ? "text/javascript" : url.pathname.endsWith(".xml") ? "application/xml" : "text/plain";
+      return new Response(request.method === "HEAD" ? null : content, { headers: { "Content-Type": type + "; charset=utf-8" } });
+    }
     if (url.pathname === "/privacy" && ["GET", "HEAD"].includes(request.method)) {
       return htmlResponse(request.method === "HEAD" ? null : privacyPage);
     }
@@ -1333,7 +1342,7 @@ async function handleRequest(request, env, ctx) {
     const user = await currentUser(request, env);
     if (!user) {
       if (url.pathname.startsWith("/api/")) return Response.json({ detail: "Please sign in with Google." }, { status: 401 });
-      return htmlResponse(loginPage({ error: url.searchParams.get("signin") === "failed" }));
+      return htmlResponse(request.method === "HEAD" ? null : loginPage({ error: url.searchParams.get("signin") === "failed" }), url.pathname === "/" ? 200 : 404);
     }
     if (!["GET", "HEAD"].includes(request.method) && !isSameOrigin(request)) {
       return Response.json({ detail: "Request origin is not allowed." }, { status: 403 });
@@ -1394,8 +1403,11 @@ export default {
       const response = await handleRequest(request, env, ctx);
       const headers = secureHeaders(new Headers(response.headers));
       // Identity-bearing pages, APIs, and auth failures must never enter a shared cache.
-      headers.set("Cache-Control", "private, no-store");
-      headers.set("Vary", "Cookie");
+      const path = new URL(request.url).pathname;
+      const staticPublic = response.status === 200 && ["/welcome-motion.js", "/robots.txt", "/sitemap.xml", "/og.png", "/favicon.png"].includes(path);
+      headers.set("Cache-Control", staticPublic ? "public, max-age=300" : "private, no-store");
+      if (!staticPublic) headers.set("Vary", "Cookie");
+      if (path !== "/" && path !== "/privacy" && !staticPublic) headers.set("X-Robots-Tag", "noindex");
       return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
     } catch {
       return Response.json({ detail: "The app is temporarily unavailable. Please try again." }, {
