@@ -15,7 +15,7 @@ test("anonymous landing and decoration need no database or upstream calls", asyn
     const response = await worker.fetch(request("/"), env);
     assert.equal(response.status, 200);
     const html = await response.text();
-    assert.match(html, /Find a fair meeting place in London/);
+    assert.match(html, /Find a place to meet/);
     assert.match(html, /href="\/auth\/google\/start"/);
     assert.match(html, /rel="canonical"/);
     assert.doesNotMatch(html, /\/assets\/|\/model\//);
@@ -57,5 +57,5 @@ test("robots and sitemap expose public pages while signed-in root remains privat
   const signed = await worker.fetch(request("/", { headers: { Cookie: testCookie } }), env);
   assert.equal(signed.status, 200);
   assert.match(signed.headers.get("Cache-Control"), /private, no-store/);
-  assert.doesNotMatch(await signed.text(), /Give London a little ripple/);
+  assert.doesNotMatch(await signed.text(), /This map is a demo/);
 });
