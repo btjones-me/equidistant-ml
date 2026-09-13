@@ -5,10 +5,11 @@ import { cells } from "./landing-geometry.js";
 export const landingScript = `const cells=${JSON.stringify(cells)};
 const canvas=document.getElementById('london');
 const ctx=canvas.getContext('2d');
-const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const places=[['Camden',-.1425,51.5393],['Soho',-.135,51.514],['Shoreditch',-.078,51.524],['Brixton',-.1149,51.4626],['Bermondsey',-.063,51.498],['Hammersmith',-.223,51.492],['Greenwich',-.01,51.481]];
 const xy=(lng,lat)=>[(lng+.335)*2000,(51.59-lat)*3200];
-let active=null,ripple=null,frame=0;
+let active=null,selected=xy(-.078,51.524),frame=0;
+const stops=[[224,234,218],[145,191,157],[239,201,113],[220,119,77]];
+function heatColour(value){const t=Math.max(0,Math.min(1,value))*(stops.length-1),i=Math.min(stops.length-2,Math.floor(t)),f=t-i;return 'rgb('+stops[i].map((c,k)=>Math.round(c+(stops[i+1][k]-c)*f)).join(',')+')';}
 const paths=cells.map(cell=>{const p=new Path2D();cell.p.forEach((v,i)=>i?p.lineTo(...v):p.moveTo(...v));p.closePath();return p;});
 function paint(now=0){
  frame=0; const ratio=Math.min(devicePixelRatio||1,2),w=canvas.clientWidth,h=canvas.clientHeight;
@@ -16,24 +17,22 @@ function paint(now=0){
  ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,canvas.width,canvas.height);
  const scale=Math.max(w/900,h/550),ox=(w-900*scale)/2,oy=(h-550*scale)/2;
  ctx.setTransform(ratio*scale,0,0,ratio*scale,ratio*ox,ratio*oy);
- const age=ripple?(now-ripple.start)/750:2;
- cells.forEach((cell,i)=>{const [x,y]=cell.c; const d=active?Math.hypot(x-active[0],y-active[1]):999;
- const ring=ripple&&age<1?Math.abs(Math.hypot(x-ripple.x,y-ripple.y)-age*260):999;
- const tone=(Math.sin(x*127.1+y*311.7)*43758.5453)%1;
- const base=Math.abs(tone);
- ctx.fillStyle=d<45?'#087f73':ring<15?'#d8a747':base>.85?'#bfd2c4':base>.45?'#d3dfd3':'#e0e7dc';
- ctx.strokeStyle='#f4f5ee';ctx.lineWidth=1.5;ctx.fill(paths[i]);ctx.stroke(paths[i]);});
+ const focus=active||selected;
+ cells.forEach((cell,i)=>{const [x,y]=cell.c;
+ const dx=(x-focus[0])/155,dy=(y-focus[1])/120;
+ const heat=Math.exp(-.5*(dx*dx+dy*dy));
+ ctx.fillStyle=heatColour(heat);
+ ctx.strokeStyle='rgba(244,245,238,.58)';ctx.lineWidth=.8;ctx.fill(paths[i]);ctx.stroke(paths[i]);});
  ctx.font='500 14px system-ui';ctx.textAlign='center';
  places.forEach(([name,lng,lat])=>{const [x,y]=xy(lng,lat);ctx.fillStyle='#f4f5ee';ctx.fillRect(x-ctx.measureText(name).width/2-8,y-14,ctx.measureText(name).width+16,24);ctx.fillStyle='#263f35';ctx.fillText(name,x,y+3);});
- if(ripple&&age<1&&!reduced)frame=requestAnimationFrame(paint);
 }
 function schedule(){if(!frame)frame=requestAnimationFrame(paint);}
 function locate(event){const b=canvas.getBoundingClientRect();const scale=Math.max(b.width/900,b.height/550);return [(event.clientX-b.left-(b.width-900*scale)/2)/scale,(event.clientY-b.top-(b.height-550*scale)/2)/scale];}
 canvas.addEventListener('pointermove',event=>{if(event.pointerType==='mouse'){active=locate(event);schedule();}});
 canvas.addEventListener('pointerleave',()=>{active=null;schedule();});
-canvas.addEventListener('click',event=>{active=locate(event);ripple=reduced?null:{x:active[0],y:active[1],start:performance.now()};schedule();});
+canvas.addEventListener('click',event=>{selected=locate(event);active=null;document.getElementById('map-note').textContent='Heatmap centre selected';schedule();});
 document.querySelectorAll('[data-place]').forEach(button=>button.addEventListener('click',()=>{
- const [name,lng,lat]=places[Number(button.dataset.place)];active=xy(lng,lat);ripple=reduced?null:{x:active[0],y:active[1],start:performance.now()};
+ const [name,lng,lat]=places[Number(button.dataset.place)];selected=xy(lng,lat);active=null;
  document.getElementById('map-note').textContent=name;schedule();
 }));
 new ResizeObserver(schedule).observe(canvas);schedule();`;
@@ -66,7 +65,7 @@ export function landingPage({ error = false, unavailable = false } = {}) {
 <main id="main"><section class="hero" aria-labelledby="headline"><div class="hero-copy"><p class="eyebrow">London beta</p><h1 id="headline">Find a place<br>to <em>meet.</em></h1><p class="intro">Add where everyone’s coming from. Equidistant compares estimated public transport travel times to help you choose an area, then find pubs, restaurants and things to do nearby.</p>
 <div id="start">${unavailable ? '<p class="error" role="status">Sign-in is temporarily unavailable. Please try again later.</p>' : `<a class="signin" href="/auth/google/start"><img src="${googleLogo}" alt="" width="20" height="20"><span>Sign in with Google</span></a>`}</div>${error ? '<p class="error" role="alert">Sign-in did not finish. Please try again.</p>' : ''}
 <p class="small">For groups of 2–6 people.</p></div>
-<div class="map"><div class="map-top"><span>London</span><span>Hover or tap the hexagons</span></div><noscript><p class="small">Enable JavaScript to play with the London map. You can still read about Equidistant and sign in below.</p></noscript><canvas id="london" width="900" height="550" aria-label="Interactive hexagon map of London. Use the neighbourhood buttons below for keyboard interaction.">A decorative London map. Try a neighbourhood below.</canvas><div class="map-footer"><div class="places" aria-label="Explore London neighbourhoods"><button type="button" data-place="0">Camden</button><button type="button" data-place="1">Soho</button><button type="button" data-place="2">Shoreditch</button><button type="button" data-place="3">Brixton</button></div><p id="map-note" aria-live="polite"></p><p class="caption">This map is a demo. Sign in to plan a meeting.</p></div></div></section>
+<div class="map"><div class="map-top"><span>London</span><span>Hover to move · click to set</span></div><noscript><p class="small">Enable JavaScript to play with the London map. You can still read about Equidistant and sign in below.</p></noscript><canvas id="london" width="900" height="550" aria-label="Interactive demo heatmap of London, with warmer colours near your selected point. Use the neighbourhood buttons below for keyboard interaction.">A decorative London map. Try a neighbourhood below.</canvas><div class="map-footer"><div class="places" aria-label="Explore London neighbourhoods"><button type="button" data-place="0">Camden</button><button type="button" data-place="1">Soho</button><button type="button" data-place="2">Shoreditch</button><button type="button" data-place="3">Brixton</button></div><p id="map-note" aria-live="polite"></p><p class="caption">This map is a demo, not journey times. Sign in to plan a meeting.</p></div></div></section>
 <section id="how-it-works" class="how"><h2 class="section-heading">How it works</h2><div class="steps"><div><span class="step-number">01</span><h3>Add everyone’s starting point</h3><p>Choose locations within the current beta coverage area.</p></div><div><span class="step-number">02</span><h3>Compare travel times</h3><p>Look for similar journey times for everyone, reduce the longest journey, or minimise the group’s total travel time.</p></div><div><span class="step-number">03</span><h3>Find somewhere to go</h3><p>Search for pubs, restaurants and things to do around the area you choose.</p></div></div></section>
 <section class="faq"><h2 class="section-heading">Common questions</h2><div><details><summary>Where does Equidistant work?</summary><p>The beta currently covers central London and parts of inner London. Sign in to see the coverage boundary on the map. Other cities and the rest of Greater London are not currently covered.</p></details><details><summary>Is halfway the same as a fair journey?</summary><p>Not always. Stations, connections and the transport network can make two similar distances very different trips. Equidistant compares estimated public-transport travel times rather than straight-line distance.</p></details><details><summary>Are these live journey times?</summary><p>No. The map uses estimated travel times, without live service updates. Check current routes and venue opening times before travelling.</p></details><details><summary>Why do I need to sign in?</summary><p>You need a Google account to use the planner and search for venues. This helps us limit misuse during the beta. Your group is saved in this browser, separately for each account. We use your Google name and email, and do not request access to Gmail, contacts or files. Read our <a href="/privacy">privacy notice</a>.</p></details></div></section></main><footer><span>◎ Equidistant</span><a href="/privacy">Privacy</a></footer></div></body></html>`;
 }
