@@ -15,6 +15,13 @@
       "when": 1788907723366,
       "tag": "0001_bounded_signin",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1789939453100,
+      "tag": "0002_persistent_accounts",
+      "breakpoints": true
     }
   ]
 }

@@ -133,6 +133,7 @@ test("Google callback is browser-bound, PKCE-protected, one-use, and creates an 
   const callback = `/auth/google/callback?state=${authUrl.searchParams.get("state")}&code=one-use-code`;
   assert.equal((await worker.fetch(req(callback, ""), env)).headers.get("Location"), "/?signin=failed");
   assert.equal(exchanges, 0);
+  assert.equal(env.DB.sqlite.prepare("SELECT COUNT(*) AS n FROM auth_users").get().n, 0);
   const done = await worker.fetch(req(callback, flowCookie), env);
   assert.equal(done.headers.get("Location"), "/");
   const sessionCookie = done.headers.getSetCookie().find((value) => value.startsWith("__Host-equidistant_session="));
@@ -141,6 +142,7 @@ test("Google callback is browser-bound, PKCE-protected, one-use, and creates an 
   assert.equal((await currentUser(req("/", sessionCookie.split(";")[0]), env)).email, "person@example.test");
   assert.equal((await worker.fetch(req(callback, flowCookie), env)).headers.get("Location"), "/?signin=failed");
   assert.equal(exchanges, 1);
+  assert.deepEqual({ ...env.DB.sqlite.prepare("SELECT email, sign_in_count FROM auth_users").get() }, { email: "person@example.test", sign_in_count: 1 });
   assert.doesNotMatch(JSON.stringify(env.DB.sqlite.prepare("SELECT * FROM auth_sessions").all()), /one-use-code|test-client-secret/);
 });
 
@@ -196,4 +198,32 @@ test("the privacy notice is public and the app links to it before sign-in", asyn
   assert.match(await response.text(), /Privacy at Equidistant/);
   const login = await worker.fetch(req("/", ""), testEnvironment());
   assert.match(await login.text(), /href="\/privacy"/);
+});
+
+
+test("account records survive logout and expired-session cleanup and count repeat sign-ins", async () => {
+  const env = testEnvironment();
+  const now = Math.floor(Date.now() / 1000);
+  const cookie = (await createSession(env.DB, user, now)).split(";")[0];
+  await worker.fetch(req("/auth/logout", cookie, { method: "POST" }), env);
+  await createSession(env.DB, { ...user, email: "updated@example.test" }, now + 10);
+  await createSession(env.DB, { ...user, id: "second-account" }, now + 20);
+  env.DB.sqlite.exec("UPDATE auth_sessions SET expires_at = 1");
+  await worker.fetch(req("/auth/google/start", ""), env);
+  assert.equal(env.DB.sqlite.prepare("SELECT COUNT(*) AS n FROM auth_sessions").get().n, 0);
+  assert.equal(env.DB.sqlite.prepare("SELECT COUNT(*) AS n FROM auth_users").get().n, 2);
+  assert.deepEqual({ ...env.DB.sqlite.prepare("SELECT * FROM auth_users WHERE user_id = ?").get(user.id) }, {
+    user_id: user.id, email: "updated@example.test", first_sign_in_at: now,
+    last_sign_in_at: now + 10, sign_in_count: 2
+  });
+});
+
+test("failed session insertion rolls back the account record and repeat sign-in count", async () => {
+  const db = createDb();
+  await createSession(db, user);
+  db.sqlite.exec("CREATE TRIGGER reject_sessions BEFORE INSERT ON auth_sessions BEGIN SELECT RAISE(ABORT, 'test failure'); END");
+  await assert.rejects(createSession(db, user));
+  await assert.rejects(createSession(db, { ...user, id: "new-account" }));
+  const rows = db.sqlite.prepare("SELECT user_id, sign_in_count FROM auth_users").all();
+  assert.deepEqual(rows.map(row => ({ ...row })), [{ user_id: user.id, sign_in_count: 1 }]);
 });

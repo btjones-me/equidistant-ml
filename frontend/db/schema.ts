@@ -22,6 +22,14 @@ export const authSessions = sqliteTable("auth_sessions", {
   expiresAt: integer("expires_at").notNull()
 }, (table) => [index("auth_sessions_expiry").on(table.expiresAt)]);
 
+export const authUsers = sqliteTable("auth_users", {
+  userId: text("user_id").primaryKey(),
+  email: text("email").notNull(),
+  firstSignInAt: integer("first_sign_in_at").notNull(),
+  lastSignInAt: integer("last_sign_in_at").notNull(),
+  signInCount: integer("sign_in_count").notNull()
+});
+
 export const recommendationEvents = sqliteTable("recommendation_events", {
   requestId: text("request_id").primaryKey(),
   userId: text("user_id").notNull(),

@@ -69,8 +69,19 @@ export async function verifyGoogleToken(token, clientId, nonce, keys = googleKey
 export async function createSession(db, user, now = Math.floor(Date.now() / 1000)) {
   await requireAuthDatabase(db);
   const token = randomToken();
-  await db.prepare("INSERT INTO auth_sessions (token_hash, user_id, email, name, expires_at) VALUES (?1, ?2, ?3, ?4, ?5)")
-    .bind(await digest(token), user.id, user.email, user.name, now + SESSION_SECONDS).run();
+  // Account history survives session expiry/logout. Commit both writes together
+  // so a failed session creation cannot leave a successful sign-in count.
+  await db.batch([
+    db.prepare(`INSERT INTO auth_users (user_id, email, first_sign_in_at, last_sign_in_at, sign_in_count)
+      VALUES (?1, ?2, ?3, ?3, 1)
+      ON CONFLICT(user_id) DO UPDATE SET
+        email = excluded.email,
+        last_sign_in_at = MAX(auth_users.last_sign_in_at, excluded.last_sign_in_at),
+        sign_in_count = auth_users.sign_in_count + 1`)
+      .bind(user.id, user.email, now),
+    db.prepare("INSERT INTO auth_sessions (token_hash, user_id, email, name, expires_at) VALUES (?1, ?2, ?3, ?4, ?5)")
+      .bind(await digest(token), user.id, user.email, user.name, now + SESSION_SECONDS)
+  ]);
   return cookie(SESSION_COOKIE, token, SESSION_SECONDS);
 }
 

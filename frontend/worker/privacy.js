@@ -1,10 +1,11 @@
 export const privacyPage = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Privacy · Equidistant</title>
 <style>body{margin:0;background:#edf1ed;color:#172019;font:16px/1.65 system-ui,sans-serif}main{max-width:740px;margin:auto;padding:36px 24px 64px}h1{font:600 36px Georgia,serif}h2{font-size:21px;margin-top:30px}a{color:#087f73}li{margin:10px 0}</style></head>
-<body><main><a href="/">← Equidistant</a><h1>Privacy at Equidistant</h1><p>Updated 9 September 2026</p>
+<body><main><a href="/">← Equidistant</a><h1>Privacy at Equidistant</h1><p>Updated 20 September 2026</p>
 <p>Equidistant helps groups choose a meeting place in London. For privacy questions or requests about data held by the app, contact Ben Jones at <a href="mailto:btjones.me@gmail.com">btjones.me@gmail.com</a>.</p>
 <h2>Your Google account</h2><p>Sign-in provides your Google account identifier, verified email address and, when available, name. We use these to identify your account, manage sessions, enforce recommendation limits and grant access to approved features. We do not request access to your Gmail, contacts, calendar or files.</p>
 <p>A secure, HTTP-only cookie keeps you signed in for up to seven days. The server stores a hash of its random session token, along with your account details. Signing out revokes that session. Short-lived sign-in records expire after ten minutes; expired records are removed during routine sign-in cleanup.</p>
+<p>From 20 September 2026, we also keep a separate account record containing your account identifier, verified email address, first and latest recorded sign-in times, and number of successful sign-ins. This lets us identify registered users and understand repeat use of the beta. This record remains after you sign out or your session expires, until you request its deletion. It is stored in our server database and is not sent to Google Analytics.</p>
 <h2>Your group and map</h2><p>Normal travel-time planning runs in your browser using a downloaded model. Participant names, starting locations and map settings are saved in this browser, separately for each Google account. They are not synchronized between devices. Clearing this site's browser data removes these saved workspaces. Signing out preserves them for your next visit.</p>
 <h2>Services used when you search</h2><ul>
 <li>Address searches send the search text to OpenStreetMap's Nominatim service.</li>
