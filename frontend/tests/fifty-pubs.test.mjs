@@ -103,7 +103,7 @@ test("canonical redirects preserve only the special local route, never callback 
 });
 
 
-test("explicit authenticated audience shares only the validated initial preset with every signed-in account", async () => {
+test("obsolete broad audience flag cannot expose private presets to another account", async () => {
   const env = { ...presetEnv(), FIFTY_PUBS_PRESET_AUDIENCE: "authenticated" };
   const otherUser = { id: "different-account", email: "other@example.test", name: "Other" };
   const cookie = (await createSession(env.DB, otherUser)).split(";")[0];
@@ -111,11 +111,11 @@ test("explicit authenticated audience shares only the validated initial preset w
     headers: { "X-Equidistant-Account": otherUser.id }
   }), env);
   assert.equal(response.status, 200);
-  assert.deepEqual(await response.json(), { friends: fixture });
+  assert.deepEqual(await response.json(), { friends: [] });
   assert.match(response.headers.get("Cache-Control"), /private, no-store/);
   assert.equal(response.headers.get("Vary"), "Cookie");
   assert.equal(response.headers.get("X-Robots-Tag"), "noindex");
-  assert.deepEqual(privateFiftyPubsPreset(otherUser, { ...env, FIFTY_PUBS_OWNER_EMAIL: "" }), fixture);
+  assert.deepEqual(privateFiftyPubsPreset(otherUser, { ...env, FIFTY_PUBS_OWNER_EMAIL: "" }), []);
   // Shared initialization is not an API for saving or sharing later local edits.
   const write = await worker.fetch(request("/api/50pubs/preset", cookie, {
     method: "POST", body: JSON.stringify({ friends: [{ ...fixture[0], name: "Not shared" }] })
@@ -147,7 +147,7 @@ test("shared preset audience never bypasses authentication or account-change che
 
 test("unknown or absent preset audience stays owner-only and cannot be selected through request headers", async () => {
   const otherUser = { id: "different-account", email: "other@example.test", name: "Other" };
-  for (const audience of [undefined, "", "public", "all", "AUTHENTICATED", " authenticated", true]) {
+  for (const audience of [undefined, "", "public", "all", "authenticated", "AUTHENTICATED", " authenticated", true]) {
     const env = { ...presetEnv(), FIFTY_PUBS_PRESET_AUDIENCE: audience };
     assert.deepEqual(privateFiftyPubsPreset(otherUser, env), []);
     assert.deepEqual(privateFiftyPubsPreset(testUser, env), fixture);
@@ -160,11 +160,11 @@ test("unknown or absent preset audience stays owner-only and cannot be selected 
   assert.deepEqual(await response.json(), { friends: [] });
 });
 
-test("privacy notice explains shared initial-group exposure and keeps later edits account-local", async () => {
+test("privacy notice explains private presets and explicit member-only shared groups", async () => {
   const response = await worker.fetch(request("/privacy", ""), presetEnv());
   const html = await response.text();
-  assert.match(html, /any signed-in Equidistant user who opens that collection/);
-  assert.match(html, /not only people sent its link/);
-  assert.match(html, /later changes remain in your account's browser workspace and are not shared/);
+  assert.match(html, /sent only to their intended account/);
+  assert.match(html, /Every member can view and edit/);
+  assert.match(html, /Later changes to a personal planner do not change the shared snapshot/);
   assert.doesNotMatch(html, /Example & Partner|Another & Partner/);
 });

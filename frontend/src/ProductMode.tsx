@@ -20,7 +20,10 @@ import MapView from "./MapView";
 import VenueRecommendations from "./VenueRecommendations";
 import { FiftyPubsRecommendations, FiftyPubsDrawer } from "./FiftyPubs";
 import { asMapVenue, rankPubs, validatePubDataset, type PubDataset } from "./lib/fiftyPubs";
-import { accountFetch } from "./lib/account";
+import GroupAvailability from "./GroupAvailability";
+import { deriveGroupTravel } from "./lib/groupTravel";
+import { dateLabel, type GroupTravelSelection } from "./lib/groupAvailability";
+import { activeAccountId, accountFetch } from "./lib/account";
 import { clampToAtlasBounds, getAtlasSurface, preloadAtlas } from "./lib/atlas";
 import { locationLabelForFriend } from "./lib/locations";
 import { selectSeparatedSuggestions } from "./lib/suggestions";
@@ -149,12 +152,17 @@ export default function ProductMode({ onDeveloperMode, onSignOut, accountEmail, 
   const requestId = useRef(0);
   const coverageFeedbackTimer = useRef<number | null>(null);
 
-  const includedFriendIndexes = useMemo(
+  const [groupSelection, setGroupSelection] = useState<GroupTravelSelection | null>(null);
+  const groupTravel = useMemo(() => groupSelection ? deriveGroupTravel(groupSelection) : null, [groupSelection]);
+  const travelFriends = groupTravel?.friends ?? friends;
+  const personalIncludedIndexes = useMemo(
     () => included.map((value, index) => (value ? index : -1)).filter((index) => index >= 0),
     [included]
   );
+  const includedFriendIndexes = groupTravel?.includedIndexes ?? personalIncludedIndexes;
+  const travelIncluded = groupTravel ? travelFriends.map(() => true) : included;
   const appearancePreset = includedFriendIndexes.length <= 1 ? "single" : "group";
-  const rankedPubs = useMemo(() => rankPubs(pubDataset?.pubs ?? [], surface.cells, friends.length, includedFriendIndexes, combine, surface.metadata?.coverage_bounds), [pubDataset, surface, friends.length, includedFriendIndexes, combine]);
+  const rankedPubs = useMemo(() => rankPubs(pubDataset?.pubs ?? [], surface.cells, travelFriends.length, includedFriendIndexes, combine, surface.metadata?.coverage_bounds), [pubDataset, surface, travelFriends.length, includedFriendIndexes, combine]);
   const pubMarkers = useMemo(() => (pubDataset?.pubs ?? []).map(asMapVenue), [pubDataset]);
   useEffect(() => {
     if (!fiftyPubsMode) return;
@@ -208,17 +216,18 @@ export default function ProductMode({ onDeveloperMode, onSignOut, accountEmail, 
   }, [appearancePreset, setColorScale, setSurfaceOpacity, setSurfaceValueFade]);
 
   useEffect(() => {
-    if (!friends.every(validCoordinates) || !includedFriendIndexes.length) {
-      setError("Place at least one friend within the London coverage area.");
+    const nextRequestId = ++requestId.current;
+    setSurface(emptyResponse());
+    setSelectedCell(null);
+    if (!travelFriends.every(validCoordinates) || !includedFriendIndexes.length || groupTravel?.missingLocationNames.length) {
+      setError(groupSelection ? (groupSelection.error || "Choose a date with available people and link all their starting locations.") : "Place at least one friend within the London coverage area.");
       setLoading(false);
       return;
     }
-    const nextRequestId = requestId.current + 1;
-    requestId.current = nextRequestId;
     setLoading(true);
     setError(null);
     const timer = window.setTimeout(() => {
-      void getAtlasSurface({ friends, includedFriendIndexes, combine, focus: productFocus })
+      void getAtlasSurface({ friends: travelFriends, includedFriendIndexes, combine, focus: productFocus })
         .then((response) => {
           if (requestId.current !== nextRequestId) {
             return;
@@ -242,8 +251,8 @@ export default function ProductMode({ onDeveloperMode, onSignOut, accountEmail, 
           }
         });
     }, 80);
-    return () => window.clearTimeout(timer);
-  }, [combine, friends, includedFriendIndexes]);
+    return () => { window.clearTimeout(timer); requestId.current++; };
+  }, [combine, travelFriends, includedFriendIndexes, groupSelection, groupTravel]);
 
   useEffect(() => {
     setActiveSuggestionIndex((current) => Math.min(current, Math.max(0, suggestedCells.length - 1)));
@@ -428,7 +437,7 @@ export default function ProductMode({ onDeveloperMode, onSignOut, accountEmail, 
           <p>{fiftyPubsMode ? "Time Out’s shortlist, ranked for your group’s journey. Edit the starting points and choose your next pub." : "Add each starting point. The map shows where the group can arrive in a similar amount of time."}</p>
         </div>
 
-        <section className="people-section" aria-labelledby="people-title">
+        {groupSelection ? <section className="group-date-summary" aria-live="polite"><strong>{dateLabel(groupSelection.date)} · {groupSelection.freePeople.length} free</strong><p>{groupSelection.error || groupSelection.freePeople.map(person => person.name).join(', ') || 'Nobody marked free'}</p><small>Using shared starting locations. Journeys are model estimates, not date-specific schedules or opening hours.</small><button type="button" onClick={() => setGroupSelection(null)}>Return to personal planner</button></section> : <section className="people-section" aria-labelledby="people-title">
           <div className="product-section-heading">
             <div>
               <h2 id="people-title"><Users size={17} aria-hidden="true" /> Your group</h2>
@@ -521,7 +530,7 @@ export default function ProductMode({ onDeveloperMode, onSignOut, accountEmail, 
               </article>
             ))}
           </div>
-        </section>
+        </section>}
 
         {fiftyPubsMode ? <FiftyPubsRecommendations pubs={rankedPubs} loading={loading || pubLoading} error={pubError || error} onSelect={selectPub} onBrowse={() => selectPub(null)} /> : <section className="result-card" aria-live="polite">
           <div className="result-card-heading">Suggested areas</div>
@@ -591,6 +600,7 @@ export default function ProductMode({ onDeveloperMode, onSignOut, accountEmail, 
           </section>
         ) : null}
 
+        {fiftyPubsMode ? <GroupAvailability friends={friends} accountId={activeAccountId()} activeSelection={groupSelection} onSelection={setGroupSelection} /> : null}
         <button className="settings-toggle" type="button" onClick={() => setSettingsOpen((current) => !current)} aria-expanded={settingsOpen}>
           <span><Settings2 size={16} aria-hidden="true" /> {activeStrategy?.label || "Advanced scoring"}</span>
           <ChevronDown size={16} aria-hidden="true" />
@@ -619,7 +629,7 @@ export default function ProductMode({ onDeveloperMode, onSignOut, accountEmail, 
       <section className={`product-map-panel${placingFriendIndex !== null ? " placing" : ""}${venueDrawerOpen || pubDrawerOpen ? " venues-open" : ""}`} aria-label="Travel-time map">
         {placingFriendIndex !== null ? <div className="placement-banner"><MapPin size={15} /> Click anywhere to move {friends[placingFriendIndex]?.name || "this friend"}</div> : null}
         <MapView
-          friends={friends}
+          friends={travelFriends}
           includedFriendIndexes={includedFriendIndexes}
           cells={surface.cells}
           selectedCell={inspectedCell}
@@ -642,14 +652,14 @@ export default function ProductMode({ onDeveloperMode, onSignOut, accountEmail, 
           placingFriendIndex={placingFriendIndex}
           coverageBounds={surface.metadata?.coverage_bounds}
           showCoverageBoundary={coverageFeedbackVisible}
-          onMoveFriend={moveFriend}
-          onPlaceFriend={placeFriend}
+          onMoveFriend={groupSelection ? undefined : moveFriend}
+          onPlaceFriend={groupSelection ? undefined : placeFriend}
           venues={fiftyPubsMode ? pubMarkers : venueDrawerOpen ? venues : []}
           activeVenueId={fiftyPubsMode ? activePubId : activeVenueId}
           onSelectVenue={fiftyPubsMode ? selectPub : setActiveVenueId}
         />
       </section>
-      {fiftyPubsMode ? <FiftyPubsDrawer open={pubDrawerOpen} pubs={rankedPubs} dataset={pubDataset} activeId={activePubId} friends={friends} included={included} loading={loading} onSelect={selectPub} onClose={closePubDrawer} /> : inspectedCell ? (
+      {fiftyPubsMode ? <FiftyPubsDrawer open={pubDrawerOpen} pubs={rankedPubs} dataset={pubDataset} activeId={activePubId} friends={travelFriends} included={travelIncluded} loading={loading} onSelect={selectPub} onClose={closePubDrawer} /> : inspectedCell ? (
         <VenueRecommendations
           open={venueDrawerOpen}
           area={{ id: inspectedCell.destination_id, name: areaName, lat: inspectedCell.lat, lng: inspectedCell.lng }}

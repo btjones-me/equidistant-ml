@@ -1,5 +1,6 @@
 import { landingPage, landingScript } from "./landing.js";
 import { privacyPage } from "./privacy.js";
+import { groupRoute, groupInviteScript } from "./groups.js";
 import { allowedPhoto, authRoute, configured, currentUser, requireAuthDatabase, isSameOrigin, signPhotoUrls } from "./auth.js";
 
 const VISITOR_COOKIE = "__Host-equidistant_visitor";
@@ -67,7 +68,7 @@ function htmlResponse(body, status = 200, extraHeaders = {}) {
   return new Response(body, { status, headers });
 }
 
-const loginPage = landingPage;
+const loginPage = (options) => landingPage(options).replace("<head>", '<head><script src="/group-invite.js"></script>');
 
 function readCookie(request, name) {
   const cookie = request.headers.get("Cookie") || "";
@@ -1307,13 +1308,12 @@ async function placePhoto(request, env, ctx) {
 }
 
 // Runtime-only preset data: never embed personal origins in the public source or
-// client bundle. The default is owner-only; the explicit authenticated audience
-// shares only these initial values, not anyone's later local workspace edits.
+// client bundle. Presets remain owner-only; sharing happens only through
+// explicitly joined groups with server-checked membership.
 export function privateFiftyPubsPreset(user, env) {
   if (typeof user?.id !== "string" || !user.id || typeof user.email !== "string" || !user.email) return [];
   const owner = typeof env.FIFTY_PUBS_OWNER_EMAIL === "string" ? env.FIFTY_PUBS_OWNER_EMAIL.trim().toLowerCase() : "";
-  const sharedWithSignedInUsers = env.FIFTY_PUBS_PRESET_AUDIENCE === "authenticated";
-  if (!sharedWithSignedInUsers && (!owner || user.email.toLowerCase() !== owner)) return [];
+  if (!owner || user.email.toLowerCase() !== owner) return [];
   try {
     const friends = JSON.parse(env.FIFTY_PUBS_PRESET_JSON || "null");
     if (!Array.isArray(friends) || friends.length < 1 || friends.length > 6) return [];
@@ -1337,6 +1337,9 @@ async function handleRequest(request, env, ctx) {
     // These existing branding files are the only public packaged assets.
     if (["/og.png", "/favicon.png"].includes(url.pathname) && ["GET", "HEAD"].includes(request.method)) {
       return env.ASSETS.fetch(protectedAssetRequest(request, url.pathname));
+    }
+    if (url.pathname === "/group-invite.js" && ["GET", "HEAD"].includes(request.method)) {
+      return new Response(request.method === "HEAD" ? null : groupInviteScript, { headers: { "Content-Type": "text/javascript; charset=utf-8" } });
     }
     // Explicit, credential-free public content. No app asset directory is public.
     if (["/welcome-motion.js", "/robots.txt", "/sitemap.xml"].includes(url.pathname)) {
@@ -1375,6 +1378,8 @@ async function handleRequest(request, env, ctx) {
     }
     const accountHeader = request.headers.get("X-Equidistant-Account");
     if (accountHeader && accountHeader !== user.id) return Response.json({ detail: "Your signed-in account changed. Reload to continue." }, { status: 409 });
+    const groupResponse = await groupRoute(request, env, user);
+    if (groupResponse) return groupResponse;
     if (url.pathname === "/api/session" && request.method === "GET") {
       return Response.json({ user: { id: user.id, email: user.email, name: user.name },
         permissions: { debug: user.privileged, liveTravelTime: user.privileged, unlimitedRecommendations: user.privileged } });
