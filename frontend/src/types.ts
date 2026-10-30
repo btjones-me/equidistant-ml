@@ -29,6 +29,7 @@ export type Friend = {
 };
 
 export type VenueRecommendation = {
+  marker_label?: number;
   place_id: string;
   name: string;
   address: string;

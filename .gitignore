@@ -64,3 +64,10 @@ pip-wheel-metadata
 /docs/graph_hillclimb_results.md
 /metrics/*_20260709.json
 /metrics/graph_hillclimb.json
+
+# Root Sites workspace and local QA
+/node_modules/
+/.sites-runtime/
+/.sites-checkout/
+/frontend/.sites-runtime/
+/frontend/.sites-checkout/

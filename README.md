@@ -236,3 +236,32 @@ Required hosted values are `OPENAI_API_KEY`, `GOOGLE_PLACES_API_KEY`,
 `RATE_LIMIT_SECRET`, and `ANALYTICS_SECRET`. The Google key
 should be API-restricted to Places API (New); it is intentionally not shared
 with the existing Directions data-generation key.
+
+## Unlisted 50-pub collection
+
+`/50pubs` reuses the signed-in map and group editor, overlaying the current
+curated Time Out London shortlist. Pin numbers are editorial ranks; recommendations
+are sorted independently using the selected travel-time strategy. The venue pins
+use sourced coordinates, while journey estimates are interpolated from nearby
+model cells (no extrapolation beyond 1.5 km or the model coverage boundary).
+This is not a live-routing service.
+
+The route is unlisted, omitted from the sitemap and marked noindex, **not** a
+separate security boundary. Any signed-in user who knows it may open it. An optional
+starting-group preset is delivered only to the exact runtime
+`FIFTY_PUBS_OWNER_EMAIL`; set `FIFTY_PUBS_PRESET_JSON` to a JSON array of 1–6
+`{id, name, locationLabel, lat, lng}` records. Both settings must be secret runtime
+values, never source-controlled. Other accounts receive no owner preset. Workspace
+edits persist by account and collection in the browser and do not replace the
+normal planner's group. Reset restores that account's initial collection group.
+
+Public venue data lives in `frontend/public/data/50pubs.json`, with source links,
+original concise descriptions and photo credits/licences. Full editorial reviews
+remain linked to Time Out rather than reproduced. Missing or unavailable photos
+are disclosed rather than replaced with unrelated pictures.
+
+The root `.openai/hosting.json` and `package.json` provide compatibility with the
+current Sites source workflow. `npm run build` builds `frontend/`, then copies its
+Worker/client output and migrations to root `dist/`; normal frontend commands
+remain supported. Release builds should set a fresh random `SITE_ASSET_NAMESPACE`
+(`_eq_` plus 64 lowercase hex characters) rather than the local preview default.

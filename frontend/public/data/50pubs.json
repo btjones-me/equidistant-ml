@@ -1,0 +1,2872 @@
+{
+  "article": {
+    "title": "The 50 best pubs in London",
+    "url": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+    "publishedAt": "2026-10-28",
+    "checkedAt": "2026-10-30",
+    "rankingAttribution": "Ranking: Time Out London, edited by Leonie Cooper. Venue descriptions written independently; not Time Out review text.",
+    "photoAttribution": "Photographs licensed individually under Creative Commons; display photographer, licence name and licence link beside each photo."
+  },
+  "pubs": [
+    {
+      "id": "shakespeares-head-1",
+      "rank": 1,
+      "name": "Shakespeares Head",
+      "neighbourhood": "Clerkenwell",
+      "address": "1 Arlington Way, Islington, EC1R 1XA",
+      "postcode": "EC1R 1XA",
+      "lat": 51.5294555,
+      "lng": -0.1067885,
+      "summary": "A theatre-side local with an unusually intact 1960s interior: brick-faced counters, wood panelling and original seating. Its garden provides an outdoor alternative to the compact bar near Sadler’s Wells.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/shakespeares-head",
+      "addressSourceUrl": "https://camra.org.uk/pubs/shakespeares-head-london-156357",
+      "coordinateSourceUrl": "https://www.openstreetmap.org/way/99057959",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/77/Shakespeares_Head%2C_1_Arlington_Way_2025-05-25.jpg/1280px-Shakespeares_Head%2C_1_Arlington_Way_2025-05-25.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Shakespeares_Head,_1_Arlington_Way_2025-05-25.jpg",
+          "credit": "Robert Scarth",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Shakespeares Head, 1 Arlington Way 2025-05-25.jpg",
+          "caption": "Shakespeares Head, 1 Arlington Way 2025-05-25",
+          "date": "2025-05-25 11:23:15"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c5/Shakespeares_Head%2C_1_Arlington_Way_-_2025-05-25.jpg/1280px-Shakespeares_Head%2C_1_Arlington_Way_-_2025-05-25.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Shakespeares_Head,_1_Arlington_Way_-_2025-05-25.jpg",
+          "credit": "Robert Scarth",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Shakespeares Head, 1 Arlington Way - 2025-05-25.jpg",
+          "caption": "Shakespeares Head, 1 Arlington Way - 2025-05-25",
+          "date": "2025-05-25 11:22:59"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/17/Shakespeare%27s_Head%2C_Finsbury%2C_EC1.jpg/1280px-Shakespeare%27s_Head%2C_Finsbury%2C_EC1.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Shakespeare%27s_Head,_Finsbury,_EC1.jpg",
+          "credit": "Ewan Munro",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "title": "Shakespeare's Head, Finsbury, EC1.jpg",
+          "caption": "Shakespeare's Head, Finsbury, EC1",
+          "date": "2025-10-18 13:38:46"
+        }
+      ],
+      "tags": [
+        "historic-interior",
+        "garden",
+        "cask-ale"
+      ],
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance.",
+      "coordinateLicense": "OpenStreetMap contributors, ODbL 1.0",
+      "summarySourceUrl": "https://camra.org.uk/pubs/shakespeares-head-london-156357",
+      "verificationNotes": "Rank and name checked against Time Out list updated 28 October 2026; summary independently written from cited source. Photos are credited, openly licensed historical views and may show older decor or signage.",
+      "leadImageVerified": "Downloaded successfully and visually checked on 2026-10-30.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/shakespeares-head",
+        "https://camra.org.uk/pubs/shakespeares-head-london-156357",
+        "https://www.openstreetmap.org/way/99057959",
+        "https://commons.wikimedia.org/wiki/File:Shakespeares_Head,_1_Arlington_Way_2025-05-25.jpg",
+        "https://commons.wikimedia.org/wiki/File:Shakespeares_Head,_1_Arlington_Way_-_2025-05-25.jpg",
+        "https://commons.wikimedia.org/wiki/File:Shakespeare%27s_Head,_Finsbury,_EC1.jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided."
+    },
+    {
+      "id": "coach-horses-2",
+      "rank": 2,
+      "name": "Coach & Horses",
+      "neighbourhood": "Soho",
+      "address": "29 Greek Street, Soho, W1D 5DH",
+      "postcode": "W1D 5DH",
+      "lat": 51.513279,
+      "lng": -0.1301084,
+      "summary": "This Greek Street corner pub preserves three interconnected bars and much of its 1937 oak-panelled interior. A Grade II-listed Soho landmark, it welcomes walk-ins rather than taking table reservations.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/coach-horses",
+      "addressSourceUrl": "https://www.coachandhorsessoho.pub/",
+      "coordinateSourceUrl": "https://www.openstreetmap.org/way/279533213",
+      "images": [
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/8/87/Coach_and_Horses%2C_Greek_Street_-_geograph.org.uk_-_5653137.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Coach_and_Horses,_Greek_Street_-_geograph.org.uk_-_5653137.jpg",
+          "credit": "Stephen Richards",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Coach and Horses, Greek Street - geograph.org.uk - 5653137.jpg",
+          "caption": "Coach and Horses, Greek Street - geograph.org.uk - 5653137",
+          "date": "2014-03-16"
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/f/f4/Coach_and_Horses%2C_Greek_Street%2C_Soho%2C_W1_%282711029239%29.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Coach_and_Horses,_Greek_Street,_Soho,_W1_(2711029239).jpg",
+          "credit": "Ewan Munro from London, UK",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Coach and Horses, Greek Street, Soho, W1 (2711029239).jpg",
+          "caption": "Coach and Horses, Greek Street, Soho, W1 (2711029239)",
+          "date": "2008-06-08 14:25"
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/3/31/The_Coach_and_Horses%2C_Greek_Street_-_Romilly_Street%2C_W1_-_geograph.org.uk_-_2318375.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Coach_and_Horses,_Greek_Street_-_Romilly_Street,_W1_-_geograph.org.uk_-_2318375.jpg",
+          "credit": "Mike Quinn",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "The Coach and Horses, Greek Street - Romilly Street, W1 - geograph.org.uk - 2318375.jpg",
+          "caption": "The Coach and Horses, Greek Street - Romilly Street, W1 - geograph.org.uk - 2318375",
+          "date": "2011-03-08"
+        }
+      ],
+      "tags": [
+        "historic-interior",
+        "cask-ale"
+      ],
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance.",
+      "coordinateLicense": "OpenStreetMap contributors, ODbL 1.0",
+      "summarySourceUrl": "https://www.coachandhorsessoho.pub/",
+      "verificationNotes": "Rank and name checked against Time Out list updated 28 October 2026; summary independently written from cited source. Photos are credited, openly licensed historical views and may show older decor or signage.",
+      "summarySourceUrls": [
+        "https://www.coachandhorsessoho.pub/",
+        "https://camra.org.uk/index.php/pubs/coach-horses-london-128931"
+      ],
+      "leadImageVerified": "Downloaded successfully and visually checked on 2026-10-30.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/coach-horses",
+        "https://www.coachandhorsessoho.pub/",
+        "https://www.openstreetmap.org/way/279533213",
+        "https://commons.wikimedia.org/wiki/File:Coach_and_Horses,_Greek_Street_-_geograph.org.uk_-_5653137.jpg",
+        "https://commons.wikimedia.org/wiki/File:Coach_and_Horses,_Greek_Street,_Soho,_W1_(2711029239).jpg",
+        "https://commons.wikimedia.org/wiki/File:The_Coach_and_Horses,_Greek_Street_-_Romilly_Street,_W1_-_geograph.org.uk_-_2318375.jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided."
+    },
+    {
+      "id": "nags-head-3",
+      "rank": 3,
+      "name": "Nags Head",
+      "neighbourhood": "Walthamstow",
+      "address": "9 Orford Road, Walthamstow, E17 9LP",
+      "postcode": "E17 9LP",
+      "lat": 51.584057,
+      "lng": -0.01119,
+      "summary": "An independent, cat-friendly village pub with changing ales and a long local history. There is seating out front and a sheltered rear patio, plus live music and activities upstairs.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/nags-head-1",
+      "addressSourceUrl": "https://camra.org.uk/pubs/nags-head-walthamstow-155423",
+      "coordinateSourceUrl": "https://camra.org.uk/pubs/nags-head-walthamstow-155423",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/26/Nag%27s_Head%2C_Walthamstow%2C_2026-03-15.jpg/1280px-Nag%27s_Head%2C_Walthamstow%2C_2026-03-15.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Nag%27s_Head,_Walthamstow,_2026-03-15.jpg",
+          "credit": "Ewan Munro",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "title": "Nag's Head, Walthamstow, 2026-03-15.jpg",
+          "caption": "Nag's Head, Walthamstow, 2026-03-15",
+          "date": "2026-03-15 15:54:02"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/49/The_Nag%27s_Head_-_9_Orford_Road_Walthamstow_Village_London_E17_9LP.jpg/1280px-The_Nag%27s_Head_-_9_Orford_Road_Walthamstow_Village_London_E17_9LP.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Nag%27s_Head_-_9_Orford_Road_Walthamstow_Village_London_E17_9LP.jpg",
+          "credit": "Spudgun67",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "title": "The Nag's Head - 9 Orford Road Walthamstow Village London E17 9LP.jpg",
+          "caption": "The Nag's Head - 9 Orford Road Walthamstow Village London E17 9LP",
+          "date": "2016-02-20 12:12:57"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c9/Nag%27s_Head%2C_Walthamstow%2C_E17.jpg/1280px-Nag%27s_Head%2C_Walthamstow%2C_E17.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Nag%27s_Head,_Walthamstow,_E17.jpg",
+          "credit": "Ewan Munro",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Nag's Head, Walthamstow, E17.jpg",
+          "caption": "Nag's Head, Walthamstow, E17",
+          "date": "2015-07-12 14:00:41"
+        }
+      ],
+      "tags": [
+        "garden",
+        "live-music",
+        "cask-ale"
+      ],
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance.",
+      "summarySourceUrl": "https://camra.org.uk/pubs/nags-head-walthamstow-155423",
+      "verificationNotes": "Rank and name checked against Time Out list updated 28 October 2026; summary independently written from cited source. Photos are credited, openly licensed historical views and may show older decor or signage.",
+      "leadImageVerified": "Downloaded successfully and visually checked on 2026-10-30.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/nags-head-1",
+        "https://camra.org.uk/pubs/nags-head-walthamstow-155423",
+        "https://commons.wikimedia.org/wiki/File:Nag%27s_Head,_Walthamstow,_2026-03-15.jpg",
+        "https://commons.wikimedia.org/wiki/File:The_Nag%27s_Head_-_9_Orford_Road_Walthamstow_Village_London_E17_9LP.jpg",
+        "https://commons.wikimedia.org/wiki/File:Nag%27s_Head,_Walthamstow,_E17.jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided."
+    },
+    {
+      "id": "pride-of-spitalfields-4",
+      "rank": 4,
+      "name": "Pride of Spitalfields",
+      "neighbourhood": "Spitalfields",
+      "address": "3 Heneage Street, Shoreditch, E1 5LJ",
+      "postcode": "E1 5LJ",
+      "lat": 51.5189788,
+      "lng": -0.07123,
+      "summary": "A small free house just off Brick Lane, known for cask beer and a sociable two-room setting. The customer piano and longstanding Good Beer Guide presence add to its neighbourhood character.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/pride-of-spitalfields",
+      "addressSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=243914",
+      "coordinateSourceUrl": "https://www.openstreetmap.org/way/236653740",
+      "images": [
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/a/aa/The_Pride_of_Spitalfields.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Pride_of_Spitalfields.jpg",
+          "credit": "Clavileno",
+          "license": "CC BY-SA 3.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+          "title": "The Pride of Spitalfields.jpg",
+          "caption": "The Pride of Spitalfields",
+          "date": "2013-08-18 21:28:57"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7d/Pride_of_Spitalfields%2C_Spitalfields%2C_E1_%287419804138%29.jpg/1280px-Pride_of_Spitalfields%2C_Spitalfields%2C_E1_%287419804138%29.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Pride_of_Spitalfields,_Spitalfields,_E1_(7419804138).jpg",
+          "credit": "Ewan Munro from London, UK",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Pride of Spitalfields, Spitalfields, E1 (7419804138).jpg",
+          "caption": "Pride of Spitalfields, Spitalfields, E1 (7419804138)",
+          "date": "2012-05-19 14:58"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/33/The_Pride_of_Spitalfields_-_geograph.org.uk_-_4340573.jpg/1280px-The_Pride_of_Spitalfields_-_geograph.org.uk_-_4340573.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Pride_of_Spitalfields_-_geograph.org.uk_-_4340573.jpg",
+          "credit": "Chris Whippet",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "The Pride of Spitalfields - geograph.org.uk - 4340573.jpg",
+          "caption": "The Pride of Spitalfields - geograph.org.uk - 4340573",
+          "date": "2015-02-08"
+        }
+      ],
+      "tags": [
+        "cask-ale",
+        "piano"
+      ],
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance.",
+      "coordinateLicense": "OpenStreetMap contributors, ODbL 1.0",
+      "summarySourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=243914",
+      "verificationNotes": "Rank and name checked against Time Out list updated 28 October 2026; summary independently written from cited source. Photos are credited, openly licensed historical views and may show older decor or signage.",
+      "leadImageVerified": "Downloaded successfully and visually checked on 2026-10-30.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/pride-of-spitalfields",
+        "https://www.london.camra.org.uk/viewnode.php?id=243914",
+        "https://www.openstreetmap.org/way/236653740",
+        "https://commons.wikimedia.org/wiki/File:The_Pride_of_Spitalfields.jpg",
+        "https://commons.wikimedia.org/wiki/File:Pride_of_Spitalfields,_Spitalfields,_E1_(7419804138).jpg",
+        "https://commons.wikimedia.org/wiki/File:The_Pride_of_Spitalfields_-_geograph.org.uk_-_4340573.jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided."
+    },
+    {
+      "id": "the-old-nun-s-head-5",
+      "rank": 5,
+      "name": "The Old Nun's Head",
+      "neighbourhood": "Nunhead",
+      "address": "15 Nunhead Green, Nunhead, SE15 3QQ",
+      "postcode": "SE15 3QQ",
+      "lat": 51.465251,
+      "lng": -0.0594879,
+      "summary": "A queer-focused Nunhead community pub with a busy events calendar spanning drag, karaoke, quizzes and dancing. The team also offers the venue free to people fundraising for a cause.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/old-nuns-head",
+      "addressSourceUrl": "https://www.theoldnunshead.co.uk/",
+      "coordinateSourceUrl": "https://www.openstreetmap.org/way/81679283",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/00/The_Old_Nun%27s_Head_%288667803323%29.jpg/1280px-The_Old_Nun%27s_Head_%288667803323%29.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Old_Nun%27s_Head_(8667803323).jpg",
+          "credit": "Reading Tom from Reading, UK",
+          "license": "CC BY 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+          "title": "The Old Nun's Head (8667803323).jpg",
+          "caption": "The Old Nun's Head (8667803323)",
+          "date": "2013-02-24 10:46"
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/2/20/Old_Nuns_Head%2C_Nunhead%2C_SE15_%281444053136%29.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Old_Nuns_Head,_Nunhead,_SE15_(1444053136).jpg",
+          "credit": "Ewan Munro from London, UK",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Old Nuns Head, Nunhead, SE15 (1444053136).jpg",
+          "caption": "Old Nuns Head, Nunhead, SE15 (1444053136)",
+          "date": "2007-09-22 15:44"
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/d/d7/The_Old_Nun%27s_Head%2C_Nunhead_Green%2C_SE15_-_geograph.org.uk_-_6110680.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Old_Nun%27s_Head,_Nunhead_Green,_SE15_-_geograph.org.uk_-_6110680.jpg",
+          "credit": "Robin Webster",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "The Old Nun's Head, Nunhead Green, SE15 - geograph.org.uk - 6110680.jpg",
+          "caption": "The Old Nun's Head, Nunhead Green, SE15 - geograph.org.uk - 6110680",
+          "date": "2011-10-30"
+        }
+      ],
+      "tags": [
+        "lgbtq-friendly",
+        "events",
+        "karaoke"
+      ],
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance.",
+      "coordinateLicense": "OpenStreetMap contributors, ODbL 1.0",
+      "summarySourceUrl": "https://www.theoldnunshead.co.uk/events",
+      "verificationNotes": "Rank and name checked against Time Out list updated 28 October 2026; summary independently written from cited source. Photos are credited, openly licensed historical views and may show older decor or signage.",
+      "leadImageVerified": "Downloaded successfully and visually checked on 2026-10-30.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/old-nuns-head",
+        "https://www.theoldnunshead.co.uk/",
+        "https://www.openstreetmap.org/way/81679283",
+        "https://www.theoldnunshead.co.uk/events",
+        "https://commons.wikimedia.org/wiki/File:The_Old_Nun%27s_Head_(8667803323).jpg",
+        "https://commons.wikimedia.org/wiki/File:Old_Nuns_Head,_Nunhead,_SE15_(1444053136).jpg",
+        "https://commons.wikimedia.org/wiki/File:The_Old_Nun%27s_Head,_Nunhead_Green,_SE15_-_geograph.org.uk_-_6110680.jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided."
+    },
+    {
+      "id": "seven-stars-6",
+      "rank": 6,
+      "name": "Seven Stars",
+      "neighbourhood": "Holborn",
+      "address": "53 Carey Street, Holborn, WC2A 2JB",
+      "postcode": "WC2A 2JB",
+      "lat": 51.5149677,
+      "lng": -0.1134946,
+      "summary": "A compact historic pub on Carey Street, with Roxy Beaujolais’s changing blackboard menu and a small adjoining space called the Wig Box. Walk-in drinking and dining keep the atmosphere informal.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/seven-stars",
+      "addressSourceUrl": "https://www.thesevenstars1602.co.uk/",
+      "coordinateSourceUrl": "https://www.openstreetmap.org/way/185312889",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b7/Inside_the_Seven_Stars%2C_Holborn_2025-02-11.jpg/1280px-Inside_the_Seven_Stars%2C_Holborn_2025-02-11.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Inside_the_Seven_Stars,_Holborn_2025-02-11.jpg",
+          "credit": "Matt Brown",
+          "license": "CC BY 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+          "title": "Inside the Seven Stars, Holborn 2025-02-11.jpg",
+          "caption": "Inside the Seven Stars, Holborn 2025-02-11",
+          "date": "2025-02-11 22:24:12"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c1/The_Seven_Stars_19_May_2023.jpg/1280px-The_Seven_Stars_19_May_2023.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Seven_Stars_19_May_2023.jpg",
+          "credit": "Matt Brown",
+          "license": "CC BY 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+          "title": "The Seven Stars 19 May 2023.jpg",
+          "caption": "The Seven Stars 19 May 2023",
+          "date": "2023-05-19 11:18:10"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6f/Seven_Stars%2C_Holborn%2C_WC2.jpg/1280px-Seven_Stars%2C_Holborn%2C_WC2.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Seven_Stars,_Holborn,_WC2.jpg",
+          "credit": "Ewan Munro",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Seven Stars, Holborn, WC2.jpg",
+          "caption": "Seven Stars, Holborn, WC2",
+          "date": "2018-03-04 16:18:19"
+        }
+      ],
+      "tags": [
+        "historic",
+        "food"
+      ],
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance.",
+      "coordinateLicense": "OpenStreetMap contributors, ODbL 1.0",
+      "summarySourceUrl": "https://www.thesevenstars1602.co.uk/",
+      "verificationNotes": "Rank and name checked against Time Out list updated 28 October 2026; summary independently written from cited source. Photos are credited, openly licensed historical views and may show older decor or signage.",
+      "leadImageVerified": "Downloaded successfully and visually checked on 2026-10-30.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/seven-stars",
+        "https://www.thesevenstars1602.co.uk/",
+        "https://www.openstreetmap.org/way/185312889",
+        "https://commons.wikimedia.org/wiki/File:Inside_the_Seven_Stars,_Holborn_2025-02-11.jpg",
+        "https://commons.wikimedia.org/wiki/File:The_Seven_Stars_19_May_2023.jpg",
+        "https://commons.wikimedia.org/wiki/File:Seven_Stars,_Holborn,_WC2.jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided."
+    },
+    {
+      "id": "windsor-castle-7",
+      "rank": 7,
+      "name": "Windsor Castle",
+      "neighbourhood": "Notting Hill",
+      "address": "114 Campden Hill Road, W8 7AR",
+      "postcode": "W8 7AR",
+      "lat": 51.5062935,
+      "lng": -0.1983981,
+      "summary": "A listed Kensington pub whose low-screened drinking rooms owe their character to a 1933 refit. The rear garden has its own bar, giving this compact historic interior a spacious outdoor counterpart.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/windsor-castle-1",
+      "addressSourceUrl": "https://camra.org.uk/pubs/windsor-castle-kensington-129320",
+      "coordinateSourceUrl": "https://www.openstreetmap.org/way/364339508",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/95/Windsor_Castle%2C_Kensington%2C_W8.jpg/1280px-Windsor_Castle%2C_Kensington%2C_W8.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Windsor_Castle,_Kensington,_W8.jpg",
+          "credit": "Ewan Munro",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Windsor Castle, Kensington, W8.jpg",
+          "caption": "Windsor Castle, Kensington, W8",
+          "date": "2009-03-07 14:12:13"
+        }
+      ],
+      "tags": [
+        "historic-interior",
+        "garden",
+        "food"
+      ],
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance.",
+      "coordinateLicense": "OpenStreetMap contributors, ODbL 1.0",
+      "summarySourceUrl": "https://camra.org.uk/pubs/windsor-castle-kensington-129320",
+      "verificationNotes": "Rank and name checked against Time Out list updated 28 October 2026; summary independently written from cited source. Photos are credited, openly licensed historical views and may show older decor or signage.",
+      "leadImageVerified": "Downloaded successfully and visually checked on 2026-10-30.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/windsor-castle-1",
+        "https://camra.org.uk/pubs/windsor-castle-kensington-129320",
+        "https://www.openstreetmap.org/way/364339508",
+        "https://commons.wikimedia.org/wiki/File:Windsor_Castle,_Kensington,_W8.jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided."
+    },
+    {
+      "id": "the-britannia-8",
+      "rank": 8,
+      "name": "The Britannia",
+      "neighbourhood": "Shoreditch",
+      "address": "94 Ironmonger Row, Shoreditch, EC1V 3QR",
+      "postcode": "EC1V 3QR",
+      "lat": 51.5273025,
+      "lng": -0.0944926,
+      "summary": "A compact 1939 local arranged around an island bar, with dark panelling and red banquette seating. Darts, weekend entertainment and a small rear patio make it a neighbourhood gathering place.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "addressSourceUrl": "https://london.camra.org.uk/viewnode.php?id=244768",
+      "coordinateSourceUrl": "https://www.openstreetmap.org/way/164010931",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/79/Britannia%2C_Finsbury%2C_EC1.jpg/1280px-Britannia%2C_Finsbury%2C_EC1.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Britannia,_Finsbury,_EC1.jpg",
+          "credit": "Ewan Munro",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "title": "Britannia, Finsbury, EC1.jpg",
+          "caption": "Britannia, Finsbury, EC1",
+          "date": "2025-07-29 16:35:09"
+        }
+      ],
+      "tags": [
+        "historic-interior",
+        "live-music",
+        "darts"
+      ],
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance.",
+      "coordinateLicense": "OpenStreetMap contributors, ODbL 1.0",
+      "summarySourceUrl": "https://london.camra.org.uk/viewnode.php?id=244768",
+      "verificationNotes": "Rank and name checked against Time Out list updated 28 October 2026; summary independently written from cited source. Photos are credited, openly licensed historical views and may show older decor or signage.",
+      "leadImageVerified": "Downloaded successfully and visually checked on 2026-10-30.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://london.camra.org.uk/viewnode.php?id=244768",
+        "https://www.openstreetmap.org/way/164010931",
+        "https://commons.wikimedia.org/wiki/File:Britannia,_Finsbury,_EC1.jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided."
+    },
+    {
+      "id": "skehans-free-house-9",
+      "rank": 9,
+      "name": "Skehans Free House",
+      "neighbourhood": "Nunhead",
+      "address": "1 Kitto Road, Nunhead, SE14 5TW",
+      "postcode": "SE14 5TW",
+      "lat": 51.4675797,
+      "lng": -0.0494655,
+      "summary": "An independent family-run Irish pub with pool, darts and a winter wood-burning stove. Live music runs through the week, while Thai food and a tucked-away garden extend the evening beyond the front bar.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/skehans-free-house",
+      "addressSourceUrl": "https://skehans.com/pub-in-peckham/",
+      "coordinateSourceUrl": "https://www.openstreetmap.org/way/845506223",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d9/Skehan%27s_1_Kitto_Road_2024-08-02.jpg/1280px-Skehan%27s_1_Kitto_Road_2024-08-02.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Skehan%27s_1_Kitto_Road_2024-08-02.jpg",
+          "credit": "Matt Brown",
+          "license": "CC BY 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+          "title": "Skehan's 1 Kitto Road 2024-08-02.jpg",
+          "caption": "Skehan's 1 Kitto Road 2024-08-02",
+          "date": "2024-08-02 16:45:49"
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/2/2e/Skehans%2C_Telegraph_Hill%2C_SE14_%281469043847%29.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Skehans,_Telegraph_Hill,_SE14_(1469043847).jpg",
+          "credit": "Ewan Munro from London, UK",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Skehans, Telegraph Hill, SE14 (1469043847).jpg",
+          "caption": "Skehans, Telegraph Hill, SE14 (1469043847)",
+          "date": "2006-11-04 14:14"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9b/Skehans_Irish_Pub_-_geograph.org.uk_-_8031722.jpg/1280px-Skehans_Irish_Pub_-_geograph.org.uk_-_8031722.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Skehans_Irish_Pub_-_geograph.org.uk_-_8031722.jpg",
+          "credit": "Alan Hughes",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Skehans Irish Pub - geograph.org.uk - 8031722.jpg",
+          "caption": "Skehans Irish Pub - geograph.org.uk - 8031722",
+          "date": "2025-04-27"
+        }
+      ],
+      "tags": [
+        "irish",
+        "live-music",
+        "garden",
+        "thai-food"
+      ],
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance.",
+      "coordinateLicense": "OpenStreetMap contributors, ODbL 1.0",
+      "summarySourceUrl": "https://skehans.com/nunhead-pubs/",
+      "verificationNotes": "Rank and name checked against Time Out list updated 28 October 2026; summary independently written from cited source. Photos are credited, openly licensed historical views and may show older decor or signage.",
+      "leadImageVerified": "Downloaded successfully and visually checked on 2026-10-30.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/skehans-free-house",
+        "https://skehans.com/pub-in-peckham/",
+        "https://www.openstreetmap.org/way/845506223",
+        "https://skehans.com/nunhead-pubs/",
+        "https://commons.wikimedia.org/wiki/File:Skehan%27s_1_Kitto_Road_2024-08-02.jpg",
+        "https://commons.wikimedia.org/wiki/File:Skehans,_Telegraph_Hill,_SE14_(1469043847).jpg",
+        "https://commons.wikimedia.org/wiki/File:Skehans_Irish_Pub_-_geograph.org.uk_-_8031722.jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided."
+    },
+    {
+      "id": "moylett-s-10",
+      "rank": 10,
+      "name": "Moylett's",
+      "neighbourhood": "Clapton",
+      "address": "181 Clarence Road, Lower Clapton, E5 8EE",
+      "postcode": "E5 8EE",
+      "lat": 51.5557262,
+      "lng": -0.0562333,
+      "summary": "A Lower Clapton Irish pub on the corner of Clarence and Downs Roads. Its programme mixes chess, listening sessions and DJs, creating a neighbourhood meeting place a short walk from Hackney Downs.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/moyletts",
+      "addressSourceUrl": "https://moyletts.co.uk/",
+      "coordinateSourceUrl": "https://www.openstreetmap.org/way/594763297",
+      "images": [
+        {
+          "url": "https://live.staticflickr.com/65535/55052632727_560c90cf44_b.jpg",
+          "sourceUrl": "https://www.flickr.com/photos/55935853@N00/55052632727/",
+          "credit": "Ewan Munro",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+          "title": "Moylett's, Clapton, E5",
+          "caption": "Moylett’s shortly after opening, December 2025; exterior signage was not yet complete.",
+          "date": "2025-12-30"
+        }
+      ],
+      "tags": [
+        "irish",
+        "events",
+        "djs"
+      ],
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance.",
+      "coordinateLicense": "OpenStreetMap contributors, ODbL 1.0",
+      "summarySourceUrl": "https://moyletts.co.uk/",
+      "verificationNotes": "Rank and name checked against Time Out list updated 28 October 2026; summary independently written from cited source. Photos are credited, openly licensed historical views and may show older decor or signage.",
+      "leadImageVerified": "Downloaded successfully and visually checked on 2026-10-30.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/moyletts",
+        "https://moyletts.co.uk/",
+        "https://www.openstreetmap.org/way/594763297",
+        "https://www.flickr.com/photos/55935853@N00/55052632727/"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided."
+    },
+    {
+      "id": "the-blythe-hill-tavern-11",
+      "rank": 11,
+      "name": "The Blythe Hill Tavern",
+      "neighbourhood": "Catford",
+      "address": "319 Stanstead Road, Catford, SE23 1JB",
+      "postcode": "SE23 1JB",
+      "lat": 51.4423194,
+      "lng": -0.033722,
+      "summary": "A listed Victorian corner pub with three rooms, 1920s panelling and a flower-filled garden. Cask beer, cellar-served ciders and traditional Irish music sit alongside a strong community-local identity.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-blythe-hill-tavern",
+      "addressSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=128010",
+      "coordinateSourceUrl": "https://www.openstreetmap.org/node/9117411107",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3d/Blythe_Hill_Tavern%2C_Forest_Hill%2C_SE23_%283756867279%29.jpg/1280px-Blythe_Hill_Tavern%2C_Forest_Hill%2C_SE23_%283756867279%29.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Blythe_Hill_Tavern,_Forest_Hill,_SE23_(3756867279).jpg",
+          "credit": "Ewan Munro from London, UK",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Blythe Hill Tavern, Forest Hill, SE23 (3756867279).jpg",
+          "caption": "Blythe Hill Tavern, Forest Hill, SE23 (3756867279)",
+          "date": "2009-07-12 14:32"
+        }
+      ],
+      "tags": [
+        "historic-interior",
+        "garden",
+        "cider",
+        "live-music"
+      ],
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance.",
+      "coordinateLicense": "OpenStreetMap contributors, ODbL 1.0",
+      "summarySourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=128010",
+      "verificationNotes": "Rank and name checked against Time Out list updated 28 October 2026; summary independently written from cited source. Photos are credited, openly licensed historical views and may show older decor or signage.",
+      "leadImageVerified": "Downloaded successfully and visually checked on 2026-10-30.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/the-blythe-hill-tavern",
+        "https://www.london.camra.org.uk/viewnode.php?id=128010",
+        "https://www.openstreetmap.org/node/9117411107",
+        "https://commons.wikimedia.org/wiki/File:Blythe_Hill_Tavern,_Forest_Hill,_SE23_(3756867279).jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided."
+    },
+    {
+      "id": "bradley-s-spanish-bar-12",
+      "rank": 12,
+      "name": "Bradley's Spanish Bar",
+      "neighbourhood": "Oxford Street",
+      "address": "42-44 Hanway Street, Fitzrovia, W1T 1UT",
+      "postcode": "W1T 1UT",
+      "lat": 51.516523,
+      "lng": -0.132712,
+      "summary": "A small Hanway Street drinking spot built around conversation, beer and its vintage vinyl jukebox. The bar draws on thousands of singles for the soundtrack and deliberately sticks to drinks, crisps and nuts.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/bradleys-spanish-bar",
+      "addressSourceUrl": "https://www.bradleysspanishbar.com/",
+      "coordinateSourceUrl": "https://camra.org.uk/pubs/bradleys-spanish-bar-london-129226",
+      "images": [
+        {
+          "url": "https://live.staticflickr.com/5210/5273204847_c8158e129e_b.jpg",
+          "sourceUrl": "https://www.flickr.com/photos/55935853@N00/5273204847/",
+          "credit": "Ewan Munro",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+          "title": "Bradley's Spanish Bar, Fitzrovia, W1",
+          "caption": "Bradley’s Spanish Bar exterior, photographed 10 December 2010.",
+          "date": "2010-12-10"
+        }
+      ],
+      "tags": [
+        "jukebox",
+        "drinks-only"
+      ],
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance.",
+      "summarySourceUrl": "https://www.bradleysspanishbar.com/",
+      "verificationNotes": "Rank and name checked against Time Out list updated 28 October 2026; summary independently written from cited source. Photos are credited, openly licensed historical views and may show older decor or signage.",
+      "leadImageVerified": "Downloaded successfully and visually checked on 2026-10-30.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/bradleys-spanish-bar",
+        "https://www.bradleysspanishbar.com/",
+        "https://camra.org.uk/pubs/bradleys-spanish-bar-london-129226",
+        "https://www.flickr.com/photos/55935853@N00/5273204847/"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided."
+    },
+    {
+      "id": "warrington-hotel-13",
+      "rank": 13,
+      "name": "Warrington Hotel",
+      "neighbourhood": "Maida Vale",
+      "address": "93 Warrington Crescent, Maida Vale, W9 1EH",
+      "postcode": "W9 1EH",
+      "lat": 51.5271906,
+      "lng": -0.1830813,
+      "summary": "A Grade II-listed Victorian pub and boutique hotel dating to 1857. Its restored rooms offer a setting for drinks or Sunday lunch, with a separate Billiard Room available for private dining.",
+      "sourceUrl": "https://www.timeout.com/london/cinemas/warrington-hotel",
+      "addressSourceUrl": "https://www.opentable.co.uk/r/the-warrington-hotel-maida-vale",
+      "coordinateSourceUrl": "https://www.openstreetmap.org/way/154952350",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/42/The_Warrington_Hotel%2C_Maida_Vale_2025-08-20.jpg/1280px-The_Warrington_Hotel%2C_Maida_Vale_2025-08-20.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Warrington_Hotel,_Maida_Vale_2025-08-20.jpg",
+          "credit": "Matt Brown",
+          "license": "CC BY 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+          "title": "The Warrington Hotel, Maida Vale 2025-08-20.jpg",
+          "caption": "The Warrington Hotel, Maida Vale 2025-08-20",
+          "date": "2025-08-20 13:25:59"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/The_Warrington_exterior_detail_%285%29.jpg/1280px-The_Warrington_exterior_detail_%285%29.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Warrington_exterior_detail_(5).jpg",
+          "credit": "No Swan So Fine",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "title": "The Warrington exterior detail (5).jpg",
+          "caption": "The Warrington exterior detail (5)",
+          "date": "2017-04-21 10:17:35"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c8/Warrington_Hotel%2C_Maida_Vale%2C_W9_%2813583180833%29.jpg/1280px-Warrington_Hotel%2C_Maida_Vale%2C_W9_%2813583180833%29.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Warrington_Hotel,_Maida_Vale,_W9_(13583180833).jpg",
+          "credit": "Ewan Munro from London, UK",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Warrington Hotel, Maida Vale, W9 (13583180833).jpg",
+          "caption": "Warrington Hotel, Maida Vale, W9 (13583180833)",
+          "date": "2013-06-09 15:40"
+        }
+      ],
+      "tags": [
+        "historic-interior",
+        "food",
+        "hotel"
+      ],
+      "summarySourceUrl": "https://thewarringtonhotel.co.uk/",
+      "verificationNotes": "Rank and name checked against Time Out list updated 28 October 2026; summary independently written from cited source. Photos are credited, openly licensed historical views and may show older decor or signage.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance.",
+      "coordinateLicense": "OpenStreetMap contributors, ODbL 1.0",
+      "leadImageVerified": "Downloaded successfully and visually checked on 2026-10-30.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/cinemas/warrington-hotel",
+        "https://www.opentable.co.uk/r/the-warrington-hotel-maida-vale",
+        "https://www.openstreetmap.org/way/154952350",
+        "https://thewarringtonhotel.co.uk/",
+        "https://commons.wikimedia.org/wiki/File:The_Warrington_Hotel,_Maida_Vale_2025-08-20.jpg",
+        "https://commons.wikimedia.org/wiki/File:The_Warrington_exterior_detail_(5).jpg",
+        "https://commons.wikimedia.org/wiki/File:Warrington_Hotel,_Maida_Vale,_W9_(13583180833).jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided."
+    },
+    {
+      "id": "holy-tavern-14",
+      "rank": 14,
+      "name": "Holy Tavern",
+      "neighbourhood": "Clerkenwell",
+      "address": "55 Britton Street, Clerkenwell, London, EC1M 5UQ",
+      "postcode": "EC1M 5UQ",
+      "lat": 51.5217707,
+      "lng": -0.1040499,
+      "summary": "A small Clerkenwell tavern at the former Jerusalem Tavern address, furnished with plain wooden tables and floors. Its intimate rooms and heritage shopfront make it an atmospheric stop near Farringdon.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/holy-tavern",
+      "addressSourceUrl": "https://camra.org.uk/pubs/holy-tavern-london-156296",
+      "coordinateSourceUrl": "https://www.openstreetmap.org/way/186152883",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/71/Holy_Tavern%2C_Clerkenwell%2C_EC1.jpg/1280px-Holy_Tavern%2C_Clerkenwell%2C_EC1.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Holy_Tavern,_Clerkenwell,_EC1.jpg",
+          "credit": "Ewan Munro",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "title": "Holy Tavern, Clerkenwell, EC1.jpg",
+          "caption": "Holy Tavern, Clerkenwell, EC1",
+          "date": "2025-08-14 16:22:03"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/86/Jerusalem_Tavern_and_St_Johns_Path%2C_Britton_Street%2C_Clerkenwell_%28geograph_6031191%29.jpg/1280px-Jerusalem_Tavern_and_St_Johns_Path%2C_Britton_Street%2C_Clerkenwell_%28geograph_6031191%29.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Jerusalem_Tavern_and_St_Johns_Path,_Britton_Street,_Clerkenwell_(geograph_6031191).jpg",
+          "credit": "Chris Wood (User:chris_j_wood)",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "title": "Jerusalem Tavern and St Johns Path, Britton Street, Clerkenwell (geograph 6031191).jpg",
+          "caption": "Jerusalem Tavern and St Johns Path, Britton Street, Clerkenwell (geograph 6031191)",
+          "date": "Taken on 20 January 2019, 15:08:22"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7e/Clerkenwell_Britton_Street_Jerusalem_Tavern_%2834915806243%29.jpg/1280px-Clerkenwell_Britton_Street_Jerusalem_Tavern_%2834915806243%29.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Clerkenwell_Britton_Street_Jerusalem_Tavern_(34915806243).jpg",
+          "credit": "Paul The Archivist",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Clerkenwell Britton Street Jerusalem Tavern (34915806243).jpg",
+          "caption": "Clerkenwell Britton Street Jerusalem Tavern (34915806243)",
+          "date": "2017-04-01 17:24"
+        }
+      ],
+      "tags": [
+        "historic-interior",
+        "cask-ale"
+      ],
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance.",
+      "coordinateLicense": "OpenStreetMap contributors, ODbL 1.0",
+      "summarySourceUrl": "https://camra.org.uk/pubs/holy-tavern-london-156296",
+      "verificationNotes": "Rank and name checked against Time Out list updated 28 October 2026; summary independently written from cited source. Photos are credited, openly licensed historical views and may show older decor or signage. Two gallery photos show former Jerusalem Tavern signage at the same premises; current Holy Tavern image is first.",
+      "leadImageVerified": "Downloaded successfully and visually checked on 2026-10-30.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/holy-tavern",
+        "https://camra.org.uk/pubs/holy-tavern-london-156296",
+        "https://www.openstreetmap.org/way/186152883",
+        "https://commons.wikimedia.org/wiki/File:Holy_Tavern,_Clerkenwell,_EC1.jpg",
+        "https://commons.wikimedia.org/wiki/File:Jerusalem_Tavern_and_St_Johns_Path,_Britton_Street,_Clerkenwell_(geograph_6031191).jpg",
+        "https://commons.wikimedia.org/wiki/File:Clerkenwell_Britton_Street_Jerusalem_Tavern_(34915806243).jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided."
+    },
+    {
+      "id": "the-army-and-navy-15",
+      "rank": 15,
+      "name": "The Army and Navy",
+      "neighbourhood": "Newington Green",
+      "address": "1-3 Matthias Road, Mayville Estate, N16 8NN",
+      "postcode": "N16 8NN",
+      "lat": 51.551683,
+      "lng": -0.0798309,
+      "summary": "A Grade II-listed interwar pub opened by 1936, retaining a distinctive Truman’s-era layout and decorative fittings. Historic counters, bar-back details and former off-sales features make the building itself part of the attraction.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-army-and-navy",
+      "addressSourceUrl": "https://historicengland.org.uk/listing/the-list/list-entry/1428416",
+      "coordinateSourceUrl": "https://www.openstreetmap.org/way/381748316",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/89/Army_and_Navy%2C_Stoke_Newington%2C_N16_%283273470718%29.jpg/1280px-Army_and_Navy%2C_Stoke_Newington%2C_N16_%283273470718%29.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Army_and_Navy,_Stoke_Newington,_N16_(3273470718).jpg",
+          "credit": "Ewan Munro from London, UK",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Army and Navy, Stoke Newington, N16 (3273470718).jpg",
+          "caption": "Army and Navy, Stoke Newington, N16 (3273470718)",
+          "date": "2009-02-05 09:59"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/16/The_Army_and_Navy%2C_Stoke_Newington_-_geograph.org.uk_-_4568798.jpg/1280px-The_Army_and_Navy%2C_Stoke_Newington_-_geograph.org.uk_-_4568798.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Army_and_Navy,_Stoke_Newington_-_geograph.org.uk_-_4568798.jpg",
+          "credit": "Chris Whippet",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "The Army and Navy, Stoke Newington - geograph.org.uk - 4568798.jpg",
+          "caption": "The Army and Navy, Stoke Newington - geograph.org.uk - 4568798",
+          "date": "2015-07-12"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bf/The_Army_and_Navy%2C_public_house%2C_Shacklewell_-_geograph.org.uk_-_3322431.jpg/1280px-The_Army_and_Navy%2C_public_house%2C_Shacklewell_-_geograph.org.uk_-_3322431.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Army_and_Navy,_public_house,_Shacklewell_-_geograph.org.uk_-_3322431.jpg",
+          "credit": "David Anstiss",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "The Army and Navy, public house, Shacklewell - geograph.org.uk - 3322431.jpg",
+          "caption": "The Army and Navy, public house, Shacklewell - geograph.org.uk - 3322431",
+          "date": "2013-02-03"
+        }
+      ],
+      "tags": [
+        "historic-interior"
+      ],
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance.",
+      "coordinateLicense": "OpenStreetMap contributors, ODbL 1.0",
+      "summarySourceUrl": "https://historicengland.org.uk/listing/the-list/list-entry/1428416",
+      "verificationNotes": "Rank and name checked against Time Out list updated 28 October 2026; summary independently written from cited source. Photos are credited, openly licensed historical views and may show older decor or signage. Address postcode follows Time Out and Inapub N16 8NN; OSM/Wikipedia also record N16 8NT. Building identity verified independently.",
+      "leadImageVerified": "Downloaded successfully and visually checked on 2026-10-30.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/the-army-and-navy",
+        "https://historicengland.org.uk/listing/the-list/list-entry/1428416",
+        "https://www.openstreetmap.org/way/381748316",
+        "https://commons.wikimedia.org/wiki/File:Army_and_Navy,_Stoke_Newington,_N16_(3273470718).jpg",
+        "https://commons.wikimedia.org/wiki/File:The_Army_and_Navy,_Stoke_Newington_-_geograph.org.uk_-_4568798.jpg",
+        "https://commons.wikimedia.org/wiki/File:The_Army_and_Navy,_public_house,_Shacklewell_-_geograph.org.uk_-_3322431.jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided."
+    },
+    {
+      "id": "the-pocket-16",
+      "rank": 16,
+      "name": "The Pocket",
+      "neighbourhood": "Islington",
+      "address": "25 Canonbury Lane, Islington, N1 2AS",
+      "postcode": "N1 2AS",
+      "lat": 51.5430848,
+      "lng": -0.1027341,
+      "summary": "A revived Canonbury pub from the Southampton Arms team, focused on independent beer and cider. The interior dispenses with televisions and piped music in favour of conversation and a piano.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-pocket",
+      "addressSourceUrl": "https://northlondon.camra.org.uk/viewnode.php?id=269012",
+      "coordinateSourceUrl": "https://www.openstreetmap.org/way/31284161",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/95/The_Pocket_25_Canonbury_Lane_interior_-_2026-07-15.jpg/1280px-The_Pocket_25_Canonbury_Lane_interior_-_2026-07-15.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Pocket_25_Canonbury_Lane_interior_-_2026-07-15.jpg",
+          "credit": "Matt Brown",
+          "license": "CC BY 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+          "title": "The Pocket 25 Canonbury Lane interior - 2026-07-15.jpg",
+          "caption": "The Pocket 25 Canonbury Lane interior - 2026-07-15",
+          "date": "2026-07-15 12:35:39"
+        }
+      ],
+      "tags": [
+        "cask-ale",
+        "cider",
+        "piano"
+      ],
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance.",
+      "coordinateLicense": "OpenStreetMap contributors, ODbL 1.0",
+      "summarySourceUrl": "https://northlondon.camra.org.uk/viewnode.php?id=269012",
+      "verificationNotes": "Rank and name checked against Time Out list updated 28 October 2026; summary independently written from cited source. Photos are credited, openly licensed historical views and may show older decor or signage.",
+      "leadImageVerified": "Downloaded successfully and visually checked on 2026-10-30.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/the-pocket",
+        "https://northlondon.camra.org.uk/viewnode.php?id=269012",
+        "https://www.openstreetmap.org/way/31284161",
+        "https://commons.wikimedia.org/wiki/File:The_Pocket_25_Canonbury_Lane_interior_-_2026-07-15.jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided."
+    },
+    {
+      "id": "prince-edward-17",
+      "rank": 17,
+      "name": "Prince Edward",
+      "neighbourhood": "Holloway",
+      "address": "38 Parkhurst Road, Holloway, N7 0SF",
+      "postcode": "N7 0SF",
+      "lat": 51.5554282,
+      "lng": -0.1218795,
+      "summary": "A Holloway corner pub with an ornate central bar, patterned Victorian ceilings and rare copper relief panels. Curving red banquettes provide a particularly distinctive backdrop for a relaxed local pint.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "addressSourceUrl": "https://camra-phg.s3-eu-west-1.amazonaws.com/pub_guides/London.pdf",
+      "coordinateSourceUrl": "https://www.openstreetmap.org/node/306553504",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/61/Prince_Edward%2C_Lower_Holloway%2C_2026-01-24.jpg/1280px-Prince_Edward%2C_Lower_Holloway%2C_2026-01-24.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Prince_Edward,_Lower_Holloway,_2026-01-24.jpg",
+          "credit": "Ewan Munro",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "title": "Prince Edward, Lower Holloway, 2026-01-24.jpg",
+          "caption": "Prince Edward, Lower Holloway, 2026-01-24",
+          "date": "2026-01-24 15:41:29"
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/9/91/Prince_Edward%2C_Lower_Holloway%2C_N7_-_2775067339.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Prince_Edward,_Lower_Holloway,_N7_-_2775067339.jpg",
+          "credit": "Ewan Munro",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Prince Edward, Lower Holloway, N7 - 2775067339.jpg",
+          "caption": "Prince Edward, Lower Holloway, N7 - 2775067339",
+          "date": "2008-07-24 17:46:05"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/ff/Prince_Edward%2C_Lower_Holloway%2C_N7.jpg/1280px-Prince_Edward%2C_Lower_Holloway%2C_N7.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Prince_Edward,_Lower_Holloway,_N7.jpg",
+          "credit": "Ewan Munro",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Prince Edward, Lower Holloway, N7.jpg",
+          "caption": "Prince Edward, Lower Holloway, N7",
+          "date": "2008-07-24 17:45:27"
+        }
+      ],
+      "tags": [
+        "historic-interior"
+      ],
+      "summarySourceUrl": "https://camra-phg.s3-eu-west-1.amazonaws.com/pub_guides/London.pdf",
+      "verificationNotes": "Rank and name checked against Time Out list updated 28 October 2026; summary independently written from cited source. Photos are credited, openly licensed historical views and may show older decor or signage. OpenStreetMap node reverse-address falls on Williamson Street, which meets Parkhurst Road at this pub; position agrees with independently published venue location.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance.",
+      "coordinateLicense": "OpenStreetMap contributors, ODbL 1.0",
+      "leadImageVerified": "Downloaded successfully and visually checked on 2026-10-30.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://camra-phg.s3-eu-west-1.amazonaws.com/pub_guides/London.pdf",
+        "https://www.openstreetmap.org/node/306553504",
+        "https://commons.wikimedia.org/wiki/File:Prince_Edward,_Lower_Holloway,_2026-01-24.jpg",
+        "https://commons.wikimedia.org/wiki/File:Prince_Edward,_Lower_Holloway,_N7_-_2775067339.jpg",
+        "https://commons.wikimedia.org/wiki/File:Prince_Edward,_Lower_Holloway,_N7.jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided."
+    },
+    {
+      "id": "angie-s-freehouse-18",
+      "rank": 18,
+      "name": "Angie’s Freehouse",
+      "neighbourhood": "Maida Hill",
+      "address": "33-35 Woodfield Place, Maida Hill, W9 2BJ",
+      "postcode": "W9 2BJ",
+      "lat": 51.523,
+      "lng": -0.200898,
+      "summary": "A neighbourhood Irish pub just off Harrow Road, with Tudor-style detailing and several screens for sport. Drinks and conversation take priority here rather than a food menu, with outdoor seating available.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/angies-freehouse",
+      "addressSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=212995",
+      "coordinateSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=212995",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e0/Angie%27s_II%2C_Maida_Hill%2C_W9.jpg/1280px-Angie%27s_II%2C_Maida_Hill%2C_W9.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Angie%27s_II,_Maida_Hill,_W9.jpg",
+          "credit": "Ewan-M",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Angie's II, Maida Hill, W9.jpg",
+          "caption": "Angie's II, Maida Hill, W9",
+          "date": "2010-01-03 15:03:57"
+        }
+      ],
+      "tags": [
+        "Irish pub",
+        "Sports",
+        "Outdoor seating"
+      ],
+      "summarySourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=212995",
+      "verificationNotes": "Building-level published pub map pin; not a postcode centroid. Coordinates are limited to source precision.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/angies-freehouse",
+        "https://www.london.camra.org.uk/viewnode.php?id=212995",
+        "https://commons.wikimedia.org/wiki/File:Angie%27s_II,_Maida_Hill,_W9.jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "cross-keys-19",
+      "rank": 19,
+      "name": "Cross Keys",
+      "neighbourhood": "Covent Garden",
+      "address": "31 Endell Street, Covent Garden, London, WC2H 9BA",
+      "postcode": "WC2H 9BA",
+      "lat": 51.5146,
+      "lng": -0.124723,
+      "summary": "Behind a leafy frontage on Endell Street, this listed nineteenth-century pub packs its rooms with brewery mirrors, portraits and curious objects. Cask beer and pavement-side drinking keep it firmly rooted in Covent Garden pub life.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/cross-keys",
+      "addressSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=127566",
+      "coordinateSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=127566",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/00/Cross_Keys%2C_Covent_Garden%2C_WC2.jpg/1280px-Cross_Keys%2C_Covent_Garden%2C_WC2.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Cross_Keys,_Covent_Garden,_WC2.jpg",
+          "credit": "Ewan-M",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "title": "Cross Keys, Covent Garden, WC2.jpg",
+          "caption": "Cross Keys, Covent Garden, WC2",
+          "date": "2025-11-29 15:39:15"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4d/Christmas_decorations_at_the_Cross_Keys%2C_Covent_Garden%2C_November_2023_01.jpg/1280px-Christmas_decorations_at_the_Cross_Keys%2C_Covent_Garden%2C_November_2023_01.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Christmas_decorations_at_the_Cross_Keys,_Covent_Garden,_November_2023_01.jpg",
+          "credit": "No Swan So Fine",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "title": "Christmas decorations at the Cross Keys, Covent Garden, November 2023 01.jpg",
+          "caption": "Christmas decorations at the Cross Keys, Covent Garden, November 2023 01",
+          "date": "2023-11-25"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f5/Cross_Keys%2C_Covent_Garden%2C_WC2_%284497840329%29.jpg/1280px-Cross_Keys%2C_Covent_Garden%2C_WC2_%284497840329%29.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Cross_Keys,_Covent_Garden,_WC2_(4497840329).jpg",
+          "credit": "Ewan Munro from London, UK",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Cross Keys, Covent Garden, WC2 (4497840329).jpg",
+          "caption": "Cross Keys, Covent Garden, WC2 (4497840329)",
+          "date": "2009-05-12 13:26"
+        }
+      ],
+      "tags": [
+        "Historic",
+        "Cask ale",
+        "Outdoor seating"
+      ],
+      "summarySourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=127566",
+      "verificationNotes": "Building-level published pub map pin; not a postcode centroid. Coordinates are limited to source precision. Time Out prints WC2H 9EB; CAMRA, Camden premises licence and FSA confirm WC2H 9BA for 31 Endell Street.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/cross-keys",
+        "https://www.london.camra.org.uk/viewnode.php?id=127566",
+        "https://commons.wikimedia.org/wiki/File:Cross_Keys,_Covent_Garden,_WC2.jpg",
+        "https://commons.wikimedia.org/wiki/File:Christmas_decorations_at_the_Cross_Keys,_Covent_Garden,_November_2023_01.jpg",
+        "https://commons.wikimedia.org/wiki/File:Cross_Keys,_Covent_Garden,_WC2_(4497840329).jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "the-ivy-house-20",
+      "rank": 20,
+      "name": "The Ivy House",
+      "neighbourhood": "Nunhead",
+      "address": "40 Stuart Road, Nunhead, SE15 3BE",
+      "postcode": "SE15 3BE",
+      "lat": 51.4582,
+      "lng": -0.0520557,
+      "summary": "Community ownership brought this Nunhead landmark back to life in 2013. Its surviving Truman’s fittings, generous rear rooms and stage make it a distinctive setting for live music, local gatherings and a pint.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-ivy-house",
+      "addressSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=127883",
+      "coordinateSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=127883",
+      "images": [
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/e/e6/The_Ivy_House%2C_Nunhead_-_geograph.org.uk_-_1249799.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Ivy_House,_Nunhead_-_geograph.org.uk_-_1249799.jpg",
+          "credit": "Chris Whippet",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "The Ivy House, Nunhead - geograph.org.uk - 1249799.jpg",
+          "caption": "The Ivy House, Nunhead - geograph.org.uk - 1249799",
+          "date": "2009-03-21"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e2/%22The_Ivy_House%22_public_house%2C_Nunhead_-_geograph.org.uk_-_5210747.jpg/1280px-%22The_Ivy_House%22_public_house%2C_Nunhead_-_geograph.org.uk_-_5210747.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:%22The_Ivy_House%22_public_house,_Nunhead_-_geograph.org.uk_-_5210747.jpg",
+          "credit": "Jim Osley",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "\"The Ivy House\" public house, Nunhead - geograph.org.uk - 5210747.jpg",
+          "caption": "\"The Ivy House\" public house, Nunhead - geograph.org.uk - 5210747",
+          "date": "2016-11-24"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/91/Ivy_House%2C_Nunhead%2C_London_%285921178513%29.jpg/1280px-Ivy_House%2C_Nunhead%2C_London_%285921178513%29.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Ivy_House,_Nunhead,_London_(5921178513).jpg",
+          "credit": "Ewan Munro from London, UK",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Ivy House, Nunhead, London (5921178513).jpg",
+          "caption": "Ivy House, Nunhead, London (5921178513)",
+          "date": "2011-07-07 21:21"
+        }
+      ],
+      "tags": [
+        "Community owned",
+        "Live music",
+        "Historic"
+      ],
+      "summarySourceUrl": "https://camra.org.uk/pubs/ivy-house-nunhead-158577",
+      "verificationNotes": "Building-level published pub map pin; not a postcode centroid. Coordinates are limited to source precision.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/the-ivy-house",
+        "https://www.london.camra.org.uk/viewnode.php?id=127883",
+        "https://camra.org.uk/pubs/ivy-house-nunhead-158577",
+        "https://commons.wikimedia.org/wiki/File:The_Ivy_House,_Nunhead_-_geograph.org.uk_-_1249799.jpg",
+        "https://commons.wikimedia.org/wiki/File:%22The_Ivy_House%22_public_house,_Nunhead_-_geograph.org.uk_-_5210747.jpg",
+        "https://commons.wikimedia.org/wiki/File:Ivy_House,_Nunhead,_London_(5921178513).jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "macintosh-ale-house-21",
+      "rank": 21,
+      "name": "Macintosh Ale House",
+      "neighbourhood": "Stoke Newington",
+      "address": "1 Bouverie Road, Stoke Newington, N16 0AH",
+      "postcode": "N16 0AH",
+      "lat": 51.5634,
+      "lng": -0.079774,
+      "summary": "A small brewery tap tucked into a former stable mews off Church Street. Macintosh’s own bitter and pale ale anchor a deliberately compact selection, with a few indoor tables and brewing memorabilia around the room.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/macintosh-ales",
+      "addressSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=201389",
+      "coordinateSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=201389",
+      "images": [
+        {
+          "url": "https://live.staticflickr.com/65535/54474994838_72dab365fc_b.jpg",
+          "sourceUrl": "https://www.flickr.com/photos/londonmatt/54474994838",
+          "credit": "Matt Brown",
+          "license": "CC BY 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+          "title": "Macintosh Ales exterior",
+          "caption": "Macintosh Ales exterior",
+          "date": "2025-04-12"
+        },
+        {
+          "url": "https://live.staticflickr.com/65535/54474917254_ea629ced5e_b.jpg",
+          "sourceUrl": "https://www.flickr.com/photos/londonmatt/54474917254",
+          "credit": "Matt Brown",
+          "license": "CC BY 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+          "title": "Macintosh Ales sign",
+          "caption": "Macintosh Ales sign",
+          "date": "2025-04-12"
+        },
+        {
+          "url": "https://live.staticflickr.com/65535/54473880052_7c05470982_b.jpg",
+          "sourceUrl": "https://www.flickr.com/photos/londonmatt/54473880052",
+          "credit": "Matt Brown",
+          "license": "CC BY 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+          "title": "Darts at Macintosh Ales",
+          "caption": "Darts at Macintosh Ales",
+          "date": "2025-04-12"
+        }
+      ],
+      "tags": [
+        "Brewery tap",
+        "Cask ale",
+        "Intimate"
+      ],
+      "summarySourceUrl": "https://camra.org.uk/pubs/macintosh-ale-house-stoke-newington-197092",
+      "verificationNotes": "Building-level published pub map pin; not a postcode centroid. Coordinates are limited to source precision.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/macintosh-ales",
+        "https://www.london.camra.org.uk/viewnode.php?id=201389",
+        "https://camra.org.uk/pubs/macintosh-ale-house-stoke-newington-197092",
+        "https://www.flickr.com/photos/londonmatt/54474994838",
+        "https://www.flickr.com/photos/londonmatt/54474917254",
+        "https://www.flickr.com/photos/londonmatt/54473880052"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "the-cockpit-22",
+      "rank": 22,
+      "name": "The Cockpit",
+      "neighbourhood": "City of London",
+      "address": "7 St Andrew’s Hill, City of London, EC4V 5BY",
+      "postcode": "EC4V 5BY",
+      "lat": 51.5127,
+      "lng": -0.101445,
+      "summary": "A compact corner pub near Blackfriars, rebuilt in the nineteenth century on a much older site. Steps lead to its curved bar, with high galleries and cockfighting-themed pictures giving the room its unusual shape and character.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "addressSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=245044",
+      "coordinateSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=245044",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Outside_The_Cockpit_Pub%2C_London.jpg/1280px-Outside_The_Cockpit_Pub%2C_London.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Outside_The_Cockpit_Pub,_London.jpg",
+          "credit": "Tim Sheerman-Chase",
+          "license": "CC BY 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+          "title": "Outside The Cockpit Pub, London.jpg",
+          "caption": "Outside The Cockpit Pub, London",
+          "date": "2023-09-23 14:17:26"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e6/Interior_of_The_Cockpit%2C_Blackfriars%2C_March_2023_01.jpg/1280px-Interior_of_The_Cockpit%2C_Blackfriars%2C_March_2023_01.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Interior_of_The_Cockpit,_Blackfriars,_March_2023_01.jpg",
+          "credit": "No Swan So Fine",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "title": "Interior of The Cockpit, Blackfriars, March 2023 01.jpg",
+          "caption": "Interior of The Cockpit, Blackfriars, March 2023 01",
+          "date": "2023-03-22"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0a/Entrance_to_The_Cockpit_Pub%2C_London.jpg/1280px-Entrance_to_The_Cockpit_Pub%2C_London.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Entrance_to_The_Cockpit_Pub,_London.jpg",
+          "credit": "Tim Sheerman-Chase",
+          "license": "CC BY 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+          "title": "Entrance to The Cockpit Pub, London.jpg",
+          "caption": "Entrance to The Cockpit Pub, London",
+          "date": "2023-09-23 14:18:39"
+        }
+      ],
+      "tags": [
+        "Historic",
+        "Cask ale",
+        "City"
+      ],
+      "summarySourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=245044",
+      "verificationNotes": "Building-level published pub map pin; not a postcode centroid. Coordinates are limited to source precision.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.london.camra.org.uk/viewnode.php?id=245044",
+        "https://commons.wikimedia.org/wiki/File:Outside_The_Cockpit_Pub,_London.jpg",
+        "https://commons.wikimedia.org/wiki/File:Interior_of_The_Cockpit,_Blackfriars,_March_2023_01.jpg",
+        "https://commons.wikimedia.org/wiki/File:Entrance_to_The_Cockpit_Pub,_London.jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "old-coffee-house-23",
+      "rank": 23,
+      "name": "Old Coffee House",
+      "neighbourhood": "Soho",
+      "address": "49 Beak Street, Soho, W1F 9SF",
+      "postcode": "W1F 9SF",
+      "lat": 51.5126,
+      "lng": -0.13736,
+      "summary": "An independent Soho pub with a long wooden bar, dark panelling and a collection of brewery mirrors. Its quieter rear seating and lunchtime pub food provide a useful retreat from nearby Carnaby Street.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/old-coffee-house",
+      "addressSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=212754",
+      "coordinateSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=212754",
+      "images": [
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/6/6c/Old_Coffee_House%2C_Beak_Street_-_geograph.org.uk_-_5791090.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Old_Coffee_House,_Beak_Street_-_geograph.org.uk_-_5791090.jpg",
+          "credit": "Stephen Richards",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Old Coffee House, Beak Street - geograph.org.uk - 5791090.jpg",
+          "caption": "Old Coffee House, Beak Street - geograph.org.uk - 5791090",
+          "date": "2014-05-04"
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/8/8f/The_Old_Coffee_House%2C_Beak_Street_-_geograph.org.uk_-_1102526.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Old_Coffee_House,_Beak_Street_-_geograph.org.uk_-_1102526.jpg",
+          "credit": "Basher Eyre",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "The Old Coffee House, Beak Street - geograph.org.uk - 1102526.jpg",
+          "caption": "The Old Coffee House, Beak Street - geograph.org.uk - 1102526",
+          "date": "2009-01-02"
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/7/71/Old_Coffee_House_sign_-_geograph.org.uk_-_4582964.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Old_Coffee_House_sign_-_geograph.org.uk_-_4582964.jpg",
+          "credit": "Oast House Archive",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Old Coffee House sign - geograph.org.uk - 4582964.jpg",
+          "caption": "Old Coffee House sign - geograph.org.uk - 4582964",
+          "date": "2015-07-23"
+        }
+      ],
+      "tags": [
+        "Cask ale",
+        "Pub food",
+        "Historic"
+      ],
+      "summarySourceUrl": "https://camra.org.uk/pubs/old-coffee-house-london-128643",
+      "verificationNotes": "Building-level published pub map pin; not a postcode centroid. Coordinates are limited to source precision.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/old-coffee-house",
+        "https://www.london.camra.org.uk/viewnode.php?id=212754",
+        "https://camra.org.uk/pubs/old-coffee-house-london-128643",
+        "https://commons.wikimedia.org/wiki/File:Old_Coffee_House,_Beak_Street_-_geograph.org.uk_-_5791090.jpg",
+        "https://commons.wikimedia.org/wiki/File:The_Old_Coffee_House,_Beak_Street_-_geograph.org.uk_-_1102526.jpg",
+        "https://commons.wikimedia.org/wiki/File:Old_Coffee_House_sign_-_geograph.org.uk_-_4582964.jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "the-duke-24",
+      "rank": 24,
+      "name": "The Duke",
+      "neighbourhood": "Bloomsbury",
+      "address": "7 Roger Street, Bloomsbury, WC1N 2PB",
+      "postcode": "WC1N 2PB",
+      "lat": 51.5227,
+      "lng": -0.1165,
+      "summary": "This Bloomsbury pub preserves Art Deco details from 1938, with a wood-panelled lounge and a larger corner bar. Booth seating creates pockets for conversation, a short stroll from the Charles Dickens Museum.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-duke-3",
+      "addressSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=127515",
+      "coordinateSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=127515",
+      "images": [
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/a/aa/Duke%2C_Bloomsbury%2C_WC1_%282843228043%29.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Duke,_Bloomsbury,_WC1_(2843228043).jpg",
+          "credit": "Ewan Munro from London, UK",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Duke, Bloomsbury, WC1 (2843228043).jpg",
+          "caption": "Duke, Bloomsbury, WC1 (2843228043)",
+          "date": "2008-08-18 18:02"
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/d/d3/The_Duke_Public_House%2C_7_Roger_Street%2C_London_WC1_-_geograph.org.uk_-_392653.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Duke_Public_House,_7_Roger_Street,_London_WC1_-_geograph.org.uk_-_392653.jpg",
+          "credit": "R Sones",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "The Duke Public House, 7 Roger Street, London WC1 - geograph.org.uk - 392653.jpg",
+          "caption": "The Duke Public House, 7 Roger Street, London WC1 - geograph.org.uk - 392653",
+          "date": "2006"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/39/21_John_Street%2C_The_Duke_of_York_Public_House_on_Roger_Street%2C_and_1-4_Mytre_Court_on_John_Mews%2C_December_2023_04.jpg/1280px-21_John_Street%2C_The_Duke_of_York_Public_House_on_Roger_Street%2C_and_1-4_Mytre_Court_on_John_Mews%2C_December_2023_04.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:21_John_Street,_The_Duke_of_York_Public_House_on_Roger_Street,_and_1-4_Mytre_Court_on_John_Mews,_December_2023_04.jpg",
+          "credit": "No Swan So Fine",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "title": "21 John Street, The Duke of York Public House on Roger Street, and 1-4 Mytre Court on John Mews, December 2023 04.jpg",
+          "caption": "21 John Street, The Duke of York Public House on Roger Street, and 1-4 Mytre Court on John Mews, December 2023 04",
+          "date": "2023-12-22"
+        }
+      ],
+      "tags": [
+        "Historic",
+        "Cask ale",
+        "Art Deco"
+      ],
+      "summarySourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=127515",
+      "verificationNotes": "Building-level published pub map pin; not a postcode centroid. Coordinates are limited to source precision.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/the-duke-3",
+        "https://www.london.camra.org.uk/viewnode.php?id=127515",
+        "https://commons.wikimedia.org/wiki/File:Duke,_Bloomsbury,_WC1_(2843228043).jpg",
+        "https://commons.wikimedia.org/wiki/File:The_Duke_Public_House,_7_Roger_Street,_London_WC1_-_geograph.org.uk_-_392653.jpg",
+        "https://commons.wikimedia.org/wiki/File:21_John_Street,_The_Duke_of_York_Public_House_on_Roger_Street,_and_1-4_Mytre_Court_on_John_Mews,_December_2023_04.jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "auld-shillelagh-25",
+      "rank": 25,
+      "name": "Auld Shillelagh",
+      "neighbourhood": "Stoke Newington",
+      "address": "105 Stoke Newington Church Street, N16 0UD",
+      "postcode": "N16 0UD",
+      "lat": 51.5619,
+      "lng": -0.07956,
+      "summary": "An Irish-run Church Street pub established under its current name in 1991. A long interior leads to the rear garden, while regular live music and televised Gaelic games give visitors plenty to gather around.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/auld-shillelagh",
+      "addressSourceUrl": "https://camra.org.uk/pubs/auld-shillelagh-stoke-newington-125003",
+      "coordinateSourceUrl": "https://camra.org.uk/pubs/auld-shillelagh-stoke-newington-125003",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ac/Auld_Shillelagh%2C_Stoke_Newington%2C_N16.jpg/1280px-Auld_Shillelagh%2C_Stoke_Newington%2C_N16.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Auld_Shillelagh,_Stoke_Newington,_N16.jpg",
+          "credit": "Ewan-M",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "title": "Auld Shillelagh, Stoke Newington, N16.jpg",
+          "caption": "Auld Shillelagh, Stoke Newington, N16",
+          "date": "2025-12-29 12:18:42"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c6/The_Auld_Shillelagh_2025-04-12.jpg/1280px-The_Auld_Shillelagh_2025-04-12.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Auld_Shillelagh_2025-04-12.jpg",
+          "credit": "Matt Brown",
+          "license": "CC BY 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+          "title": "The Auld Shillelagh 2025-04-12.jpg",
+          "caption": "The Auld Shillelagh 2025-04-12",
+          "date": "2025-04-12 13:51:15"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b6/Auld_Shillelagh%2C_Stoke_Newington%2C_N16_%282584644641%29.jpg/1280px-Auld_Shillelagh%2C_Stoke_Newington%2C_N16_%282584644641%29.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Auld_Shillelagh,_Stoke_Newington,_N16_(2584644641).jpg",
+          "credit": "Ewan Munro from London, UK",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Auld Shillelagh, Stoke Newington, N16 (2584644641).jpg",
+          "caption": "Auld Shillelagh, Stoke Newington, N16 (2584644641)",
+          "date": "2009-08-15 13:46"
+        }
+      ],
+      "tags": [
+        "Irish pub",
+        "Live music",
+        "Garden",
+        "Sports"
+      ],
+      "summarySourceUrl": "https://theauldshillelagh.co.uk/what-we-do",
+      "verificationNotes": "Building-level published pub map pin; not a postcode centroid. Coordinates are limited to source precision.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/auld-shillelagh",
+        "https://camra.org.uk/pubs/auld-shillelagh-stoke-newington-125003",
+        "https://theauldshillelagh.co.uk/what-we-do",
+        "https://commons.wikimedia.org/wiki/File:Auld_Shillelagh,_Stoke_Newington,_N16.jpg",
+        "https://commons.wikimedia.org/wiki/File:The_Auld_Shillelagh_2025-04-12.jpg",
+        "https://commons.wikimedia.org/wiki/File:Auld_Shillelagh,_Stoke_Newington,_N16_(2584644641).jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "lord-clyde-26",
+      "rank": 26,
+      "name": "Lord Clyde",
+      "neighbourhood": "Borough",
+      "address": "27 Clennam Street, Southwark, SE1 1ER",
+      "postcode": "SE1 1ER",
+      "lat": 51.5028,
+      "lng": -0.095557,
+      "summary": "Truman’s tilework announces this tucked-away Borough pub before you reach the door. Inside, wood panelling and a separate rear room preserve its traditional layout, with pavement tables adding an outdoor option.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/lord-clyde",
+      "addressSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=127664",
+      "coordinateSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=127664",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/79/The_Lord_Clyde_%287327428172%29.jpg/1280px-The_Lord_Clyde_%287327428172%29.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Lord_Clyde_(7327428172).jpg",
+          "credit": "Reading Tom from Reading, UK",
+          "license": "CC BY 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+          "title": "The Lord Clyde (7327428172).jpg",
+          "caption": "The Lord Clyde (7327428172)",
+          "date": "2012-05-13 11:14"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/78/Lord_Clyde%2C_Borough%2C_SE1_%282942379963%29.jpg/1280px-Lord_Clyde%2C_Borough%2C_SE1_%282942379963%29.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Lord_Clyde,_Borough,_SE1_(2942379963).jpg",
+          "credit": "Ewan Munro from London, UK",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Lord Clyde, Borough, SE1 (2942379963).jpg",
+          "caption": "Lord Clyde, Borough, SE1 (2942379963)",
+          "date": "2008-07-22 18:07"
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/4/45/The_Lord_Clyde%2C_Clennam_Street_-_geograph.org.uk_-_4814028.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Lord_Clyde,_Clennam_Street_-_geograph.org.uk_-_4814028.jpg",
+          "credit": "Stephen Richards",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "The Lord Clyde, Clennam Street - geograph.org.uk - 4814028.jpg",
+          "caption": "The Lord Clyde, Clennam Street - geograph.org.uk - 4814028",
+          "date": "2013-05-05"
+        }
+      ],
+      "tags": [
+        "Historic",
+        "Cask ale",
+        "Outdoor seating"
+      ],
+      "summarySourceUrl": "https://camra.org.uk/pubs/lord-clyde-london-158358",
+      "verificationNotes": "Building-level published pub map pin; not a postcode centroid. Coordinates are limited to source precision.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/lord-clyde",
+        "https://www.london.camra.org.uk/viewnode.php?id=127664",
+        "https://camra.org.uk/pubs/lord-clyde-london-158358",
+        "https://commons.wikimedia.org/wiki/File:The_Lord_Clyde_(7327428172).jpg",
+        "https://commons.wikimedia.org/wiki/File:Lord_Clyde,_Borough,_SE1_(2942379963).jpg",
+        "https://commons.wikimedia.org/wiki/File:The_Lord_Clyde,_Clennam_Street_-_geograph.org.uk_-_4814028.jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "the-famous-royal-oak-27",
+      "rank": 27,
+      "name": "The Famous Royal Oak",
+      "neighbourhood": "Muswell Hill",
+      "address": "73 St James's Lane, Muswell Hill, N10 3QY",
+      "postcode": "N10 3QY",
+      "lat": 51.5884,
+      "lng": -0.14159,
+      "summary": "Below Muswell Hill’s old railway arches, this local combines a memorabilia-filled main bar with a pool room. Its front terrace, live piano sessions and quiz nights offer different ways to settle in.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-famous-royal-oak",
+      "addressSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=126995",
+      "coordinateSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=126995",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ed/Famous_Royal_Oak%2C_Muswell_Hill%2C_N10.jpg/1280px-Famous_Royal_Oak%2C_Muswell_Hill%2C_N10.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Famous_Royal_Oak,_Muswell_Hill,_N10.jpg",
+          "credit": "Ewan Munro",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Famous Royal Oak, Muswell Hill, N10.jpg",
+          "caption": "Famous Royal Oak, Muswell Hill, N10",
+          "date": "2013-02-02 10:15:59"
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/3/31/The_Famous_Royal_Oak%2C_Muswell_Hill_-_geograph.org.uk_-_1080374.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Famous_Royal_Oak,_Muswell_Hill_-_geograph.org.uk_-_1080374.jpg",
+          "credit": "Chris Whippet",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "The Famous Royal Oak, Muswell Hill - geograph.org.uk - 1080374.jpg",
+          "caption": "The Famous Royal Oak, Muswell Hill - geograph.org.uk - 1080374",
+          "date": "2008-12-15"
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/d/d7/The_Royal_Oak%2C_St_James%27s_Lane_-_geograph.org.uk_-_473843.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Royal_Oak,_St_James%27s_Lane_-_geograph.org.uk_-_473843.jpg",
+          "credit": "Pierre Terre",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "The Royal Oak, St James's Lane - geograph.org.uk - 473843.jpg",
+          "caption": "The Royal Oak, St James's Lane - geograph.org.uk - 473843",
+          "date": "2006-11-12"
+        }
+      ],
+      "tags": [
+        "Pool",
+        "Live music",
+        "Outdoor seating",
+        "Quiz"
+      ],
+      "summarySourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=126995",
+      "verificationNotes": "Building-level published pub map pin; not a postcode centroid. Coordinates are limited to source precision.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/the-famous-royal-oak",
+        "https://www.london.camra.org.uk/viewnode.php?id=126995",
+        "https://commons.wikimedia.org/wiki/File:Famous_Royal_Oak,_Muswell_Hill,_N10.jpg",
+        "https://commons.wikimedia.org/wiki/File:The_Famous_Royal_Oak,_Muswell_Hill_-_geograph.org.uk_-_1080374.jpg",
+        "https://commons.wikimedia.org/wiki/File:The_Royal_Oak,_St_James%27s_Lane_-_geograph.org.uk_-_473843.jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "the-ship-28",
+      "rank": 28,
+      "name": "The Ship",
+      "neighbourhood": "Fitzrovia",
+      "address": "134 New Cavendish Street, Fitzrovia, W1W 6YB",
+      "postcode": "W1W 6YB",
+      "lat": 51.52042,
+      "lng": -0.140752,
+      "summary": "An independent Fitzrovia pub occupying a listed corner building on New Cavendish Street. Traditional surroundings frame its selection of beer, wine and spirits, with an upstairs function room and private bar for gatherings.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-ship-5",
+      "addressSourceUrl": "https://theshipw1.com/",
+      "coordinateSourceUrl": "https://camra.org.uk/pubs/ship-london-129257",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f2/The_Ship_public_house_01.JPG/1280px-The_Ship_public_house_01.JPG",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Ship_public_house_01.JPG",
+          "credit": "Philafrenzy",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "title": "The Ship public house 01.JPG",
+          "caption": "The Ship public house 01",
+          "date": "2016-03-19 14:47:44"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c0/The_Ship_public_house_02.JPG/1280px-The_Ship_public_house_02.JPG",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Ship_public_house_02.JPG",
+          "credit": "Philafrenzy",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "title": "The Ship public house 02.JPG",
+          "caption": "The Ship public house 02",
+          "date": "2016-03-19 14:47:48"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f8/The_Ship_public_house%2C_134_New_Cavendish_Street%2C_London_-_geograph.org.uk_-_6533967.jpg/1280px-The_Ship_public_house%2C_134_New_Cavendish_Street%2C_London_-_geograph.org.uk_-_6533967.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Ship_public_house,_134_New_Cavendish_Street,_London_-_geograph.org.uk_-_6533967.jpg",
+          "credit": "Andrew Abbott",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "The Ship public house, 134 New Cavendish Street, London - geograph.org.uk - 6533967.jpg",
+          "caption": "The Ship public house, 134 New Cavendish Street, London - geograph.org.uk - 6533967",
+          "date": "2020-07-11"
+        }
+      ],
+      "tags": [
+        "Independent",
+        "Historic",
+        "Function room"
+      ],
+      "summarySourceUrl": "https://theshipw1.com/",
+      "verificationNotes": "Building-level CAMRA JSON-LD GeoCoordinates pin, cross-checked against Wikidata-linked Commons building coordinates. Official website confirms address; not a postcode centroid.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/the-ship-5",
+        "https://theshipw1.com/",
+        "https://camra.org.uk/pubs/ship-london-129257",
+        "https://commons.wikimedia.org/wiki/File:The_Ship_public_house_01.JPG",
+        "https://commons.wikimedia.org/wiki/File:The_Ship_public_house_02.JPG",
+        "https://commons.wikimedia.org/wiki/File:The_Ship_public_house,_134_New_Cavendish_Street,_London_-_geograph.org.uk_-_6533967.jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "palm-tree-29",
+      "rank": 29,
+      "name": "Palm Tree",
+      "neighbourhood": "Mile End",
+      "address": "127 Grove Road, Mile End, London, E3 5RP",
+      "postcode": "E3 5RP",
+      "lat": 51.5291,
+      "lng": -0.040702,
+      "summary": "Standing beside Mile End Park, this listed former Truman’s pub retains a two-room layout and many period fittings. Live music is part of the draw; bring cash, as card payments are not taken.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/palm-tree",
+      "addressSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=245070",
+      "coordinateSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=245070",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8d/The_Palm_Tree_Public_House%2C_Mile_End_Park_%2801%29.jpg/1280px-The_Palm_Tree_Public_House%2C_Mile_End_Park_%2801%29.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Palm_Tree_Public_House,_Mile_End_Park_(01).jpg",
+          "credit": "Ethan Doyle White",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "title": "The Palm Tree Public House, Mile End Park (01).jpg",
+          "caption": "The Palm Tree Public House, Mile End Park (01)",
+          "date": "2021-06-08 12:45:34"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/37/The_Palm_Tree_Public_House%2C_Mile_End_Park_%2802%29.jpg/1280px-The_Palm_Tree_Public_House%2C_Mile_End_Park_%2802%29.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Palm_Tree_Public_House,_Mile_End_Park_(02).jpg",
+          "credit": "Ethan Doyle White",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "title": "The Palm Tree Public House, Mile End Park (02).jpg",
+          "caption": "The Palm Tree Public House, Mile End Park (02)",
+          "date": "2021-06-08 12:45:42"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3c/The_Palm_Tree_Public_House%2C_Mile_End_Park_%2803%29.jpg/1280px-The_Palm_Tree_Public_House%2C_Mile_End_Park_%2803%29.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Palm_Tree_Public_House,_Mile_End_Park_(03).jpg",
+          "credit": "Ethan Doyle White",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "title": "The Palm Tree Public House, Mile End Park (03).jpg",
+          "caption": "The Palm Tree Public House, Mile End Park (03)",
+          "date": "2021-06-08 12:45:50"
+        }
+      ],
+      "tags": [
+        "Historic",
+        "Live music",
+        "Cash only"
+      ],
+      "summarySourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=245070",
+      "verificationNotes": "Building-level published pub map pin; not a postcode centroid. Coordinates are limited to source precision. Time Out prints E3 5BH; CAMRA and Tower Hamlets pub evidence use E3 5RP for 127 Grove Road.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/palm-tree",
+        "https://www.london.camra.org.uk/viewnode.php?id=245070",
+        "https://commons.wikimedia.org/wiki/File:The_Palm_Tree_Public_House,_Mile_End_Park_(01).jpg",
+        "https://commons.wikimedia.org/wiki/File:The_Palm_Tree_Public_House,_Mile_End_Park_(02).jpg",
+        "https://commons.wikimedia.org/wiki/File:The_Palm_Tree_Public_House,_Mile_End_Park_(03).jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "the-shepherd-and-flock-30",
+      "rank": 30,
+      "name": "The Shepherd and Flock",
+      "neighbourhood": "Shepherd's Bush",
+      "address": "84 Goldhawk Road, Shepherd’s Bush, W12 8HA",
+      "postcode": "W12 8HA",
+      "lat": 51.502207,
+      "lng": -0.228544,
+      "summary": "A small Irish pub near Goldhawk Road station, built in 1869 and popular with QPR supporters. It focuses on drinks and televised sport rather than food, with benches outside for warmer days.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-shepherd-and-flock",
+      "addressSourceUrl": "https://camra.org.uk/pubs/shepherd-flock-shepherds-bush-129108",
+      "coordinateSourceUrl": "https://camra.org.uk/pubs/shepherd-flock-shepherds-bush-129108",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ed/Shepherd_and_Flock%2C_Shepherds_Bush%2C_W12_%284223383125%29.jpg/1280px-Shepherd_and_Flock%2C_Shepherds_Bush%2C_W12_%284223383125%29.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Shepherd_and_Flock,_Shepherds_Bush,_W12_(4223383125).jpg",
+          "credit": "Ewan Munro from London, UK",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Shepherd and Flock, Shepherds Bush, W12 (4223383125).jpg",
+          "caption": "Shepherd and Flock, Shepherds Bush, W12 (4223383125)",
+          "date": "2009-12-12 14:57"
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Shepherd_And_Flock%2C_Goldhawk_Road%2C_London_W12.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Shepherd_And_Flock,_Goldhawk_Road,_London_W12.jpg",
+          "credit": "chramies",
+          "license": "CC BY 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+          "title": "Shepherd And Flock, Goldhawk Road, London W12.jpg",
+          "caption": "Shepherd And Flock, Goldhawk Road, London W12",
+          "date": "2016-09-27 11:12:17"
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/e/ee/Shepherd_and_Flock%2C_Goldhawk_Road_W12_-_geograph.org.uk_-_1311785.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Shepherd_and_Flock,_Goldhawk_Road_W12_-_geograph.org.uk_-_1311785.jpg",
+          "credit": "R Sones",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Shepherd and Flock, Goldhawk Road W12 - geograph.org.uk - 1311785.jpg",
+          "caption": "Shepherd and Flock, Goldhawk Road W12 - geograph.org.uk - 1311785",
+          "date": "Taken on 19 May 2009"
+        }
+      ],
+      "tags": [
+        "Irish pub",
+        "Sports",
+        "Outdoor seating"
+      ],
+      "summarySourceUrl": "https://camra.org.uk/pubs/shepherd-flock-shepherds-bush-129108",
+      "verificationNotes": "Building-level published pub map pin; not a postcode centroid. Coordinates are limited to source precision.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/the-shepherd-and-flock",
+        "https://camra.org.uk/pubs/shepherd-flock-shepherds-bush-129108",
+        "https://commons.wikimedia.org/wiki/File:Shepherd_and_Flock,_Shepherds_Bush,_W12_(4223383125).jpg",
+        "https://commons.wikimedia.org/wiki/File:Shepherd_And_Flock,_Goldhawk_Road,_London_W12.jpg",
+        "https://commons.wikimedia.org/wiki/File:Shepherd_and_Flock,_Goldhawk_Road_W12_-_geograph.org.uk_-_1311785.jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "dog-bell-31",
+      "rank": 31,
+      "name": "Dog & Bell",
+      "neighbourhood": "Deptford",
+      "address": "116 Prince Street, Deptford, SE8 3JD",
+      "postcode": "SE8 3JD",
+      "lat": 51.4834,
+      "lng": -0.0258324,
+      "summary": "A Deptford local with a substantial cask-beer selection and Belgian bottles, plus multiple rooms and outdoor seating. Folk sessions, quizzes and its annual Pickle Festival reflect a busy community calendar.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/dog-bell",
+      "addressSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=128104",
+      "coordinateSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=128104",
+      "images": [
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/4/4a/The_Dog_and_Bell%2C_Deptford_-_geograph.org.uk_-_5991742.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Dog_and_Bell,_Deptford_-_geograph.org.uk_-_5991742.jpg",
+          "credit": "Stephen McKay",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "The Dog and Bell, Deptford - geograph.org.uk - 5991742.jpg",
+          "caption": "The Dog and Bell, Deptford - geograph.org.uk - 5991742",
+          "date": "2018-12-01"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f2/The_Dog_and_Bell%2C_Deptford_-_geograph.org.uk_-_3850410.jpg/1280px-The_Dog_and_Bell%2C_Deptford_-_geograph.org.uk_-_3850410.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Dog_and_Bell,_Deptford_-_geograph.org.uk_-_3850410.jpg",
+          "credit": "Chris Whippet",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "The Dog and Bell, Deptford - geograph.org.uk - 3850410.jpg",
+          "caption": "The Dog and Bell, Deptford - geograph.org.uk - 3850410",
+          "date": "2014-02-16"
+        },
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/3/35/The_Dog_and_Bell%2C_Deptford_-_geograph.org.uk_-_4008902.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Dog_and_Bell,_Deptford_-_geograph.org.uk_-_4008902.jpg",
+          "credit": "Eirian Evans",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "The Dog and Bell, Deptford - geograph.org.uk - 4008902.jpg",
+          "caption": "The Dog and Bell, Deptford - geograph.org.uk - 4008902",
+          "date": "2013-11-28"
+        }
+      ],
+      "tags": [
+        "Cask ale",
+        "Live music",
+        "Garden",
+        "Quiz"
+      ],
+      "summarySourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=128104",
+      "verificationNotes": "Building-level published pub map pin; not a postcode centroid. Coordinates are limited to source precision.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/dog-bell",
+        "https://www.london.camra.org.uk/viewnode.php?id=128104",
+        "https://commons.wikimedia.org/wiki/File:The_Dog_and_Bell,_Deptford_-_geograph.org.uk_-_5991742.jpg",
+        "https://commons.wikimedia.org/wiki/File:The_Dog_and_Bell,_Deptford_-_geograph.org.uk_-_3850410.jpg",
+        "https://commons.wikimedia.org/wiki/File:The_Dog_and_Bell,_Deptford_-_geograph.org.uk_-_4008902.jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "the-kings-head-32",
+      "rank": 32,
+      "name": "The Kings Head",
+      "neighbourhood": "Finsbury Park",
+      "address": "126 Blackstock Road, Finsbury Park, N4 2DR",
+      "postcode": "N4 2DR",
+      "lat": 51.561594,
+      "lng": -0.09984,
+      "summary": "Rebuilt in red brick in 1905, this Blackstock Road pub retains an old curved bar and mirrored back-bar fittings. A narrow room and deep-red woodwork give it a recognisably traditional north London setting.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-kings-head-4",
+      "addressSourceUrl": "https://camra.org.uk/pubs/kings-head-finsbury-park-124826",
+      "coordinateSourceUrl": "https://camra.org.uk/pubs/kings-head-finsbury-park-124826",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9f/King%27s_Head%2C_Finsbury_Park%2C_N4.jpg/1280px-King%27s_Head%2C_Finsbury_Park%2C_N4.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:King%27s_Head,_Finsbury_Park,_N4.jpg",
+          "credit": "Ewan-M",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "title": "King's Head, Finsbury Park, N4.jpg",
+          "caption": "King's Head, Finsbury Park, N4",
+          "date": "2025-08-19 16:13:11"
+        }
+      ],
+      "tags": [
+        "Historic",
+        "Traditional",
+        "Neighbourhood pub"
+      ],
+      "summarySourceUrl": "https://londonpubsgroup.camra.org.uk/viewnode.php?id=214852",
+      "verificationNotes": "Building-level published pub map pin; not a postcode centroid. Coordinates are limited to source precision.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/the-kings-head-4",
+        "https://camra.org.uk/pubs/kings-head-finsbury-park-124826",
+        "https://londonpubsgroup.camra.org.uk/viewnode.php?id=214852",
+        "https://commons.wikimedia.org/wiki/File:King%27s_Head,_Finsbury_Park,_N4.jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "nags-head-33",
+      "rank": 33,
+      "name": "Nags Head",
+      "neighbourhood": "Belgravia",
+      "address": "53 Kinnerton Street, Belgravia, SW1X 8ED",
+      "postcode": "SW1X 8ED",
+      "lat": 51.5012,
+      "lng": -0.156934,
+      "summary": "A tiny Belgravia free house arranged around two bars, filled with old pictures and pub curios. Adnams beers feature on the pumps; the house rules discourage mobile-phone use, keeping attention on the room.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/nags-head",
+      "addressSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=212804",
+      "coordinateSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=212804",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3c/Nags_Head%2C_Belgravia%2C_SW1_%284438689021%29.jpg/1280px-Nags_Head%2C_Belgravia%2C_SW1_%284438689021%29.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Nags_Head,_Belgravia,_SW1_(4438689021).jpg",
+          "credit": "Ewan Munro from London, UK",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Nags Head, Belgravia, SW1 (4438689021).jpg",
+          "caption": "Nags Head, Belgravia, SW1 (4438689021)",
+          "date": "2010-03-13 17:42"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/02/Nag%27s_Head%2C_Belgravia%2C_SW1.jpg/1280px-Nag%27s_Head%2C_Belgravia%2C_SW1.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Nag%27s_Head,_Belgravia,_SW1.jpg",
+          "credit": "Ewan-M",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "title": "Nag's Head, Belgravia, SW1.jpg",
+          "caption": "Nag's Head, Belgravia, SW1",
+          "date": "2025-10-30 16:19:14"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4b/Nag%27s_Head_Pub_Knightsbridge.jpg/1280px-Nag%27s_Head_Pub_Knightsbridge.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Nag%27s_Head_Pub_Knightsbridge.jpg",
+          "credit": "bob walker from London, UK",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Nag's Head Pub Knightsbridge.jpg",
+          "caption": "Nag's Head Pub Knightsbridge",
+          "date": "2007-12-29 15:27"
+        }
+      ],
+      "tags": [
+        "Cask ale",
+        "Historic",
+        "Intimate"
+      ],
+      "summarySourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=212804",
+      "verificationNotes": "Building-level published pub map pin; not a postcode centroid. Coordinates are limited to source precision.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/nags-head",
+        "https://www.london.camra.org.uk/viewnode.php?id=212804",
+        "https://commons.wikimedia.org/wiki/File:Nags_Head,_Belgravia,_SW1_(4438689021).jpg",
+        "https://commons.wikimedia.org/wiki/File:Nag%27s_Head,_Belgravia,_SW1.jpg",
+        "https://commons.wikimedia.org/wiki/File:Nag%27s_Head_Pub_Knightsbridge.jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "french-house-34",
+      "rank": 34,
+      "name": "French House",
+      "neighbourhood": "Soho",
+      "address": "49 Dean Street, Soho, W1D 5BG",
+      "postcode": "W1D 5BG",
+      "lat": 51.512755085185,
+      "lng": -0.131742915344,
+      "summary": "A compact Soho institution with inter-war panelling, an upstairs restaurant and strong French connections. Wine, Breton cider and beer in half-pint measures accompany a room long associated with artists and writers.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/french-house",
+      "addressSourceUrl": "https://camra.org.uk/pubs/french-house-london-129160",
+      "coordinateSourceUrl": "https://camra.org.uk/pubs/french-house-london-129160",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/36/The_French_House%2C_Soho_2025-04-01.jpg/1280px-The_French_House%2C_Soho_2025-04-01.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_French_House,_Soho_2025-04-01.jpg",
+          "credit": "Matt Brown",
+          "license": "CC BY 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+          "title": "The French House, Soho 2025-04-01.jpg",
+          "caption": "The French House, Soho 2025-04-01",
+          "date": "2025-04-01 11:56:05"
+        }
+      ],
+      "tags": [
+        "Historic",
+        "Restaurant",
+        "Wine",
+        "Intimate"
+      ],
+      "summarySourceUrl": "https://camra.org.uk/pubs/french-house-london-129160",
+      "verificationNotes": "Building-level published pub map pin; not a postcode centroid. Coordinates are limited to source precision.",
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/french-house",
+        "https://camra.org.uk/pubs/french-house-london-129160",
+        "https://commons.wikimedia.org/wiki/File:The_French_House,_Soho_2025-04-01.jpg",
+        "https://commons.wikimedia.org/wiki/File:French_House,_Soho,_W1_(2711027655).jpg",
+        "https://commons.wikimedia.org/wiki/File:Soho_the_french_house_1.jpg"
+      ],
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided. One verified lead is shown because an additional original was unavailable during release checks.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "the-heron-35",
+      "rank": 35,
+      "name": "The Heron",
+      "neighbourhood": "Paddington",
+      "address": "1 Norfolk Crescent, Paddington, W2 2DN",
+      "postcode": "W2 2DN",
+      "lat": 51.517007,
+      "lng": -0.168115,
+      "summary": "A tucked-away Paddington local with an open fire, a sheltered beer garden and Thai Zapp restaurant downstairs. The Heron also hosts the Handlebar Club, whose moustache-themed history adds an unusual strand to the pub’s identity.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-heron",
+      "addressSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "coordinateSourceUrl": "https://camra.org.uk/pubs/heron-paddington-129271",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/36/The_Heron_pub%2C_Norfolk_Crescent_W2.jpg/1280px-The_Heron_pub%2C_Norfolk_Crescent_W2.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Heron_pub,_Norfolk_Crescent_W2.jpg",
+          "credit": "The wub",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "title": "The Heron pub, Norfolk Crescent W2.jpg",
+          "caption": "The Heron pub, Norfolk Crescent W2",
+          "date": "2026-01-30 15:34:54"
+        }
+      ],
+      "tags": [
+        "Thai food",
+        "Beer garden",
+        "Fireplace"
+      ],
+      "summarySourceUrl": "https://www.theheronpaddington.com/",
+      "verificationNotes": "Coordinates taken from the named venue source, not a postcode centroid. Photographs may show an earlier exterior or fit-out; see image source dates. Street number 1 follows Time Out; current official site and CAMRA specify Norfolk Crescent without a number.",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/the-heron",
+        "https://camra.org.uk/pubs/heron-paddington-129271",
+        "https://www.theheronpaddington.com/",
+        "https://commons.wikimedia.org/wiki/File:The_Heron_pub,_Norfolk_Crescent_W2.jpg"
+      ],
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "the-olde-apple-tree-36",
+      "rank": 36,
+      "name": "The Olde Apple Tree",
+      "neighbourhood": "Peckham",
+      "address": "107 Sumner Road, Peckham, Willowbrook Estate, SE15 6JU",
+      "postcode": "SE15 6JU",
+      "lat": 51.479587,
+      "lng": -0.07395,
+      "summary": "A side-street Peckham pub with a substantial front patio for outdoor drinking. It is a straightforward drinks-led local rather than a dining destination, positioned between the neighbourhood’s centre and the Old Kent Road.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-olde-apple-tree",
+      "addressSourceUrl": "https://camra.org.uk/pubs/olde-apple-tree-peckham-158593",
+      "coordinateSourceUrl": "https://camra.org.uk/pubs/olde-apple-tree-peckham-158593",
+      "images": [
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/a/a6/The_Olde_Apple_Tree%2C_Peckham_-_geograph.org.uk_-_2349312.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Olde_Apple_Tree,_Peckham_-_geograph.org.uk_-_2349312.jpg",
+          "credit": "Malc McDonald",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "The Olde Apple Tree, Peckham - geograph.org.uk - 2349312.jpg",
+          "caption": "The Olde Apple Tree, Peckham - geograph.org.uk - 2349312",
+          "date": "2011-04-03"
+        }
+      ],
+      "tags": [
+        "Beer garden",
+        "Traditional"
+      ],
+      "summarySourceUrl": "https://camra.org.uk/pubs/olde-apple-tree-peckham-158593",
+      "verificationNotes": "Coordinates taken from the named venue source, not a postcode centroid. Photographs may show an earlier exterior or fit-out; see image source dates.",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/the-olde-apple-tree",
+        "https://camra.org.uk/pubs/olde-apple-tree-peckham-158593",
+        "https://commons.wikimedia.org/wiki/File:The_Olde_Apple_Tree,_Peckham_-_geograph.org.uk_-_2349312.jpg",
+        "https://commons.wikimedia.org/wiki/File:Olde_Apple_Tree,_Peckham,_SE15_(2619042356).jpg",
+        "https://commons.wikimedia.org/wiki/File:Ye_Olde_Apple_Tree,_Sumner_Road,_Camberwell._-_geograph.org.uk_-_63823.jpg"
+      ],
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided. One verified lead is shown because an additional original was unavailable during release checks.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "bank-of-friendship-37",
+      "rank": 37,
+      "name": "Bank of Friendship",
+      "neighbourhood": "Highbury",
+      "address": "226 Blackstock Road, Highbury, London, N5 1EA",
+      "postcode": "N5 1EA",
+      "lat": 51.55855,
+      "lng": -0.0988,
+      "summary": "An independent Highbury pub focused on cask ale and craft beer. Two fires suit colder evenings, while a sizeable garden provides summer space; sports screens make it a natural gathering place around major matches.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/bank-of-friendship",
+      "addressSourceUrl": "https://www.bankoffriendship.com/",
+      "coordinateSourceUrl": "https://camra.org.uk/pubs/bank-of-friendship-highbury-124844",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/49/%22Bank_of_Friendship%22_public_house%2C_Highbury%2C_London_N5_-_geograph.org.uk_-_2001171.jpg/1280px-%22Bank_of_Friendship%22_public_house%2C_Highbury%2C_London_N5_-_geograph.org.uk_-_2001171.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:%22Bank_of_Friendship%22_public_house,_Highbury,_London_N5_-_geograph.org.uk_-_2001171.jpg",
+          "credit": "Jim Osley",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "\"Bank of Friendship\" public house, Highbury, London N5 - geograph.org.uk - 2001171.jpg",
+          "caption": "\"Bank of Friendship\" public house, Highbury, London N5 - geograph.org.uk - 2001171",
+          "date": "2010-08-07"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bf/Bank_of_Friendship%2C_Highbury%2C_N5.jpg/1280px-Bank_of_Friendship%2C_Highbury%2C_N5.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bank_of_Friendship,_Highbury,_N5.jpg",
+          "credit": "Ewan-M",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "title": "Bank of Friendship, Highbury, N5.jpg",
+          "caption": "Bank of Friendship, Highbury, N5",
+          "date": "2025-08-19 16:23:01"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b4/Bank_of_Friendship%2C_Highbury_-_geograph.org.uk_-_4566965.jpg/1280px-Bank_of_Friendship%2C_Highbury_-_geograph.org.uk_-_4566965.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bank_of_Friendship,_Highbury_-_geograph.org.uk_-_4566965.jpg",
+          "credit": "Chris Whippet",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Bank of Friendship, Highbury - geograph.org.uk - 4566965.jpg",
+          "caption": "Bank of Friendship, Highbury - geograph.org.uk - 4566965",
+          "date": "2015-07-12"
+        }
+      ],
+      "tags": [
+        "Craft beer",
+        "Beer garden",
+        "Live sport"
+      ],
+      "summarySourceUrl": "https://www.bankoffriendship.com/pagehi",
+      "verificationNotes": "Coordinates taken from the named venue source, not a postcode centroid. Photographs may show an earlier exterior or fit-out; see image source dates.",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/bank-of-friendship",
+        "https://www.bankoffriendship.com/",
+        "https://camra.org.uk/pubs/bank-of-friendship-highbury-124844",
+        "https://www.bankoffriendship.com/pagehi",
+        "https://commons.wikimedia.org/wiki/File:%22Bank_of_Friendship%22_public_house,_Highbury,_London_N5_-_geograph.org.uk_-_2001171.jpg",
+        "https://commons.wikimedia.org/wiki/File:Bank_of_Friendship,_Highbury,_N5.jpg",
+        "https://commons.wikimedia.org/wiki/File:Bank_of_Friendship,_Highbury_-_geograph.org.uk_-_4566965.jpg"
+      ],
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "prince-george-38",
+      "rank": 38,
+      "name": "Prince George",
+      "neighbourhood": "Dalston",
+      "address": "40 Parkholme Road, Dalston, E8 3AG",
+      "postcode": "E8 3AG",
+      "lat": 51.545047,
+      "lng": -0.068166,
+      "summary": "This 1850s Dalston corner pub retains a Victorian counter, mirrored bar-back and several distinct rooms. Part of the Remarkable Pubs group, it combines historic interiors with food, drinks and a small room for private gatherings.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/prince-george",
+      "addressSourceUrl": "https://camra.org.uk/pubs/prince-george-hackney-156073",
+      "coordinateSourceUrl": "https://camra.org.uk/pubs/prince-george-hackney-156073",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cf/Prince_George%2C_Hackney_-_geograph.org.uk_-_2965179.jpg/1280px-Prince_George%2C_Hackney_-_geograph.org.uk_-_2965179.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Prince_George,_Hackney_-_geograph.org.uk_-_2965179.jpg",
+          "credit": "David Anstiss",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Prince George, Hackney - geograph.org.uk - 2965179.jpg",
+          "caption": "Prince George, Hackney - geograph.org.uk - 2965179",
+          "date": "2012-05-23"
+        }
+      ],
+      "tags": [
+        "Historic interior",
+        "Food",
+        "Pool"
+      ],
+      "summarySourceUrl": "https://camra.org.uk/pubs/prince-george-hackney-156073",
+      "verificationNotes": "Coordinates taken from the named venue source, not a postcode centroid. Photographs may show an earlier exterior or fit-out; see image source dates.",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/prince-george",
+        "https://camra.org.uk/pubs/prince-george-hackney-156073",
+        "https://commons.wikimedia.org/wiki/File:Prince_George,_Hackney_-_geograph.org.uk_-_2965179.jpg"
+      ],
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "the-southampton-arms-39",
+      "rank": 39,
+      "name": "The Southampton Arms",
+      "neighbourhood": "Gospel Oak",
+      "address": "139 Highgate Road, Gospel Oak, NW5 1LE",
+      "postcode": "NW5 1LE",
+      "lat": 51.556113,
+      "lng": -0.146179,
+      "summary": "A narrow ale-and-cider house on Highgate Road, close to Gospel Oak. Independent British breweries supply the changing beer selection; pew-style seating, a fire and a small rear garden keep the setting deliberately simple.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/southampton-arms",
+      "addressSourceUrl": "https://camra.org.uk/pubs/southampton-arms-kentish-town-125300",
+      "coordinateSourceUrl": "https://camra.org.uk/pubs/southampton-arms-kentish-town-125300",
+      "images": [
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/1/1b/The_Southampton_Arms%2C_Highgate_Road%2C_NW5_-_geograph.org.uk_-_1533726.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Southampton_Arms,_Highgate_Road,_NW5_-_geograph.org.uk_-_1533726.jpg",
+          "credit": "Mike Quinn",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "The Southampton Arms, Highgate Road, NW5 - geograph.org.uk - 1533726.jpg",
+          "caption": "The Southampton Arms, Highgate Road, NW5 - geograph.org.uk - 1533726",
+          "date": "2009-08-07"
+        }
+      ],
+      "tags": [
+        "Cask ale",
+        "Cider",
+        "Beer garden"
+      ],
+      "summarySourceUrl": "https://camra.org.uk/pubs/southampton-arms-kentish-town-125300",
+      "verificationNotes": "Coordinates taken from the named venue source, not a postcode centroid. Photographs may show an earlier exterior or fit-out; see image source dates.",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/southampton-arms",
+        "https://camra.org.uk/pubs/southampton-arms-kentish-town-125300",
+        "https://commons.wikimedia.org/wiki/File:The_Southampton_Arms,_Highgate_Road,_NW5_-_geograph.org.uk_-_1533726.jpg",
+        "https://commons.wikimedia.org/wiki/File:Southampton_Arms_-_geograph.org.uk_-_5225748.jpg",
+        "https://commons.wikimedia.org/wiki/File:Sign_for_The_Southampton_Arms,_Highgate_Road,_NW5_-_geograph.org.uk_-_1533731.jpg"
+      ],
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided. One verified lead is shown because an additional original was unavailable during release checks.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "the-cow-40",
+      "rank": 40,
+      "name": "The Cow",
+      "neighbourhood": "Notting Hill",
+      "address": "89 Westbourne Park Road, W2 5QH",
+      "postcode": "W2 5QH",
+      "lat": 51.5192,
+      "lng": -0.195451,
+      "summary": "A Notting Hill saloon and dining room with a strong seafood identity. The ground-floor bar is the informal option, with more structured meals upstairs; the pub’s long association with Tom Conran connects it to London’s gastropub story.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/cow",
+      "addressSourceUrl": "https://thecowlondon.com/about-us/",
+      "coordinateSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=213067",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3a/Cow%2C_Westbourne_Green%2C_W2.jpg/1280px-Cow%2C_Westbourne_Green%2C_W2.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Cow,_Westbourne_Green,_W2.jpg",
+          "credit": "Ewan-M",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Cow, Westbourne Green, W2.jpg",
+          "caption": "Cow, Westbourne Green, W2",
+          "date": "2009-09-10 18:25:28"
+        }
+      ],
+      "tags": [
+        "Seafood",
+        "Dining",
+        "Guinness"
+      ],
+      "summarySourceUrl": "https://thecowlondon.com/about-us/",
+      "verificationNotes": "Coordinates taken from the named venue source, not a postcode centroid. Photographs may show an earlier exterior or fit-out; see image source dates.",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/cow",
+        "https://thecowlondon.com/about-us/",
+        "https://www.london.camra.org.uk/viewnode.php?id=213067",
+        "https://commons.wikimedia.org/wiki/File:Cow,_Westbourne_Green,_W2.jpg"
+      ],
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "mannions-prince-arthur-41",
+      "rank": 41,
+      "name": "Mannions Prince Arthur",
+      "neighbourhood": "Tottenham",
+      "address": "158 Broad Lane, Tottenham, N15 4QJ",
+      "postcode": "N15 4QJ",
+      "lat": 51.58467,
+      "lng": -0.06426,
+      "summary": "A Broad Lane neighbourhood pub retaining much of its older layout and fittings. CAMRA documents its traditional architectural character and cask-beer offering, making it a useful stop for drinkers exploring South Tottenham rather than central London.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/mannions-prince-arthur",
+      "addressSourceUrl": "https://camra.org.uk/pubs/mannions-prince-arthur-south-tottenham-124984",
+      "coordinateSourceUrl": "https://camra.org.uk/pubs/mannions-prince-arthur-south-tottenham-124984",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0f/Mannion%27s_Prince_Arthur%2C_South_Tottenham%2C_N15.jpg/1280px-Mannion%27s_Prince_Arthur%2C_South_Tottenham%2C_N15.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Mannion%27s_Prince_Arthur,_South_Tottenham,_N15.jpg",
+          "credit": "Ewan-M",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Mannion's Prince Arthur, South Tottenham, N15.jpg",
+          "caption": "Mannion's Prince Arthur, South Tottenham, N15",
+          "date": "2014-02-01 12:02:14"
+        }
+      ],
+      "tags": [
+        "Traditional",
+        "Cask ale"
+      ],
+      "summarySourceUrl": "https://camra.org.uk/pubs/mannions-prince-arthur-south-tottenham-124984",
+      "verificationNotes": "Coordinates taken from the named venue source, not a postcode centroid. Photographs may show an earlier exterior or fit-out; see image source dates.",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/mannions-prince-arthur",
+        "https://camra.org.uk/pubs/mannions-prince-arthur-south-tottenham-124984",
+        "https://commons.wikimedia.org/wiki/File:Mannion%27s_Prince_Arthur,_South_Tottenham,_N15.jpg"
+      ],
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "the-victoria-42",
+      "rank": 42,
+      "name": "The Victoria",
+      "neighbourhood": "Bermondsey",
+      "address": "68-70 Page’s Walk, Bermondsey, SE1 4HL",
+      "postcode": "SE1 4HL",
+      "lat": 51.49454964069,
+      "lng": -0.08068364418,
+      "summary": "A family-run Victorian pub on a quiet Bermondsey street. Traditional food and a longstanding local following make it a neighbourhood-focused option, away from the busier drinking routes around London Bridge.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-victoria-5",
+      "addressSourceUrl": "https://www.inapub.co.uk/venues/the-victoria/southwark/se14hl/8515",
+      "coordinateSourceUrl": "https://camra.org.uk/pubs/victoria-bermondsey-158403",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f7/Victoria%2C_Bermondsey%2C_SE1_%283247472232%29.jpg/1280px-Victoria%2C_Bermondsey%2C_SE1_%283247472232%29.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Victoria,_Bermondsey,_SE1_(3247472232).jpg",
+          "credit": "Ewan Munro from London, UK",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Victoria, Bermondsey, SE1 (3247472232).jpg",
+          "caption": "Victoria, Bermondsey, SE1 (3247472232)",
+          "date": "2009-01-31 14:12"
+        }
+      ],
+      "tags": [
+        "Traditional",
+        "Food",
+        "Live sport"
+      ],
+      "summarySourceUrl": "https://www.inapub.co.uk/venues/the-victoria/southwark/se14hl/8515",
+      "verificationNotes": "Coordinates taken from the named venue source, not a postcode centroid. Photographs may show an earlier exterior or fit-out; see image source dates.",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/the-victoria-5",
+        "https://www.inapub.co.uk/venues/the-victoria/southwark/se14hl/8515",
+        "https://camra.org.uk/pubs/victoria-bermondsey-158403",
+        "https://commons.wikimedia.org/wiki/File:Victoria,_Bermondsey,_SE1_(3247472232).jpg"
+      ],
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "anchor-hope-43",
+      "rank": 43,
+      "name": "Anchor & Hope",
+      "neighbourhood": "Clapton",
+      "address": "15 High Hill Ferry, Clapton, London, E5 9HG",
+      "postcode": "E5 9HG",
+      "lat": 51.568133,
+      "lng": -0.052858,
+      "summary": "A small Fuller’s pub beside the River Lea, with wood panelling, a dartboard and a fire. Its waterside setting attracts boaters, walkers and locals; the limited interior makes outdoor drinking especially appealing in good weather.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/anchor-hope-2",
+      "addressSourceUrl": "https://www.anchor-and-hope-clapton.co.uk/contact-us",
+      "coordinateSourceUrl": "https://camra.org.uk/pubs/anchor-hope-clapton-155901",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d0/Anchor_%5E_Hope_public_house%2C_River_Lea%2C_Clapton_-_geograph.org.uk_-_1918801.jpg/1280px-Anchor_%5E_Hope_public_house%2C_River_Lea%2C_Clapton_-_geograph.org.uk_-_1918801.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Anchor_%5E_Hope_public_house,_River_Lea,_Clapton_-_geograph.org.uk_-_1918801.jpg",
+          "credit": "Julian Osley",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Anchor ^ Hope public house, River Lea, Clapton - geograph.org.uk - 1918801.jpg",
+          "caption": "Anchor ^ Hope public house, River Lea, Clapton - geograph.org.uk - 1918801",
+          "date": "2010-06-17"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/61/Clapton_%2C_%22The_Anchor_and_Hope%22_public_house_-_geograph.org.uk_-_6016685.jpg/1280px-Clapton_%2C_%22The_Anchor_and_Hope%22_public_house_-_geograph.org.uk_-_6016685.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Clapton_,_%22The_Anchor_and_Hope%22_public_house_-_geograph.org.uk_-_6016685.jpg",
+          "credit": "Jim Osley",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Clapton , \"The Anchor and Hope\" public house - geograph.org.uk - 6016685.jpg",
+          "caption": "Clapton , \"The Anchor and Hope\" public house - geograph.org.uk - 6016685",
+          "date": "2019-01-04"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/61/The_Anchor_%26_Hope_-_Clapton%2C_London_%2842549111232%29.jpg/1280px-The_Anchor_%26_Hope_-_Clapton%2C_London_%2842549111232%29.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Anchor_%26_Hope_-_Clapton,_London_(42549111232).jpg",
+          "credit": "Mark from Brighton",
+          "license": "CC BY 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+          "title": "The Anchor & Hope - Clapton, London (42549111232).jpg",
+          "caption": "The Anchor & Hope - Clapton, London (42549111232)",
+          "date": "2018-04-16 13:19"
+        }
+      ],
+      "tags": [
+        "Riverside",
+        "Darts",
+        "Fireplace"
+      ],
+      "summarySourceUrl": "https://camra.org.uk/pubs/anchor-hope-clapton-155901",
+      "verificationNotes": "Coordinates taken from the named venue source, not a postcode centroid. Photographs may show an earlier exterior or fit-out; see image source dates. Official pub and CAMRA postcode E5 9HG corrects Time Out’s E5 9HE.",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/anchor-hope-2",
+        "https://www.anchor-and-hope-clapton.co.uk/contact-us",
+        "https://camra.org.uk/pubs/anchor-hope-clapton-155901",
+        "https://commons.wikimedia.org/wiki/File:Anchor_%5E_Hope_public_house,_River_Lea,_Clapton_-_geograph.org.uk_-_1918801.jpg",
+        "https://commons.wikimedia.org/wiki/File:Clapton_,_%22The_Anchor_and_Hope%22_public_house_-_geograph.org.uk_-_6016685.jpg",
+        "https://commons.wikimedia.org/wiki/File:The_Anchor_%26_Hope_-_Clapton,_London_(42549111232).jpg"
+      ],
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "carlton-tavern-44",
+      "rank": 44,
+      "name": "Carlton Tavern",
+      "neighbourhood": "Maida Vale",
+      "address": "33 Carlton Vale, Maida Vale, NW6 5EU",
+      "postcode": "NW6 5EU",
+      "lat": 51.5321,
+      "lng": -0.191467,
+      "summary": "Rebuilt after its unauthorised demolition, the Carlton reopened in 2021 beside Paddington Recreation Ground. Today it combines cask ales, seasonal cooking, a garden and terrace with a programme of quizzes, comedy and live music.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/carlton-tavern",
+      "addressSourceUrl": "https://www.carltontavern.co.uk/",
+      "coordinateSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=213942",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5a/Carlton_Tavern%2C_London_-_2023-07-29.jpg/1280px-Carlton_Tavern%2C_London_-_2023-07-29.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Carlton_Tavern,_London_-_2023-07-29.jpg",
+          "credit": "The wub",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "title": "Carlton Tavern, London - 2023-07-29.jpg",
+          "caption": "Carlton Tavern, London - 2023-07-29",
+          "date": "2023-07-29 19:05:40"
+        }
+      ],
+      "tags": [
+        "Beer garden",
+        "Food",
+        "Live music"
+      ],
+      "summarySourceUrl": "https://www.carltontavern.co.uk/",
+      "verificationNotes": "Coordinates taken from the named venue source, not a postcode centroid. Photographs may show an earlier exterior or fit-out; see image source dates.",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/carlton-tavern",
+        "https://www.carltontavern.co.uk/",
+        "https://www.london.camra.org.uk/viewnode.php?id=213942",
+        "https://commons.wikimedia.org/wiki/File:Carlton_Tavern,_London_-_2023-07-29.jpg"
+      ],
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "royal-exchange-45",
+      "rank": 45,
+      "name": "Royal Exchange",
+      "neighbourhood": "Paddington",
+      "address": "26 Sale Place, Paddington, W2 1PU",
+      "postcode": "W2 1PU",
+      "lat": 51.51819,
+      "lng": -0.169893,
+      "summary": "A compact corner pub on Sale Place, a short walk from Paddington and Edgware Road. Its traditional furnishings and small pavement drinking area suit a low-key stop; the name recalls the exchange of horse-carried royal mail.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/royal-exchange",
+      "addressSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=213062",
+      "coordinateSourceUrl": "https://camra.org.uk/pubs/royal-exchange-paddington-128951",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/58/Royal_Exchange%2C_Paddington%2C_W2_%283699613558%29.jpg/1280px-Royal_Exchange%2C_Paddington%2C_W2_%283699613558%29.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Royal_Exchange,_Paddington,_W2_(3699613558).jpg",
+          "credit": "Ewan Munro from London, UK",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Royal Exchange, Paddington, W2 (3699613558).jpg",
+          "caption": "Royal Exchange, Paddington, W2 (3699613558)",
+          "date": "2009-06-28 18:28"
+        }
+      ],
+      "tags": [
+        "Traditional",
+        "Cask ale"
+      ],
+      "summarySourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=213062",
+      "verificationNotes": "Coordinates taken from the named venue source, not a postcode centroid. Photographs may show an earlier exterior or fit-out; see image source dates.",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/royal-exchange",
+        "https://www.london.camra.org.uk/viewnode.php?id=213062",
+        "https://camra.org.uk/pubs/royal-exchange-paddington-128951",
+        "https://commons.wikimedia.org/wiki/File:Royal_Exchange,_Paddington,_W2_(3699613558).jpg"
+      ],
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "wenlock-arms-46",
+      "rank": 46,
+      "name": "Wenlock Arms",
+      "neighbourhood": "Hoxton",
+      "address": "26 Wenlock Road, Islington, N1 7TA",
+      "postcode": "N1 7TA",
+      "lat": 51.5314,
+      "lng": -0.094,
+      "summary": "A nineteenth-century ale house offering rotating cask and keg beers alongside real cider. The independently minded drinks range is backed by uncomplicated food, including pies and toasties, making the Wenlock a beer-focused Hoxton stop.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/wenlock-arms",
+      "addressSourceUrl": "https://camra.org.uk/pubs/wenlock-arms-london-124755",
+      "coordinateSourceUrl": "https://camra.org.uk/pubs/wenlock-arms-london-124755",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/97/Wenlock_Arms_2010.jpg/1280px-Wenlock_Arms_2010.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Wenlock_Arms_2010.jpg",
+          "credit": "Gordon Joly",
+          "license": "CC BY-SA 3.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+          "title": "Wenlock Arms 2010.jpg",
+          "caption": "Wenlock Arms 2010",
+          "date": "2010-09-18 19:00:31"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/69/The_Wenlock_Arms%2C_London_2025-02-20.jpg/1280px-The_Wenlock_Arms%2C_London_2025-02-20.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Wenlock_Arms,_London_2025-02-20.jpg",
+          "credit": "The wub",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "title": "The Wenlock Arms, London 2025-02-20.jpg",
+          "caption": "The Wenlock Arms, London 2025-02-20",
+          "date": "2025-02-20 16:52:07"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a7/The_Wenlock_Arms_.jpg/1280px-The_Wenlock_Arms_.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Wenlock_Arms_.jpg",
+          "credit": "Marcuswenlock",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "title": "The Wenlock Arms .jpg",
+          "caption": "The Wenlock Arms",
+          "date": "2014-08-01"
+        }
+      ],
+      "tags": [
+        "Cask ale",
+        "Craft beer",
+        "Cider"
+      ],
+      "summarySourceUrl": "https://www.wenlockarms.com/",
+      "verificationNotes": "Coordinates taken from the named venue source, not a postcode centroid. Photographs may show an earlier exterior or fit-out; see image source dates.",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/wenlock-arms",
+        "https://camra.org.uk/pubs/wenlock-arms-london-124755",
+        "https://www.wenlockarms.com/",
+        "https://commons.wikimedia.org/wiki/File:Wenlock_Arms_2010.jpg",
+        "https://commons.wikimedia.org/wiki/File:The_Wenlock_Arms,_London_2025-02-20.jpg",
+        "https://commons.wikimedia.org/wiki/File:The_Wenlock_Arms_.jpg"
+      ],
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "the-lamb-47",
+      "rank": 47,
+      "name": "The Lamb",
+      "neighbourhood": "Bloomsbury",
+      "address": "94 Lamb's Conduit Street, Bloomsbury, WC1N 3LZ",
+      "postcode": "WC1N 3LZ",
+      "lat": 51.523,
+      "lng": -0.1189,
+      "summary": "A historic Bloomsbury pub distinguished by etched-glass snob screens above the bar and a surviving mechanical polyphon. A small rear garden and upstairs dining space complement the carefully preserved ground-floor interior.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/lamb",
+      "addressSourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=127519",
+      "coordinateSourceUrl": "https://camra.org.uk/pubs/lamb-london-125487",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/51/Lamb_pub%2C_Lamb%27s_Conduit_Street%2C_Bloomsbury_17.jpg/1280px-Lamb_pub%2C_Lamb%27s_Conduit_Street%2C_Bloomsbury_17.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Lamb_pub,_Lamb%27s_Conduit_Street,_Bloomsbury_17.jpg",
+          "credit": "Edwardx",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "title": "Lamb pub, Lamb's Conduit Street, Bloomsbury 17.jpg",
+          "caption": "Lamb pub, Lamb's Conduit Street, Bloomsbury 17",
+          "date": "2016-09-11 13:16:50"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cc/Lamb_pub%2C_Lamb%27s_Conduit_Street%2C_Bloomsbury_10.jpg/1280px-Lamb_pub%2C_Lamb%27s_Conduit_Street%2C_Bloomsbury_10.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Lamb_pub,_Lamb%27s_Conduit_Street,_Bloomsbury_10.jpg",
+          "credit": "Edwardx",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "title": "Lamb pub, Lamb's Conduit Street, Bloomsbury 10.jpg",
+          "caption": "Lamb pub, Lamb's Conduit Street, Bloomsbury 10",
+          "date": "2014-12-14 13:55:06"
+        },
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/Lamb_pub%2C_Lamb%27s_Conduit_Street%2C_Bloomsbury_04.jpg/1280px-Lamb_pub%2C_Lamb%27s_Conduit_Street%2C_Bloomsbury_04.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Lamb_pub,_Lamb%27s_Conduit_Street,_Bloomsbury_04.jpg",
+          "credit": "Edwardx",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "title": "Lamb pub, Lamb's Conduit Street, Bloomsbury 04.jpg",
+          "caption": "Lamb pub, Lamb's Conduit Street, Bloomsbury 04",
+          "date": "2014-12-14 13:53:39"
+        }
+      ],
+      "tags": [
+        "Historic interior",
+        "Beer garden",
+        "Food"
+      ],
+      "summarySourceUrl": "https://www.london.camra.org.uk/viewnode.php?id=127519",
+      "verificationNotes": "Coordinates taken from the named venue source, not a postcode centroid. Photographs may show an earlier exterior or fit-out; see image source dates.",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/lamb",
+        "https://www.london.camra.org.uk/viewnode.php?id=127519",
+        "https://camra.org.uk/pubs/lamb-london-125487",
+        "https://commons.wikimedia.org/wiki/File:Lamb_pub,_Lamb%27s_Conduit_Street,_Bloomsbury_17.jpg",
+        "https://commons.wikimedia.org/wiki/File:Lamb_pub,_Lamb%27s_Conduit_Street,_Bloomsbury_10.jpg",
+        "https://commons.wikimedia.org/wiki/File:Lamb_pub,_Lamb%27s_Conduit_Street,_Bloomsbury_04.jpg"
+      ],
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "wb-yeats-48",
+      "rank": 48,
+      "name": "WB Yeats",
+      "neighbourhood": "Finsbury Park",
+      "address": "20 Fonthill Road, Finsbury Park, N4 3HU",
+      "postcode": "N4 3HU",
+      "lat": 51.566444,
+      "lng": -0.111494,
+      "summary": "An Irish-style neighbourhood pub on Fonthill Road with seasonal food, Sunday roasts and traditional music sessions. Covered outdoor seating, sports screenings and a dog-friendly approach give it several uses beyond a quick post-work drink.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/wb-yeats",
+      "addressSourceUrl": "https://www.thewbyeats.com/",
+      "coordinateSourceUrl": "https://camra.org.uk/pubs/william-butler-yeats-finsbury-park-124835",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4b/The_William_Butler_Yeats_-_geograph.org.uk_-_5939821.jpg/1280px-The_William_Butler_Yeats_-_geograph.org.uk_-_5939821.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_William_Butler_Yeats_-_geograph.org.uk_-_5939821.jpg",
+          "credit": "Alan Hughes",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "The William Butler Yeats - geograph.org.uk - 5939821.jpg",
+          "caption": "The William Butler Yeats - geograph.org.uk - 5939821",
+          "date": "2018-10-13"
+        }
+      ],
+      "tags": [
+        "Irish pub",
+        "Live music",
+        "Sunday roast"
+      ],
+      "summarySourceUrl": "https://www.thewbyeats.com/",
+      "verificationNotes": "Coordinates taken from the named venue source, not a postcode centroid. Photographs may show an earlier exterior or fit-out; see image source dates.",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/wb-yeats",
+        "https://www.thewbyeats.com/",
+        "https://camra.org.uk/pubs/william-butler-yeats-finsbury-park-124835",
+        "https://commons.wikimedia.org/wiki/File:The_William_Butler_Yeats_-_geograph.org.uk_-_5939821.jpg"
+      ],
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "fox-firkin-49",
+      "rank": 49,
+      "name": "Fox & Firkin",
+      "neighbourhood": "Lewisham",
+      "address": "316 Lewisham High Street, London, SE13 6JZ",
+      "postcode": "SE13 6JZ",
+      "lat": 51.456879259309,
+      "lng": -0.014214915344,
+      "summary": "A Lewisham live-music venue with a large outdoor area and an eclectic programme spanning reggae, jazz, punk and dance music. Craft beer and pizza support longer visits, while the garden gives the pub a distinct open-air dimension.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/fox-firkin",
+      "addressSourceUrl": "https://foxfirkin.com/contact/",
+      "coordinateSourceUrl": "https://camra.org.uk/pubs/fox-firkin-lewisham-158550",
+      "images": [
+        {
+          "url": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Fox_and_Firkin%2C_Lewisham%2C_SE13_%282611750270%29.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Fox_and_Firkin,_Lewisham,_SE13_(2611750270).jpg",
+          "credit": "Ewan Munro from London, UK",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Fox and Firkin, Lewisham, SE13 (2611750270).jpg",
+          "caption": "Fox and Firkin, Lewisham, SE13 (2611750270)",
+          "date": "2008-06-19 19:34"
+        }
+      ],
+      "tags": [
+        "Live music",
+        "Beer garden",
+        "Pizza"
+      ],
+      "summarySourceUrl": "https://foxfirkin.com/venue/the-fox-and-firkin/",
+      "verificationNotes": "Coordinates taken from the named venue source, not a postcode centroid. Photographs may show an earlier exterior or fit-out; see image source dates. Official pub and council licence postcode SE13 6JZ corrects Time Out’s SE13 5EJ.",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/fox-firkin",
+        "https://foxfirkin.com/contact/",
+        "https://camra.org.uk/pubs/fox-firkin-lewisham-158550",
+        "https://foxfirkin.com/venue/the-fox-and-firkin/",
+        "https://commons.wikimedia.org/wiki/File:Fox_and_Firkin,_Lewisham,_SE13_(2611750270).jpg"
+      ],
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    },
+    {
+      "id": "dacre-arms-50",
+      "rank": 50,
+      "name": "Dacre Arms",
+      "neighbourhood": "Blackheath",
+      "address": "11 Kingswood Place, Blackheath, SE13 5BU",
+      "postcode": "SE13 5BU",
+      "lat": 51.461051524778,
+      "lng": 0.003331976605,
+      "summary": "An end-of-terrace local near the Blackheath–Lewisham boundary, with dark wood panelling, leaded windows and booth-like seating. A secluded garden extends the drinking space; surviving fittings give the interior a strongly traditional character.",
+      "sourceUrl": "https://www.timeout.com/london/bars-and-pubs/dacre-arms",
+      "addressSourceUrl": "https://camra.org.uk/pubs/dacre-arms-lewisham-158540",
+      "coordinateSourceUrl": "https://camra.org.uk/pubs/dacre-arms-lewisham-158540",
+      "images": [
+        {
+          "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/24/Dacre_Arms%2C_Lee%2C_SE13_%283316901726%29.jpg/1280px-Dacre_Arms%2C_Lee%2C_SE13_%283316901726%29.jpg",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Dacre_Arms,_Lee,_SE13_(3316901726).jpg",
+          "credit": "Ewan Munro from London, UK",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "title": "Dacre Arms, Lee, SE13 (3316901726).jpg",
+          "caption": "Dacre Arms, Lee, SE13 (3316901726)",
+          "date": "2009-02-28 15:32"
+        }
+      ],
+      "tags": [
+        "Historic interior",
+        "Beer garden",
+        "Traditional"
+      ],
+      "summarySourceUrl": "https://camra.org.uk/pubs/dacre-arms-lewisham-158540",
+      "verificationNotes": "Coordinates taken from the named venue source, not a postcode centroid. Photographs may show an earlier exterior or fit-out; see image source dates. CAMRA reported an anticipated tenant change in August 2026; check current beer availability directly.",
+      "sourceUrls": [
+        "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+        "https://www.timeout.com/london/bars-and-pubs/dacre-arms",
+        "https://camra.org.uk/pubs/dacre-arms-lewisham-158540",
+        "https://commons.wikimedia.org/wiki/File:Dacre_Arms,_Lee,_SE13_(3316901726).jpg"
+      ],
+      "rankingSourceUrl": "https://www.timeout.com/london/bars-and-pubs/the-best-pubs-in-london",
+      "checkedAt": "2026-10-30",
+      "photoNote": "Photos are independently sourced and may show earlier décor or signage; dates and Creative Commons credits are provided.",
+      "coordinatePrecision": "Verified venue/building pin, not postcode centroid; not a surveyed entrance."
+    }
+  ]
+}

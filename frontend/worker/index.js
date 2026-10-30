@@ -54,7 +54,7 @@ async function hmacToken(secret, message) {
 }
 
 function secureHeaders(headers = new Headers()) {
-  headers.set("Content-Security-Policy", "default-src 'self'; img-src 'self' data: https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com https://*.google-analytics.com; style-src 'self' 'unsafe-inline'; script-src 'self' https://www.googletagmanager.com; connect-src 'self' https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self' data:; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
+  headers.set("Content-Security-Policy", "default-src 'self'; img-src 'self' data: https://upload.wikimedia.org https://thumb.wikimedia.org https://commons.wikimedia.org https://live.staticflickr.com https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com https://*.google-analytics.com; style-src 'self' 'unsafe-inline'; script-src 'self' https://www.googletagmanager.com; connect-src 'self' https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self' data:; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
   headers.set("Referrer-Policy", "no-referrer");
   headers.set("X-Content-Type-Options", "nosniff");
   headers.set("X-Frame-Options", "DENY");
@@ -1306,6 +1306,29 @@ async function placePhoto(request, env, ctx) {
   }
 }
 
+// Runtime-only owner data: never embed personal origins in the public source or
+// client bundle. The app's admin role is deliberately not sufficient here.
+export function privateFiftyPubsPreset(user, env) {
+  const owner = typeof env.FIFTY_PUBS_OWNER_EMAIL === "string" ? env.FIFTY_PUBS_OWNER_EMAIL.trim().toLowerCase() : "";
+  if (!owner || typeof user?.email !== "string" || user.email.toLowerCase() !== owner) return [];
+  try {
+    const friends = JSON.parse(env.FIFTY_PUBS_PRESET_JSON || "null");
+    if (!Array.isArray(friends) || friends.length < 1 || friends.length > 6) return [];
+    const ids = new Set();
+    return friends.map((friend) => {
+      if (!friend || typeof friend.id !== "string" || !/^[a-zA-Z0-9_-]{1,80}$/.test(friend.id) || ids.has(friend.id) ||
+          typeof friend.name !== "string" || !friend.name.trim() || friend.name.length > 120 ||
+          typeof friend.locationLabel !== "string" || !friend.locationLabel.trim() || friend.locationLabel.length > 240 ||
+          !Number.isFinite(friend.lat) || !Number.isFinite(friend.lng) ||
+          friend.lat < 51.2 || friend.lat > 51.75 || friend.lng < -0.6 || friend.lng > 0.35) {
+        throw new Error("Invalid private planner preset");
+      }
+      ids.add(friend.id);
+      return { id: friend.id, name: friend.name.trim(), locationLabel: friend.locationLabel.trim(), lat: friend.lat, lng: friend.lng };
+    });
+  } catch { return []; }
+}
+
 async function handleRequest(request, env, ctx) {
     const url = new URL(request.url);
     // These existing branding files are the only public packaged assets.
@@ -1316,7 +1339,7 @@ async function handleRequest(request, env, ctx) {
     if (["/welcome-motion.js", "/robots.txt", "/sitemap.xml"].includes(url.pathname)) {
       if (!["GET", "HEAD"].includes(request.method)) return new Response(null, { status: 405 });
       const content = url.pathname === "/welcome-motion.js" ? landingScript : url.pathname === "/robots.txt"
-        ? "User-agent: *\nAllow: /$\nAllow: /privacy$\nAllow: /welcome-motion.js$\nDisallow: /api/\nDisallow: /auth/\nDisallow: /assets/\nDisallow: /model/\nDisallow: /debug\nSitemap: https://equidistant.me/sitemap.xml\n"
+        ? "User-agent: *\nAllow: /$\nAllow: /privacy$\nAllow: /welcome-motion.js$\nDisallow: /api/\nDisallow: /auth/\nDisallow: /assets/\nDisallow: /model/\nDisallow: /debug\nDisallow: /50pubs\nSitemap: https://equidistant.me/sitemap.xml\n"
         : '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://equidistant.me/</loc></url><url><loc>https://equidistant.me/privacy</loc></url></urlset>';
       const type = url.pathname.endsWith(".js") ? "text/javascript" : url.pathname.endsWith(".xml") ? "application/xml" : "text/plain";
       return new Response(request.method === "HEAD" ? null : content, { headers: { "Content-Type": type + "; charset=utf-8" } });
@@ -1328,11 +1351,11 @@ async function handleRequest(request, env, ctx) {
     // Keep one canonical origin: accounts and local workspaces must not split across hostnames.
     if (url.origin !== env.AUTH_ORIGIN) {
       if (!["GET", "HEAD"].includes(request.method)) return Response.json({ detail: "Use the main app address." }, { status: 403 });
-      return new Response(null, { status: 303, headers: { Location: env.AUTH_ORIGIN + "/", "Cache-Control": "no-store" } });
+      return new Response(null, { status: 303, headers: { Location: env.AUTH_ORIGIN + (url.pathname === "/50pubs" ? "/50pubs" : "/"), "Cache-Control": "no-store" } });
     }
     const authResponse = await authRoute(request, env);
     if (authResponse) {
-      if (url.pathname === "/auth/google/callback" && authResponse.headers.get("Location") === "/") {
+      if (url.pathname === "/auth/google/callback" && ["/", "/50pubs"].includes(authResponse.headers.get("Location"))) {
         const visitorId = visitorIdentity(request);
         await recordVisitor(env, request, visitorId);
         authResponse.headers.append("Set-Cookie", `${VISITOR_COOKIE}=${visitorId}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${VISITOR_COOKIE_MAX_AGE}`);
@@ -1342,7 +1365,7 @@ async function handleRequest(request, env, ctx) {
     const user = await currentUser(request, env);
     if (!user) {
       if (url.pathname.startsWith("/api/")) return Response.json({ detail: "Please sign in with Google." }, { status: 401 });
-      return htmlResponse(request.method === "HEAD" ? null : loginPage({ error: url.searchParams.get("signin") === "failed" }), url.pathname === "/" ? 200 : 404);
+      return htmlResponse(request.method === "HEAD" ? null : loginPage({ error: url.searchParams.get("signin") === "failed", returnTo: url.pathname }), ["/", "/50pubs"].includes(url.pathname) ? 200 : 404);
     }
     if (!["GET", "HEAD"].includes(request.method) && !isSameOrigin(request)) {
       return Response.json({ detail: "Request origin is not allowed." }, { status: 403 });
@@ -1356,6 +1379,9 @@ async function handleRequest(request, env, ctx) {
     if (!user.privileged && (url.pathname === "/api/usage" || url.pathname === "/api/comparison-surface" ||
         url.pathname.startsWith("/assets/DeveloperMode-") || url.pathname === "/debug")) {
       return Response.json({ detail: "This feature is available to approved accounts only." }, { status: 403 });
+    }
+    if (url.pathname === "/api/50pubs/preset" && request.method === "GET") {
+      return Response.json({ friends: privateFiftyPubsPreset(user, env) });
     }
     if (url.pathname === "/api/geocode") {
       return geocode(request);

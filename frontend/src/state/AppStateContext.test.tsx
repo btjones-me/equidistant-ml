@@ -20,7 +20,8 @@ function StateProbe() {
     setSuggestionMinDistanceKm,
     changeFriendCount,
     updateFriend,
-    toggleFriend
+    toggleFriend,
+    resetWorkspace
   } = useAppState();
   return (
     <div>
@@ -35,6 +36,7 @@ function StateProbe() {
       <output aria-label="surface opacity">{surfaceOpacity}</output>
       <output aria-label="surface value fade">{surfaceValueFade}</output>
       <output aria-label="suggestion spacing">{suggestionMinDistanceKm}</output>
+      <button type="button" onClick={resetWorkspace}>Reset workspace</button>
       <button type="button" onClick={() => toggleFriend(1)}>Toggle Sam</button>
       <button type="button" onClick={() => setMapStyle("voyager")}>Street map</button>
       <button type="button" onClick={() => setPalette("green-red")}>Green red</button>
@@ -128,6 +130,49 @@ describe("shared application state", () => {
     view.rerender(<AppStateProvider accountId="account-a"><StateProbe /></AppStateProvider>);
     expect(screen.getByLabelText("first participant")).toHaveTextContent("Profile A participant");
     expect(window.localStorage.getItem("equidistant:workspace:v2")).toBe(legacy);
+  });
+
+  it("keeps the 50 pubs workspace separate from the ordinary planner for the same account", () => {
+    const preset = [{ id: "pair-one", name: "First pair", lat: 51.53, lng: -0.12, locationLabel: "Example station" }];
+    const view = render(<AppStateProvider accountId="account-a"><StateProbe /></AppStateProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "Edit participant" }));
+    const mainSaved = window.localStorage.getItem(workspaceStorageKey("account-a"));
+    view.rerender(<AppStateProvider accountId="account-a" workspace="50pubs" initialFriends={preset}><StateProbe /></AppStateProvider>);
+    expect(screen.getByLabelText("first participant")).toHaveTextContent("First pair");
+    expect(screen.getByLabelText("friend count")).toHaveTextContent("1");
+    expect(window.localStorage.getItem(workspaceStorageKey("account-a"))).toBe(mainSaved);
+    expect(JSON.parse(window.localStorage.getItem(workspaceStorageKey("account-a", "50pubs"))!).friends).toEqual(preset);
+    view.rerender(<AppStateProvider accountId="account-a"><StateProbe /></AppStateProvider>);
+    expect(screen.getByLabelText("first participant")).toHaveTextContent("Profile A participant");
+  });
+
+  it("preserves saved pub-workspace edits on remount and resets to the private preset", () => {
+    const preset = [
+      { id: "pair-one", name: "First pair", lat: 51.53, lng: -0.12, locationLabel: "Example station" },
+      { id: "pair-two", name: "Second pair", lat: 51.54, lng: -0.13, locationLabel: "Other station" }
+    ];
+    const make = () => <AppStateProvider accountId="account-a" workspace="50pubs" initialFriends={preset}><StateProbe /></AppStateProvider>;
+    const first = render(make());
+    fireEvent.click(screen.getByRole("button", { name: "Edit participant" }));
+    fireEvent.click(screen.getByRole("button", { name: "Toggle Sam" }));
+    first.unmount();
+    render(make());
+    expect(screen.getByLabelText("first participant")).toHaveTextContent("Profile A participant");
+    expect(screen.getByLabelText("included state")).toHaveTextContent("true,false");
+    fireEvent.click(screen.getByRole("button", { name: "Reset workspace" }));
+    expect(screen.getByLabelText("first participant")).toHaveTextContent("First pair");
+    expect(screen.getByLabelText("included state")).toHaveTextContent("true,true");
+    expect(JSON.parse(window.localStorage.getItem(workspaceStorageKey("account-a", "50pubs"))!).friends).toEqual(preset);
+    expect(preset[0].name).toBe("First pair");
+  });
+
+  it("does not expose a saved owner pub preset to another account", () => {
+    const preset = [{ id: "private-pair", name: "Private test pair", lat: 51.53, lng: -0.12 }];
+    const view = render(<AppStateProvider accountId="owner" workspace="50pubs" initialFriends={preset}><StateProbe /></AppStateProvider>);
+    expect(screen.getByLabelText("first participant")).toHaveTextContent("Private test pair");
+    view.rerender(<AppStateProvider accountId="different-account" workspace="50pubs" initialFriends={[]}><StateProbe /></AppStateProvider>);
+    expect(screen.getByLabelText("first participant")).not.toHaveTextContent("Private test pair");
+    expect(window.localStorage.getItem(workspaceStorageKey("different-account", "50pubs"))).not.toContain("Private test pair");
   });
 
 });

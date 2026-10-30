@@ -19,7 +19,7 @@ import type {
   PaletteMode
 } from "../types";
 
-export const workspaceStorageKey = (accountId: string) => `equidistant:workspace:v3:${accountId}`;
+export const workspaceStorageKey = (accountId: string, workspace = "main") => workspace === "main" ? `equidistant:workspace:v3:${accountId}` : `equidistant:workspace:v3:${accountId}:${workspace}`;
 export const DEFAULT_SURFACE_OPACITY = 0.75;
 export const DEFAULT_SURFACE_VALUE_FADE = 1;
 
@@ -82,10 +82,10 @@ type AppStateContextValue = PersistedAppState & {
   resetWorkspace: () => void;
 };
 
-function defaultState(): PersistedAppState {
+function defaultState(initialFriends?: Friend[]): PersistedAppState {
   return {
-    friends: sampleFriends.slice(0, 3),
-    included: [true, true, true],
+    friends: initialFriends?.length ? initialFriends : sampleFriends.slice(0, 3),
+    included: (initialFriends?.length ? initialFriends : sampleFriends.slice(0, 3)).map(() => true),
     combine: "balanced",
     focus: "inner",
     detail: "fine",
@@ -108,8 +108,8 @@ function isFiniteFriend(friend: Friend): boolean {
   return Boolean(friend?.id && typeof friend.name === "string" && Number.isFinite(friend.lat) && Number.isFinite(friend.lng));
 }
 
-function loadState(storageKey: string): PersistedAppState {
-  const fallback = defaultState();
+function loadState(storageKey: string, initialFriends?: Friend[]): PersistedAppState {
+  const fallback = defaultState(initialFriends);
   try {
     const raw = window.localStorage.getItem(storageKey);
     if (!raw) {
@@ -182,13 +182,13 @@ function loadState(storageKey: string): PersistedAppState {
 
 const AppStateContext = createContext<AppStateContextValue | null>(null);
 
-export function AppStateProvider({ children, accountId }: { children: ReactNode; accountId: string }) {
-  return <AccountWorkspace key={accountId} accountId={accountId}>{children}</AccountWorkspace>;
+export function AppStateProvider({ children, accountId, workspace = "main", initialFriends }: { children: ReactNode; accountId: string; workspace?: string; initialFriends?: Friend[] }) {
+  return <AccountWorkspace key={`${accountId}:${workspace}`} accountId={accountId} workspace={workspace} initialFriends={initialFriends}>{children}</AccountWorkspace>;
 }
 
-function AccountWorkspace({ children, accountId }: { children: ReactNode; accountId: string }) {
-  const storageKey = workspaceStorageKey(accountId);
-  const initial = useMemo(() => loadState(storageKey), [storageKey]);
+function AccountWorkspace({ children, accountId, workspace, initialFriends }: { children: ReactNode; accountId: string; workspace: string; initialFriends?: Friend[] }) {
+  const storageKey = workspaceStorageKey(accountId, workspace);
+  const initial = useMemo(() => loadState(storageKey, initialFriends), [storageKey, initialFriends]);
   const [friends, setFriends] = useState(initial.friends);
   const [included, setIncluded] = useState(initial.included);
   const [combine, setCombine] = useState(initial.combine);
@@ -253,7 +253,7 @@ function AccountWorkspace({ children, accountId }: { children: ReactNode; accoun
   }
 
   function resetWorkspace() {
-    const next = defaultState();
+    const next = defaultState(initialFriends);
     setFriends(next.friends);
     setIncluded(next.included);
     setCombine(next.combine);

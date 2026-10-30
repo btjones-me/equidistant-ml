@@ -2,8 +2,9 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import ProductMode from "./ProductMode";
 import { AppStateProvider } from "./state/AppStateContext";
 import { type AccountSession, setActiveAccount, signOut } from "./lib/account";
-import type { ExperienceMode } from "./types";
+import type { Friend, ExperienceMode } from "./types";
 
+const fiftyPubsMode = /^\/50pubs\/?$/.test(window.location.pathname);
 const DeveloperMode = lazy(() => import("./DeveloperMode"));
 
 function AppShell({ session }: { session: AccountSession }) {
@@ -11,7 +12,7 @@ function AppShell({ session }: { session: AccountSession }) {
   return mode === "developer" && session.permissions.debug ? (
     <Suspense fallback={<p role="status">Opening diagnostics…</p>}><DeveloperMode onExit={() => setMode("explore")} /></Suspense>
   ) : (
-    <ProductMode accountEmail={session.user.email} onSignOut={signOut}
+    <ProductMode fiftyPubsMode={fiftyPubsMode} accountEmail={session.user.email} onSignOut={signOut}
       onDeveloperMode={session.permissions.debug ? () => setMode("developer") : undefined} />
   );
 }
@@ -19,6 +20,7 @@ function AppShell({ session }: { session: AccountSession }) {
 export default function App() {
   const [session, setSession] = useState<AccountSession | null>(null);
   const [error, setError] = useState(false);
+  const [preset, setPreset] = useState<Friend[]>([]);
   useEffect(() => {
     let active = true;
     let sequence = 0;
@@ -27,10 +29,17 @@ export default function App() {
       try {
         const response = await fetch("/api/session", { cache: "no-store" });
         if (!active || requestSequence !== sequence) return;
-        if (response.status === 401) { window.location.replace("/"); return; }
+        if (response.status === 401) { window.location.replace(fiftyPubsMode ? "/50pubs" : "/"); return; }
         if (!response.ok) throw new Error("Session unavailable");
         const next = await response.json() as AccountSession;
         if (!active || requestSequence !== sequence) return;
+        if (fiftyPubsMode) {
+          const presetResponse = await fetch("/api/50pubs/preset", { cache: "no-store", headers: { "X-Equidistant-Account": next.user.id } });
+          if (!presetResponse.ok) throw new Error("Preset unavailable");
+          const result = await presetResponse.json() as {friends: Friend[]};
+          if (!active || requestSequence !== sequence) return;
+          setPreset(result.friends);
+        }
         setActiveAccount(next.user.id);
         setSession(next);
         setError(false);
@@ -60,7 +69,7 @@ export default function App() {
   }, []);
   if (!session) return <main className="account-loading"><p role={error ? "alert" : "status"}>{error ? "We couldn’t check your sign-in. Please reload to try again." : "Opening your workspace…"}</p></main>;
   return (
-    <AppStateProvider key={session.user.id} accountId={session.user.id}>
+    <AppStateProvider key={session.user.id} accountId={session.user.id} workspace={fiftyPubsMode ? "50pubs" : "main"} initialFriends={preset}>
       <AppShell session={session} />
     </AppStateProvider>
   );

@@ -1,0 +1,10 @@
+{
+  "name": "equidistant-sites-workspace",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-sites-workspace.mjs",
+    "test": "npm --prefix frontend test",
+    "dev": "npm --prefix frontend run dev"
+  }
+}

@@ -146,6 +146,25 @@ test("Google callback is browser-bound, PKCE-protected, one-use, and creates an 
   assert.doesNotMatch(JSON.stringify(env.DB.sqlite.prepare("SELECT * FROM auth_sessions").all()), /one-use-code|test-client-secret/);
 });
 
+test("Google sign-in returns to 50 pubs only when selected in its browser-bound flow", async (context) => {
+  const env = testEnvironment();
+  const start = await worker.fetch(req("/auth/google/start?returnTo=%2F50pubs", ""), env);
+  const authUrl = new URL(start.headers.get("Location"));
+  const flowCookie = start.headers.get("Set-Cookie").split(";")[0];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    if (String(url) === "https://www.googleapis.com/oauth2/v3/certs") return Response.json({ keys: [publicJwk] });
+    assert.equal(String(url), "https://oauth2.googleapis.com/token");
+    return Response.json({ id_token: await token({ nonce: authUrl.searchParams.get("nonce") }) });
+  };
+  context.after(() => { globalThis.fetch = originalFetch; });
+  const callback = `/auth/google/callback?state=${encodeURIComponent(authUrl.searchParams.get("state"))}&code=one-use-code&returnTo=https://attacker.example`;
+  const done = await worker.fetch(req(callback, flowCookie), env);
+  assert.equal(done.headers.get("Location"), "/50pubs");
+  assert.ok(done.headers.getSetCookie().some(value => value.startsWith("__Host-equidistant_session=")));
+  assert.equal((await worker.fetch(req(callback, flowCookie), env)).headers.get("Location"), "/?signin=failed");
+});
+
 test("rolling quota survives a clock-hour boundary and expires at exactly 60 minutes", async () => {
   const env = testEnvironment();
   const first = Math.floor(new Date("2026-09-08T09:59:00Z").getTime() / 1000);

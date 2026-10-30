@@ -26,6 +26,7 @@ type MapViewProps = {
   showCoverageBoundary?: boolean;
   onMoveFriend?: (index: number, lat: number, lng: number) => { lat: number; lng: number } | void;
   onPlaceFriend?: (index: number, lat: number, lng: number) => void;
+  preferOpenStreetMap?: boolean;
   venues?: VenueRecommendation[];
   activeVenueId?: string | null;
   onSelectVenue?: (placeId: string) => void;
@@ -409,6 +410,7 @@ export default function MapView({
   showCoverageBoundary = false,
   onMoveFriend,
   onPlaceFriend,
+  preferOpenStreetMap = false,
   venues = [],
   activeVenueId = null,
   onSelectVenue
@@ -541,10 +543,15 @@ export default function MapView({
     }
     basemapLayerRef.current?.remove();
     labelLayerRef.current?.remove();
-    const config = basemaps[mapStyle];
-    basemapLayerRef.current = L.tileLayer(config.tiles, { attribution: basemapAttribution }).addTo(map);
-    labelLayerRef.current = L.tileLayer(config.labels, { pane: placeLabelsPaneName }).addTo(map);
-  }, [mapStyle, variant]);
+    if (preferOpenStreetMap) {
+      basemapLayerRef.current = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors', referrerPolicy: 'origin', maxZoom: 19 }).addTo(map);
+      labelLayerRef.current = null;
+    } else {
+      const config = basemaps[mapStyle];
+      basemapLayerRef.current = L.tileLayer(config.tiles, { attribution: basemapAttribution }).addTo(map);
+      labelLayerRef.current = L.tileLayer(config.labels, { pane: placeLabelsPaneName }).addTo(map);
+    }
+  }, [mapStyle, variant, preferOpenStreetMap]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -641,7 +648,8 @@ export default function MapView({
       return;
     }
 
-    const shouldFitBounds = lastFittedGridSignatureRef.current !== gridSignature;
+    const fittingSignature = preferOpenStreetMap ? `${gridSignature}:pubs:${venues.length}` : gridSignature;
+    const shouldFitBounds = lastFittedGridSignatureRef.current !== fittingSignature;
     const retainedCenter = shouldFitBounds ? null : map.getCenter();
     const retainedZoom = shouldFitBounds ? null : map.getZoom();
     const sortedLats = Array.from(new Set(cells.map((cell) => cell.lat))).sort((a, b) => a - b);
@@ -686,10 +694,10 @@ export default function MapView({
     });
 
     if (shouldFitBounds) {
-      const bounds = boundsFromCells(cells, sortedLats, sortedLngs);
+      const bounds = preferOpenStreetMap && venues.length ? L.latLngBounds([...venues, ...friends].map(point => [point.lat, point.lng] as [number, number])) : boundsFromCells(cells, sortedLats, sortedLngs);
       if (bounds.isValid()) {
         map.fitBounds(bounds.pad(0.08), { animate: false });
-        lastFittedGridSignatureRef.current = gridSignature;
+        lastFittedGridSignatureRef.current = fittingSignature;
       }
     } else if (retainedCenter && retainedZoom !== null) {
       map.setView(retainedCenter, retainedZoom, { animate: false });
@@ -706,7 +714,9 @@ export default function MapView({
     surfaceOpacity,
     surfaceValueFade,
     valueKey,
-    valueLabel
+    valueLabel,
+    preferOpenStreetMap,
+    venues
   ]);
 
   useEffect(() => {
@@ -773,7 +783,7 @@ export default function MapView({
         title: venue.name,
         icon: L.divIcon({
           className: "venue-marker-wrap",
-          html: `<span class="venue-map-marker${active ? " active" : ""}"><b>${index + 1}</b></span>`,
+          html: `<span class="venue-map-marker${active ? " active" : ""}"><b>${Number.isInteger(venue.marker_label) ? venue.marker_label : index + 1}</b></span>`,
           iconSize: [32, 38],
           iconAnchor: [16, 36],
           tooltipAnchor: [0, -31]

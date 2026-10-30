@@ -18,6 +18,8 @@ import {
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MapView from "./MapView";
 import VenueRecommendations from "./VenueRecommendations";
+import { FiftyPubsRecommendations, FiftyPubsDrawer } from "./FiftyPubs";
+import { asMapVenue, rankPubs, validatePubDataset, type PubDataset } from "./lib/fiftyPubs";
 import { accountFetch } from "./lib/account";
 import { clampToAtlasBounds, getAtlasSurface, preloadAtlas } from "./lib/atlas";
 import { locationLabelForFriend } from "./lib/locations";
@@ -94,8 +96,8 @@ function uniqueLocalPlaces(cells: SurfaceCell[], query: string): LocalPlace[] {
   return [...matches.values()];
 }
 
-export default function ProductMode({ onDeveloperMode, onSignOut, accountEmail }: {
-  onDeveloperMode?: () => void; onSignOut: () => void; accountEmail: string;
+export default function ProductMode({ onDeveloperMode, onSignOut, accountEmail, fiftyPubsMode = false }: {
+  onDeveloperMode?: () => void; onSignOut: () => void; accountEmail: string; fiftyPubsMode?: boolean;
 }) {
   const {
     friends,
@@ -120,6 +122,13 @@ export default function ProductMode({ onDeveloperMode, onSignOut, accountEmail }
     toggleFriend,
     resetWorkspace
   } = useAppState();
+  const [pubDataset, setPubDataset] = useState<PubDataset | null>(null);
+  const [pubError, setPubError] = useState<string | null>(null);
+  const [pubLoading, setPubLoading] = useState(fiftyPubsMode);
+  const [pubDrawerOpen, setPubDrawerOpen] = useState(false);
+  const [activePubId, setActivePubId] = useState<string | null>(null);
+  const closePubDrawer = useCallback(() => setPubDrawerOpen(false), []);
+  const selectPub = useCallback((id: string | null) => {setActivePubId(id); setPubDrawerOpen(true);}, []);
   const [surface, setSurface] = useState<SurfaceResponse>(emptyResponse);
   const [selectedCell, setSelectedCell] = useState<SurfaceCell | null>(null);
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(0);
@@ -145,6 +154,16 @@ export default function ProductMode({ onDeveloperMode, onSignOut, accountEmail }
     [included]
   );
   const appearancePreset = includedFriendIndexes.length <= 1 ? "single" : "group";
+  const rankedPubs = useMemo(() => rankPubs(pubDataset?.pubs ?? [], surface.cells, friends.length, includedFriendIndexes, combine, surface.metadata?.coverage_bounds), [pubDataset, surface, friends.length, includedFriendIndexes, combine]);
+  const pubMarkers = useMemo(() => (pubDataset?.pubs ?? []).map(asMapVenue), [pubDataset]);
+  useEffect(() => {
+    if (!fiftyPubsMode) return;
+    let active = true;
+    const controller = new AbortController();
+    document.title = "50 pubs · Equidistant";
+    void accountFetch("/data/50pubs.json", {signal: controller.signal}).then(async response => { if (!response.ok || !response.headers.get("Content-Type")?.includes("application/json")) throw new Error("The pub collection is unavailable. Please reload to try again."); return validatePubDataset(await response.json()); }).then(data => {if(active)setPubDataset(data);}).catch(reason => {if(active)setPubError(reason instanceof Error ? reason.message : "Could not load the pubs.");}).finally(() => {if(active)setPubLoading(false);});
+    return () => {active=false;controller.abort();};
+  }, [fiftyPubsMode]);
   const serialisedStops = useMemo(
     () => customColorStops.map(({ position, color }) => ({ position, color })).sort((a, b) => a.position - b.position),
     [customColorStops]
@@ -158,8 +177,8 @@ export default function ProductMode({ onDeveloperMode, onSignOut, accountEmail }
   const inspectedCell = selectedCell ?? suggestedCell;
   const activeStrategy = strategyOptions.find((option) => option.value === combine);
   const friendLocationLabels = useMemo(
-    () => friends.map((friend) => locationLabelForFriend(friend, surface.cells)),
-    [friends, surface.cells]
+    () => friends.map((friend) => fiftyPubsMode && friend.locationLabel?.trim() ? friend.locationLabel.trim() : locationLabelForFriend(friend, surface.cells)),
+    [friends, surface.cells, fiftyPubsMode]
   );
   const isLiveModel = surface.metadata?.source === "api";
   const modelStatusLabel = isLiveModel ? "Live model" : "Local model";
@@ -353,13 +372,13 @@ export default function ProductMode({ onDeveloperMode, onSignOut, accountEmail }
           : "Balanced travel score";
 
   return (
-    <main className="product-shell">
+    <main className={`product-shell${fiftyPubsMode ? " fifty-shell" : ""}`}>
       <header className="product-topbar">
         <div className="product-brand" aria-label="Equidistant">
           <img className="brand-mark" src="/brand/equidistant-mark-192.png" alt="" />
           <span>
             <strong>Equidistant</strong>
-            <small>London beta</small>
+            <small>{fiftyPubsMode ? "50 pubs · unlisted collection" : "London beta"}</small>
           </span>
         </div>
         <div className="topbar-actions">
@@ -389,7 +408,7 @@ export default function ProductMode({ onDeveloperMode, onSignOut, accountEmail }
               </button> : null}
               <button type="button" role="menuitem" onClick={() => { resetWorkspace(); setMenuOpen(false); }}>
                 <RotateCcw size={17} aria-hidden="true" />
-                <span><strong>Reset workspace</strong><small>Restore the sample group and map style</small></span>
+                <span><strong>Reset workspace</strong><small>{fiftyPubsMode ? "Restore your starting group and map style" : "Restore the sample group and map style"}</small></span>
               </button>
               <button type="button" role="menuitem" onClick={onSignOut}>
                 <LockKeyhole size={17} aria-hidden="true" />
@@ -403,10 +422,10 @@ export default function ProductMode({ onDeveloperMode, onSignOut, accountEmail }
       <section className="product-sidebar" aria-label="Meeting setup">
         <div className="product-intro">
           <h1>
-            <span className="product-intro-title">Meet in the middle.</span>
-            <span className="product-intro-tagline">By time, not miles.</span>
+            <span className="product-intro-title">{fiftyPubsMode ? "Meet over a pint." : "Meet in the middle."}</span>
+            <span className="product-intro-tagline">{fiftyPubsMode ? "50 great London pubs." : "By time, not miles."}</span>
           </h1>
-          <p>Add each starting point. The map shows where the group can arrive in a similar amount of time.</p>
+          <p>{fiftyPubsMode ? "Time Out’s shortlist, ranked for your group’s journey. Edit the starting points and choose your next pub." : "Add each starting point. The map shows where the group can arrive in a similar amount of time."}</p>
         </div>
 
         <section className="people-section" aria-labelledby="people-title">
@@ -504,7 +523,7 @@ export default function ProductMode({ onDeveloperMode, onSignOut, accountEmail }
           </div>
         </section>
 
-        <section className="result-card" aria-live="polite">
+        {fiftyPubsMode ? <FiftyPubsRecommendations pubs={rankedPubs} loading={loading || pubLoading} error={pubError || error} onSelect={selectPub} onBrowse={() => selectPub(null)} /> : <section className="result-card" aria-live="polite">
           <div className="result-card-heading">Suggested areas</div>
           {error ? <p className="product-error">{error}</p> : suggestedCells.length ? (
             <div className="suggestion-list">
@@ -530,9 +549,9 @@ export default function ProductMode({ onDeveloperMode, onSignOut, accountEmail }
               ))}
             </div>
           ) : <div className="result-skeleton"><span /><span /><span /></div>}
-        </section>
+        </section>}
 
-        {!error ? (
+        {!fiftyPubsMode && !error ? (
           <section className={`destination-card${selectedCell ? " selected" : ""}`} aria-live="polite">
             <div className="destination-card-heading">
               <span>{selectedCell ? "Selected destination" : "Suggested destination"}</span>
@@ -597,7 +616,7 @@ export default function ProductMode({ onDeveloperMode, onSignOut, accountEmail }
         ) : null}
       </section>
 
-      <section className={`product-map-panel${placingFriendIndex !== null ? " placing" : ""}${venueDrawerOpen ? " venues-open" : ""}`} aria-label="Travel-time map">
+      <section className={`product-map-panel${placingFriendIndex !== null ? " placing" : ""}${venueDrawerOpen || pubDrawerOpen ? " venues-open" : ""}`} aria-label="Travel-time map">
         {placingFriendIndex !== null ? <div className="placement-banner"><MapPin size={15} /> Click anywhere to move {friends[placingFriendIndex]?.name || "this friend"}</div> : null}
         <MapView
           friends={friends}
@@ -618,18 +637,19 @@ export default function ProductMode({ onDeveloperMode, onSignOut, accountEmail }
             setSelectedCell(cell);
           }}
           variant="product"
+          preferOpenStreetMap={fiftyPubsMode}
           activeFriendIndex={activeFriendIndex}
           placingFriendIndex={placingFriendIndex}
           coverageBounds={surface.metadata?.coverage_bounds}
           showCoverageBoundary={coverageFeedbackVisible}
           onMoveFriend={moveFriend}
           onPlaceFriend={placeFriend}
-          venues={venueDrawerOpen ? venues : []}
-          activeVenueId={activeVenueId}
-          onSelectVenue={setActiveVenueId}
+          venues={fiftyPubsMode ? pubMarkers : venueDrawerOpen ? venues : []}
+          activeVenueId={fiftyPubsMode ? activePubId : activeVenueId}
+          onSelectVenue={fiftyPubsMode ? selectPub : setActiveVenueId}
         />
       </section>
-      {inspectedCell ? (
+      {fiftyPubsMode ? <FiftyPubsDrawer open={pubDrawerOpen} pubs={rankedPubs} dataset={pubDataset} activeId={activePubId} friends={friends} included={included} loading={loading} onSelect={selectPub} onClose={closePubDrawer} /> : inspectedCell ? (
         <VenueRecommendations
           open={venueDrawerOpen}
           area={{ id: inspectedCell.destination_id, name: areaName, lat: inspectedCell.lat, lng: inspectedCell.lng }}

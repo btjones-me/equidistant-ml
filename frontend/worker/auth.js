@@ -15,6 +15,16 @@ export function cookieValue(request, name) {
     .map((part) => part.trim()).find((part) => part.startsWith(`${name}=`))?.slice(name.length + 1) || "";
 }
 
+// Only this exact local destination is supported. The selected destination is
+// carried in the server-stored OAuth state, not accepted from the callback URL.
+export function allowedReturnTo(value) {
+  return value === "/50pubs" ? "/50pubs" : "/";
+}
+
+function returnToForState(state) {
+  return /^[a-f0-9]{64}:50pubs$/.test(state || "") ? "/50pubs" : "/";
+}
+
 function randomToken() {
   return Array.from(crypto.getRandomValues(new Uint8Array(32)), (v) => v.toString(16).padStart(2, "0")).join("");
 }
@@ -112,7 +122,8 @@ export async function authRoute(request, env) {
     if (Number(attempt?.attempts) > 20) return new Response("Too many sign-in attempts. Please try again in a few minutes.", {
       status: 429, headers: { "Retry-After": String(Math.max(1, Number(attempt.window_started_at) + 600 - now)) }
     });
-    const flow = randomToken(), state = randomToken(), nonce = randomToken(), verifier = randomToken();
+    const returnTo = allowedReturnTo(url.searchParams.get("returnTo"));
+    const flow = randomToken(), state = randomToken() + (returnTo === "/50pubs" ? ":50pubs" : ""), nonce = randomToken(), verifier = randomToken();
     const challengeBytes = new Uint8Array(await crypto.subtle.digest("SHA-256", encoder.encode(verifier)));
     const challenge = btoa(String.fromCharCode(...challengeBytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
     await env.DB.batch([
@@ -151,7 +162,7 @@ export async function authRoute(request, env) {
       const sessionCookie = await createSession(env.DB, user, now);
       const previous = cookieValue(request, SESSION_COOKIE);
       if (previous) await env.DB.prepare("DELETE FROM auth_sessions WHERE token_hash = ?1").bind(await digest(previous)).run();
-      return redirect("/", [sessionCookie, cookie(FLOW_COOKIE, "", 0), cookie("equidistant_access", "", 0)]);
+      return redirect(returnToForState(state), [sessionCookie, cookie(FLOW_COOKIE, "", 0), cookie("equidistant_access", "", 0)]);
     } catch {
       // Never log OAuth codes, provider tokens, or callback URLs.
       return redirect("/?signin=failed", [cookie(FLOW_COOKIE, "", 0)]);
