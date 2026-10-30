@@ -101,3 +101,70 @@ test("canonical redirects preserve only the special local route, never callback 
   const response = await worker.fetch(new Request("https://old.example/50pubs?private=value"), presetEnv());
   assert.equal(response.headers.get("Location"), "https://example.test/50pubs");
 });
+
+
+test("explicit authenticated audience shares only the validated initial preset with every signed-in account", async () => {
+  const env = { ...presetEnv(), FIFTY_PUBS_PRESET_AUDIENCE: "authenticated" };
+  const otherUser = { id: "different-account", email: "other@example.test", name: "Other" };
+  const cookie = (await createSession(env.DB, otherUser)).split(";")[0];
+  const response = await worker.fetch(request("/api/50pubs/preset", cookie, {
+    headers: { "X-Equidistant-Account": otherUser.id }
+  }), env);
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { friends: fixture });
+  assert.match(response.headers.get("Cache-Control"), /private, no-store/);
+  assert.equal(response.headers.get("Vary"), "Cookie");
+  assert.equal(response.headers.get("X-Robots-Tag"), "noindex");
+  assert.deepEqual(privateFiftyPubsPreset(otherUser, { ...env, FIFTY_PUBS_OWNER_EMAIL: "" }), fixture);
+  // Shared initialization is not an API for saving or sharing later local edits.
+  const write = await worker.fetch(request("/api/50pubs/preset", cookie, {
+    method: "POST", body: JSON.stringify({ friends: [{ ...fixture[0], name: "Not shared" }] })
+  }), env);
+  assert.equal(write.status, 404);
+  assert.deepEqual(await (await worker.fetch(request("/api/50pubs/preset", testCookie), env)).json(), { friends: fixture });
+});
+
+test("shared preset audience never bypasses authentication or account-change checks", async () => {
+  const env = { ...presetEnv(), FIFTY_PUBS_PRESET_AUDIENCE: "authenticated" };
+  for (const cookie of ["", "equidistant_access=legacy", `__Host-equidistant_session=${"b".repeat(64)}`]) {
+    const response = await worker.fetch(request("/api/50pubs/preset", cookie, {
+      headers: { "X-Admin": "true", "oai-authenticated-user-email": testUser.email, "X-Equidistant-Account": testUser.id }
+    }), env);
+    assert.equal(response.status, 401);
+    assert.doesNotMatch(await response.text(), /Example & Partner|Another & Partner/);
+  }
+  const stale = await worker.fetch(request("/api/50pubs/preset", testCookie, {
+    headers: { "X-Equidistant-Account": "different-account" }
+  }), env);
+  assert.equal(stale.status, 409);
+  assert.doesNotMatch(await stale.text(), /Example & Partner|Another & Partner/);
+  for (const invalid of [null, undefined, {}, { email: testUser.email }, { id: "", email: testUser.email }, { id: "one", email: "" }]) {
+    assert.deepEqual(privateFiftyPubsPreset(invalid, env), []);
+  }
+  assert.deepEqual(privateFiftyPubsPreset(testUser, { ...env, FIFTY_PUBS_PRESET_JSON: "not json" }), []);
+  assert.deepEqual(privateFiftyPubsPreset(testUser, { ...env, FIFTY_PUBS_PRESET_JSON: JSON.stringify([{ ...fixture[0], lat: 80 }]) }), []);
+});
+
+test("unknown or absent preset audience stays owner-only and cannot be selected through request headers", async () => {
+  const otherUser = { id: "different-account", email: "other@example.test", name: "Other" };
+  for (const audience of [undefined, "", "public", "all", "AUTHENTICATED", " authenticated", true]) {
+    const env = { ...presetEnv(), FIFTY_PUBS_PRESET_AUDIENCE: audience };
+    assert.deepEqual(privateFiftyPubsPreset(otherUser, env), []);
+    assert.deepEqual(privateFiftyPubsPreset(testUser, env), fixture);
+  }
+  const env = presetEnv();
+  const cookie = (await createSession(env.DB, otherUser)).split(";")[0];
+  const response = await worker.fetch(request("/api/50pubs/preset?audience=authenticated", cookie, {
+    headers: { "FIFTY_PUBS_PRESET_AUDIENCE": "authenticated", "X-Preset-Audience": "authenticated" }
+  }), env);
+  assert.deepEqual(await response.json(), { friends: [] });
+});
+
+test("privacy notice explains shared initial-group exposure and keeps later edits account-local", async () => {
+  const response = await worker.fetch(request("/privacy", ""), presetEnv());
+  const html = await response.text();
+  assert.match(html, /any signed-in Equidistant user who opens that collection/);
+  assert.match(html, /not only people sent its link/);
+  assert.match(html, /later changes remain in your account's browser workspace and are not shared/);
+  assert.doesNotMatch(html, /Example & Partner|Another & Partner/);
+});

@@ -1306,11 +1306,14 @@ async function placePhoto(request, env, ctx) {
   }
 }
 
-// Runtime-only owner data: never embed personal origins in the public source or
-// client bundle. The app's admin role is deliberately not sufficient here.
+// Runtime-only preset data: never embed personal origins in the public source or
+// client bundle. The default is owner-only; the explicit authenticated audience
+// shares only these initial values, not anyone's later local workspace edits.
 export function privateFiftyPubsPreset(user, env) {
+  if (typeof user?.id !== "string" || !user.id || typeof user.email !== "string" || !user.email) return [];
   const owner = typeof env.FIFTY_PUBS_OWNER_EMAIL === "string" ? env.FIFTY_PUBS_OWNER_EMAIL.trim().toLowerCase() : "";
-  if (!owner || typeof user?.email !== "string" || user.email.toLowerCase() !== owner) return [];
+  const sharedWithSignedInUsers = env.FIFTY_PUBS_PRESET_AUDIENCE === "authenticated";
+  if (!sharedWithSignedInUsers && (!owner || user.email.toLowerCase() !== owner)) return [];
   try {
     const friends = JSON.parse(env.FIFTY_PUBS_PRESET_JSON || "null");
     if (!Array.isArray(friends) || friends.length < 1 || friends.length > 6) return [];

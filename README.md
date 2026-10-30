@@ -248,12 +248,20 @@ This is not a live-routing service.
 
 The route is unlisted, omitted from the sitemap and marked noindex, **not** a
 separate security boundary. Any signed-in user who knows it may open it. An optional
-starting-group preset is delivered only to the exact runtime
-`FIFTY_PUBS_OWNER_EMAIL`; set `FIFTY_PUBS_PRESET_JSON` to a JSON array of 1–6
-`{id, name, locationLabel, lat, lng}` records. Both settings must be secret runtime
-values, never source-controlled. Other accounts receive no owner preset. Workspace
-edits persist by account and collection in the browser and do not replace the
-normal planner's group. Reset restores that account's initial collection group.
+starting-group preset stays in protected runtime configuration, never in public
+source or client bundles. By default it is delivered only to the exact runtime
+`FIFTY_PUBS_OWNER_EMAIL`. `FIFTY_PUBS_PRESET_JSON` is a JSON array of 1–6
+`{id, name, locationLabel, lat, lng}` records. Explicitly setting
+`FIFTY_PUBS_PRESET_AUDIENCE=authenticated` makes that initial preset available to
+**every signed-in Equidistant user who discovers `/50pubs`**, not only people
+who receive a link. Set this only with the preset owner's explicit permission.
+Any absent or other audience value retains owner-only behavior. The shared
+setting does not bypass Google authentication, account-change checks, preset
+validation, or private/no-store response headers. It does not share subsequent
+workspace edits. Edits persist separately by account and collection in each
+browser and do not replace the normal planner's group. Reset restores that
+account's configured initial collection group. Existing saved workspaces remain
+unchanged until their user resets them.
 
 Public venue data lives in `frontend/public/data/50pubs.json`, with source links,
 original concise descriptions and photo credits/licences. Full editorial reviews
